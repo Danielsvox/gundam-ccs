@@ -72,6 +72,13 @@ Gundam Ccs combines the precision and attention to detail that Gundam model buil
 - **Beginners**: Easy-to-use interface for those new to Gundam models
 - **Veterans**: Advanced search and filtering for experienced collectors
 
+## 👨‍💻 Developer
+
+**Carlos Daniel** - Full Stack Developer
+
+- **LinkedIn**: [Carlos Daniel](https://www.linkedin.com/in/carlos-daniel-441685161/)
+- **GitHub**: [@Danielsvox](https://github.com/Danielsvox)
+
 ---
 
 *Gundam Ccs is a demonstration project showcasing modern React development practices and e-commerce design principles. All Gundam-related content and imagery are property of their respective owners and used for educational purposes only.*
