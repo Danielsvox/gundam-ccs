@@ -1,0 +1,85 @@
+.gridContainer {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-auto-rows: minmax(320px, auto);
+    grid-gap: 20px;
+    padding-bottom: 50px;
+}
+
+.noGrid {
+    padding-top: 35px;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    max-width: 500px;
+    gap: 20px;
+    padding-bottom: 50px;
+    align-items: center;
+}
+
+.reviews {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.reviews h2 {
+    font-size: 3em;
+    font-family: "GT Bold";
+    color: white;
+}
+
+.reviews h3 {
+    color: #ccc;
+}
+
+@media screen and (max-width: 1450px) {
+    .gridContainer {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
+@media screen and (max-width: 1240px) {
+    .gridContainer {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+
+@media screen and (max-width: 770px) {
+    .gridContainer {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .noGrid {
+        max-width: 400px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .gridContainer {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .noGrid {
+        max-width: 350px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+@media screen and (max-width: 475px) {
+    .gridContainer {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .noGrid {
+        max-width: 300px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
