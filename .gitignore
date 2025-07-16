@@ -37,5 +37,4 @@ src/Resources/fonts/*.zip
 # Large preview images
 src/Resources/image/preview*.png
 
-# Font files (too large for git)
-src/Resources/fonts/walsheim/*.ttf
+# Font files are now included in the repository

@@ -12,9 +12,32 @@ code {
     monospace;
 }
 
-/* Using system fonts instead of custom fonts to reduce repository size */
-/* GT Medium -> system-ui */
-/* GT Regular -> system-ui */
-/* GT Light -> system-ui */
-/* GT Bold -> system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif */
-/* GT Ultrabold -> system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif */
+@font-face {
+  font-family: "GT Medium";
+  src: local("GT Medium"),
+    url('./Resources/fonts/walsheim/GTWalsheimPro-Medium.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: "GT Regular";
+  src: local("GT Regular"),
+    url('./Resources/fonts/walsheim/GTWalsheimPro-Regular.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: "GT Light";
+  src: local("GT Light"),
+    url('./Resources/fonts/walsheim/GTWalsheimPro-Light.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: "GT Bold";
+  src: local("GT Bold"),
+    url('./Resources/fonts/walsheim/GTWalsheimPro-Bold.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: "GT Ultrabold";
+  src: local("GT Ultrabold"),
+    url('./Resources/fonts/walsheim/GTWalsheimPro-UltraBold.ttf') format("truetype");
+}
