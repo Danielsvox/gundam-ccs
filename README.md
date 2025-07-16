@@ -1,56 +1,77 @@
 <h1 align="center">🤖 Gundam Ccs</h1>
 
-![](/src/Resources/image/preview1.png)
 <p align="center">
-  Gundam Model Kit Ccs built with React
+  <strong>Your Ultimate Destination for Premium Gundam Model Kits</strong>
 </p>
 
-## Short Description
-An e-commerce store, imitating a Gundam Model Kit Ccs, built with React. Includes dedicated gundam pages, a search functionality, grade and rating filters, a like feature and a wishlist. Responsive to the bone and tested with Jest. You can find a list of [features](#features), [performance tests](#performance) and [technologies used](#technologies-used) below.
+## What is Gundam Ccs?
 
-## 🔴 Demo
-🧪 [Live Demo](https://gianlucajahn.github.io/react-ecommerce-store) available. Click "Live Demo" to open it.
+Gundam Ccs is a modern, interactive e-commerce platform designed specifically for Gundam enthusiasts and model kit collectors. It's not just another online store—it's a curated experience that brings the world of Gundam model kits to life through beautiful design, intuitive navigation, and powerful search capabilities.
 
-## Showcase
-You can see images and a GIF of the project in user interaction below. The user starts on the landing page, navigates through the browse section, selects a gundam model kit, adds it to their cart and opens the cart. The GIF does not show all features of the shop, it only shows the most elementary user interactions. <br /> <br />
+## 🎯 What This Website Does
 
-![](/src/Resources/image/preview0.png)
-![](/src/Resources/image/preview1.png)
-![](/src/Resources/image/preview2.png)
-![](/src/Resources/image/preview3.png)
-![](/src/Resources/image/preview4.png)
-![](/src/Resources/image/showcase.gif)
+### **Browse & Discover**
+- **Comprehensive Catalog**: Explore a carefully curated collection of Gundam model kits from various series
+- **Smart Filtering**: Find exactly what you're looking for with filters by genre (Action, Strategy, RPG, Shooter, Adventure, Puzzle, Racing, Sports)
+- **Advanced Search**: Search by model name, series, or any keyword to discover your next build
+- **Visual Grid/List Views**: Switch between grid and list layouts to browse your way
 
-## Performance
-I let [Google Lighthouse](https://chrome.google.com/webstore/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk?hl=de) run over my application to check for it's **performance, accessibility, use of best practices and SEO optimization**. You can view the results right below this paragraph.
+### **Personalized Experience**
+- **Wishlist Management**: Save your favorite models for later with our intuitive wishlist feature
+- **Rating System**: See community ratings and reviews to make informed decisions
+- **Like & Save**: Build your personal collection by liking and saving models you love
+- **Random Discovery**: Use the "Play Dice" feature to discover random models and expand your horizons
 
-![Google Lighthouse Performance Results](https://i.ibb.co/qkXkY5W/report1.png)
+### **Shopping Experience**
+- **Smart Cart System**: Add models to your cart with one click, manage quantities, and track your total
+- **Real-time Updates**: See cart updates instantly with smooth animations
+- **Responsive Design**: Shop seamlessly on desktop, tablet, or mobile devices
+- **Quick Navigation**: Access all features through our intuitive navigation system
 
-## Motivation
-My motivations in building this project were showcasing what I learned so far and to have somewhat of a "sandbox" to experiment and build within. I was able to learn new libraries and I had to be creative with ways to improve my application's performance. I also believed that building a project with a much bigger codebase than my preceding ones and learning how to organize such a codebase could set me off better for work in a business environment - and it did.
+### **Visual Design**
+- **RX-78-2 Themed**: Features the iconic RX-78-2 Gundam as the centerpiece background
+- **Modern UI**: Clean, professional interface with smooth animations powered by Framer Motion
+- **Custom Typography**: Beautiful GT Walsheim fonts for a premium feel
+- **Dark Theme**: Easy on the eyes with a sophisticated dark color scheme
 
-## Features
-- Expressive, responsive and clear UI/UX
-- Extensive unit and integration tests to ensure intentional behaviour
-- Search any gundam model kit you want
-- Filters to sort after grades and ratings
-- Like & Wishlist feature to track your personal wishlist
-- Smooth Animations with Framer Motion
-- Quick Navigation to view all parts of the project without having to click through it
+## 🚀 Key Features
 
-## Technologies Used
-- React
-- React Router Dom
-- Framer Motion
-- Jest
-- CSS
-- Git
-- CDN 
+- **Responsive Design**: Works perfectly on all devices and screen sizes
+- **Smooth Animations**: Fluid transitions and micro-interactions enhance user experience
+- **Search & Filter**: Powerful search functionality with multiple filter options
+- **Cart Management**: Full-featured shopping cart with real-time updates
+- **Wishlist System**: Save and organize your favorite models
+- **Performance Optimized**: Fast loading times and smooth interactions
+- **Accessibility**: Built with accessibility best practices in mind
 
-## What I learned:
-- Using motion libraries (e.g. Framer Motion) to achieve much smoother user experiences while maintaining clean code
-- Working with a CDN (Cloud Delivery Network) to improve performance by accelerating bundle delivery
-- organizing and connecting a project with React Router Dom
+## 🛠 Built With
 
-## Credits
-All rights to all pictures, products and names on this website belong to the respective publishers of the gundam model kits displayed. I only used them to build an environment for myself to learn coding in React with. This page is not being used commercially. If you are an owner of the copyrighted material, please let me know if you have any issues with this page and I'll take it down immediately.
+- **React 18** - Modern React with hooks and functional components
+- **React Router** - Client-side routing for smooth navigation
+- **Framer Motion** - Beautiful animations and transitions
+- **CSS Modules** - Scoped styling for maintainable code
+- **Jest** - Comprehensive testing suite
+- **Git** - Version control and collaboration
+
+## 🎨 Design Philosophy
+
+Gundam Ccs combines the precision and attention to detail that Gundam model building requires with modern web design principles. Every interaction is crafted to feel smooth and intentional, just like the careful assembly of a perfect model kit.
+
+## 🔧 Technical Highlights
+
+- **Component Architecture**: Modular, reusable components for maintainable code
+- **State Management**: Efficient state handling with React hooks
+- **Performance**: Optimized for speed with lazy loading and efficient rendering
+- **Testing**: Comprehensive test coverage ensuring reliability
+- **Responsive**: Mobile-first design that scales beautifully
+
+## 🎯 Perfect For
+
+- **Gundam Enthusiasts**: Find and collect your favorite mobile suits
+- **Model Kit Collectors**: Discover new additions to your collection
+- **Beginners**: Easy-to-use interface for those new to Gundam models
+- **Veterans**: Advanced search and filtering for experienced collectors
+
+---
+
+*Gundam Ccs is a demonstration project showcasing modern React development practices and e-commerce design principles. All Gundam-related content and imagery are property of their respective owners and used for educational purposes only.*
