@@ -8,12 +8,13 @@ import './Resources/fonts/walsheim/GTWalsheimPro-Regular.ttf';
 import './Resources/fonts/walsheim/GTWalsheimPro-Light.ttf';
 import './Resources/fonts/walsheim/GTWalsheimPro-Bold.ttf';
 import { BrowserRouter } from 'react-router-dom';
+import './i18n';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-        <App />
+      <App />
     </BrowserRouter>
   </React.StrictMode>
 );

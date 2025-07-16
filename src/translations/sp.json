@@ -1,0 +1,82 @@
+{
+    "nav": {
+        "brand": "Gundam Ccs",
+        "browse": "Explorar Ccs",
+        "search": "Buscar gundams...",
+        "cart": "Carrito",
+        "user": "gianlucajahn"
+    },
+    "home": {
+        "title": "Gundam Ccs",
+        "subtitle": "El mejor destino para comprar kits de modelos Gundam a precios competitivos. Soporte 24 horas, garantía de \"mejor precio\" y una UX impecable. ¿Quieres más? Dínoslo abajo — o revisa nuestras carreras.",
+        "browse": "Explorar",
+        "playDice": "Jugar Dados",
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "quickNav": "Navegación Rápida",
+        "gundamPage": "Página Gundam",
+        "notFoundPage": "Página 404",
+        "notFoundQuery": "Consulta 404",
+        "commitLog": "Registro de Commits",
+        "performance": "Rendimiento",
+        "technologies": "Tecnologías",
+        "sources": "Nuestras Fuentes"
+    },
+    "browse": {
+        "title": "Tendencias e interesante",
+        "subtitle": "Basado en popularidad y calificaciones",
+        "filterBy": "Filtrar por:",
+        "clearFilter": "Limpiar Filtro",
+        "displayOptions": "Opciones de visualización:",
+        "noReviews": "¡Aún no hay reseñas!",
+        "reviewsSoon": "Podrás agregar algunas, pronto."
+    },
+    "filters": {
+        "title": "Filtros",
+        "wishlist": "Lista de Deseos",
+        "ratings": "Calificaciones",
+        "reviews": "Reseñas",
+        "genres": "Géneros",
+        "action": "Acción",
+        "strategy": "Estrategia",
+        "rpg": "RPG",
+        "shooter": "Disparos",
+        "adventure": "Aventura",
+        "puzzle": "Puzzle",
+        "racing": "Carreras",
+        "sports": "Deportes"
+    },
+    "cart": {
+        "title": "Carrito",
+        "empty": "Tu carrito está vacío",
+        "total": "Total:",
+        "checkout": "Pagar",
+        "clearCart": "Vaciar Carrito",
+        "remove": "Eliminar"
+    },
+    "card": {
+        "addToCart": "Agregar al Carrito",
+        "addedToCart": "Agregado al Carrito",
+        "like": "Me Gusta"
+    },
+    "gamePage": {
+        "addToCart": "Agregar al Carrito",
+        "description": "Descripción",
+        "specifications": "Especificaciones",
+        "reviews": "Reseñas",
+        "related": "Productos Relacionados"
+    },
+    "notFound": {
+        "title": "404 - Página No Encontrada",
+        "message": "La página que buscas no existe.",
+        "goHome": "Ir al Inicio",
+        "goBack": "Volver"
+    },
+    "footer": {
+        "copyright": "© 2024 Gundam Ccs. Todos los derechos reservados."
+    },
+    "language": {
+        "en": "EN",
+        "sp": "SP"
+    }
+}

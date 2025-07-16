@@ -7,8 +7,12 @@ import { ReactComponent as GitHub } from "../../Resources/image/github.svg";
 import { ReactComponent as Search } from "../../Resources/image/search.svg";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 
 const NavBar = props => {
+  const { t } = useTranslation();
+
   const {
     handleHover,
     hoverState,
@@ -54,7 +58,7 @@ const NavBar = props => {
             onClick={handleHome}
           >
             <Logo className={styles.svg} style={{ fill: "#fff" }} />
-            <h3>Gundam Ccs</h3>
+            <h3>{t('nav.brand')}</h3>
           </div>
 
           <div className={styles.pathdiv} id="1"
@@ -72,7 +76,7 @@ const NavBar = props => {
                 >
                   <form onSubmit={handleSearchSubmit}>
                     <input
-                      placeholder="Search gundams..."
+                      placeholder={t('nav.search')}
                       value={search}
                       onChange={handleSearch}
                     >
@@ -103,13 +107,15 @@ const NavBar = props => {
                 <Browse
                   className={styles.svg}
                   style={{ fill: "#fff" }} />
-                <h3 onClick={handleBrowse}>Browse Ccs</h3>
+                <h3 onClick={handleBrowse}>{t('nav.browse')}</h3>
               </div>
             }
           </div>
         </div>
 
         <div className={styles.navbar_right}>
+          <LanguageSwitcher />
+
           <div
             className={styles.githubdiv}
             id="2"
@@ -117,7 +123,7 @@ const NavBar = props => {
             onMouseLeave={handleHover}
           >
             <GitHub className={styles.gh} />
-            <h3>gianlucajahn</h3>
+            <h3>{t('nav.user')}</h3>
           </div>
 
           <div
@@ -132,7 +138,7 @@ const NavBar = props => {
               className={styles.svg2}
               style={{ fill: cartAmount ? "#90ee90" : "transparent", stroke: cartAmount ? "" : "#fff", strokeWidth: "34px" }}
             />
-            <h3 onClick={handleOpenCart}>Cart: {cartAmount}</h3>
+            <h3 onClick={handleOpenCart}>{t('nav.cart')}: {cartAmount}</h3>
           </div>
         </div>
       </motion.div>

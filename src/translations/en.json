@@ -1,0 +1,82 @@
+{
+    "nav": {
+        "brand": "Gundam Ccs",
+        "browse": "Browse Ccs",
+        "search": "Search gundams...",
+        "cart": "Cart",
+        "user": "gianlucajahn"
+    },
+    "home": {
+        "title": "Gundam Ccs",
+        "subtitle": "The best destination to buy Gundam model kits at competitive prices. 24 hour support, \"best price\" guarantee and a flawless UX. Wish for more? Tell us below — or check out our careers.",
+        "browse": "Browse",
+        "playDice": "Play Dice",
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "quickNav": "Quick Navigation",
+        "gundamPage": "Gundam Page",
+        "notFoundPage": "404 Page",
+        "notFoundQuery": "404 Query",
+        "commitLog": "Commit Log",
+        "performance": "Performance",
+        "technologies": "Technologies",
+        "sources": "Our Sources"
+    },
+    "browse": {
+        "title": "Trending and interesting",
+        "subtitle": "Based on popularity and ratings",
+        "filterBy": "Filter by:",
+        "clearFilter": "Clear Filter",
+        "displayOptions": "Display options:",
+        "noReviews": "There are no reviews yet!",
+        "reviewsSoon": "You can add some, soon."
+    },
+    "filters": {
+        "title": "Filters",
+        "wishlist": "Wishlist",
+        "ratings": "Ratings",
+        "reviews": "Reviews",
+        "genres": "Genres",
+        "action": "Action",
+        "strategy": "Strategy",
+        "rpg": "RPG",
+        "shooter": "Shooter",
+        "adventure": "Adventure",
+        "puzzle": "Puzzle",
+        "racing": "Racing",
+        "sports": "Sports"
+    },
+    "cart": {
+        "title": "Cart",
+        "empty": "Your cart is empty",
+        "total": "Total:",
+        "checkout": "Checkout",
+        "clearCart": "Clear Cart",
+        "remove": "Remove"
+    },
+    "card": {
+        "addToCart": "Add to Cart",
+        "addedToCart": "Added to Cart",
+        "like": "Like"
+    },
+    "gamePage": {
+        "addToCart": "Add to Cart",
+        "description": "Description",
+        "specifications": "Specifications",
+        "reviews": "Reviews",
+        "related": "Related Products"
+    },
+    "notFound": {
+        "title": "404 - Page Not Found",
+        "message": "The page you're looking for doesn't exist.",
+        "goHome": "Go Home",
+        "goBack": "Go Back"
+    },
+    "footer": {
+        "copyright": "© 2024 Gundam Ccs. All rights reserved."
+    },
+    "language": {
+        "en": "EN",
+        "sp": "SP"
+    }
+}
