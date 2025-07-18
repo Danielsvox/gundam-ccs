@@ -1,12 +1,13 @@
 {
-  "name": "gundam-ccs",
+  "name": "gundam-ccs-frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://danielsvox.github.io/react-ecommerce-store/",
+  "homepage": "https://danielsvox.github.io/gundam-ccs-frontend/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.10.0",
     "framer-motion": "^6.4.3",
     "i18next": "^25.3.2",
     "i18next-browser-languagedetector": "^8.2.0",
