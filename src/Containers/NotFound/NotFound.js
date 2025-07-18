@@ -28,7 +28,7 @@ const NotFound = props => {
     handleSearch,
     handleSearchSubmit,
     handleRemoveFromCart,
-    openGamePage
+    openGundamPage
   } = props;
   const location = useLocation();
 
@@ -59,7 +59,7 @@ const NotFound = props => {
         hoverState={hoverState}
         clearCart={clearCart}
         handleRemoveFromCart={handleRemoveFromCart}
-        openGamePage={openGamePage}
+        openGundamPage={openGundamPage}
       /> : null}
 
       <NavBar

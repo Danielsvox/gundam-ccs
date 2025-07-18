@@ -5,7 +5,7 @@ import { ReactComponent as GitHubLogo } from "../../Resources/image/githublogo.s
 import { ReactComponent as Enter } from "../../Resources/image/enter.svg";
 import { ReactComponent as Dice } from "../../Resources/image/dice.svg";
 import { ReactComponent as LinkedIn } from "../../Resources/image/linkedin.svg";
-import { ReactComponent as Game } from "../../Resources/image/game.svg";
+import { ReactComponent as Browse } from "../../Resources/image/browse.svg";
 import { ReactComponent as NotFound } from "../../Resources/image/notfound.svg";
 import { ReactComponent as NotFoundQuery } from "../../Resources/image/notfoundquery.svg";
 import { ReactComponent as Git } from "../../Resources/image/git.svg";
@@ -169,7 +169,7 @@ const Home = props => {
             <div className={styles.buttonsRight}>
               <h2>{t('home.quickNav')}</h2>
               <button className={styles.cta} onClick={handleNavGundamPage} aria-label="Open a gundam page">
-                <Game className={styles.ctaSVG} />
+                <Browse className={styles.ctaSVG} />
                 {t('home.gundamPage')}
               </button>
               <button className={styles.cta} onClick={handleNavNotFoundPage} aria-label="Open 404 page">

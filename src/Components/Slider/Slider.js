@@ -7,7 +7,7 @@ import { ReactComponent as Dot } from "../../Resources/image/dot.svg";
 import { useLocation } from 'react-router-dom';
 import "react-slideshow-image/dist/styles.css";
 import { Slide } from "react-slideshow-image";
-import templateGame from '../../utils/templateGame';
+import templateGundam from '../../utils/templateGame';
 
 const Slider = props => {
   const {
@@ -48,10 +48,10 @@ const Slider = props => {
   ];
 
   const templateImages = [
-    templateGame.footage[0],
-    templateGame.footage[1],
-    templateGame.footage[2],
-    templateGame.footage[3]
+    templateGundam.footage[0],
+    templateGundam.footage[1],
+    templateGundam.footage[2],
+    templateGundam.footage[3]
   ]
 
   const back = () => {

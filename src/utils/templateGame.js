@@ -1,14 +1,14 @@
-const templateGame = {
+const templateGundam = {
     name: "Gundam not found",
     surname: "404",
     price: "??.??",
     desc: 'The gundam model kit you tried to look for has not been found within our database. You can find a full list of our featured gundam model kits in the browse section on our shop. Click the Store button in the top left corner to get back to the browse section. To avoid similar issues in the future, please do not try to access gundam pages by typing gundam names into the URL. The gundam might be called slightly different in our database, resulting in an error when trying to fetch the page data.',
-    link: 'https://gianlucajahn.github.io/react-ecommerce-store/browse',
+    link: 'https://danielsvox.github.io/gundam-ccs/browse',
     release: 'No release date found',
-    platforms: 'None',
-    genre: 'None',
-    developers: 'None',
-    publishers: 'None',
+    scale: 'None',
+    category: 'None',
+    manufacturer: 'None',
+    publisher: 'None',
     inCart: false,
     selected: false,
     isHovered: false,
@@ -24,4 +24,4 @@ const templateGame = {
     ]
 }
 
-export default templateGame;
+export default templateGundam;

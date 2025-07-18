@@ -35,6 +35,88 @@ body {
 .filterList {
     display: flex;
     gap: 8px;
+    align-items: center;
+}
+
+.dropdownContainer {
+    position: relative;
+}
+
+.dropdownButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 22px;
+    height: 40px;
+    background-color: #262626;
+    color: #fff;
+    font-family: "GT Light";
+    font-size: 0.95em;
+    border: 1px transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.dropdownButton:hover {
+    background-color: #2d2d2d;
+}
+
+.dropdownIcon {
+    width: 16px;
+    height: 16px;
+    fill: #fff;
+}
+
+.dropdownArrow {
+    width: 12px;
+    height: 12px;
+    fill: #fff;
+    transition: transform 0.3s;
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    background-color: #262626;
+    border-radius: 10px;
+    padding: 8px 0;
+    min-width: 200px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-family: "GT Light";
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: left;
+}
+
+.dropdownItem:hover {
+    background-color: #2d2d2d;
+}
+
+.dropdownItem.active {
+    background-color: #3d3d3d;
+    color: #fff;
+}
+
+.dropdownItemIcon {
+    width: 14px;
+    height: 14px;
+    fill: #fff;
 }
 
 .clearButton {
@@ -158,6 +240,14 @@ body {
         width: 100%;
         padding: 20px 20px 0px 20px;
     }
+
+    .filterList {
+        flex-wrap: wrap;
+    }
+
+    .dropdownMenu {
+        min-width: 180px;
+    }
 }
 
 @media screen and (max-width: 600px) {
@@ -168,6 +258,16 @@ body {
 
     .list h1 {
         font-size: 48px;
+    }
+
+    .dropdownButton {
+        font-size: 0.85em;
+        padding: 6px 16px;
+    }
+
+    .dropdownItem {
+        font-size: 0.85em;
+        padding: 6px 12px;
     }
 }
 
@@ -184,6 +284,10 @@ body {
 
 @media screen and (max-width: 320px) {
     .filterButton {
+        font-size: 12px;
+    }
+
+    .dropdownButton {
         font-size: 12px;
     }
 }

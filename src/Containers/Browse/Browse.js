@@ -6,6 +6,8 @@ import { AnimatePresence } from "framer-motion";
 import AnimatedPage from '../AnimatedPage/AnimatedPage';
 import { ReactComponent as Grids } from "../../Resources/image/grid.svg";
 import { ReactComponent as Columns } from "../../Resources/image/columns.svg";
+import { ReactComponent as BrowseIcon } from "../../Resources/image/browse.svg";
+import { ReactComponent as Down } from "../../Resources/image/down.svg";
 import Filters from '../../Components/Filters/Filters';
 import Grid from '../../Components/Grid/Grid';
 import gundams from '../../utils/gundams';
@@ -53,6 +55,16 @@ const Browse = props => {
   const navigate = useNavigate();
   const [landingPage, setLandingPage] = useState(false);
   const [grid, setGrid] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const categories = [
+    { id: "11", name: "High Grade", translationKey: "filters.highGrade" },
+    { id: "12", name: "Master Grade", translationKey: "filters.masterGrade" },
+    { id: "13", name: "Perfect Grade", translationKey: "filters.perfectGrade" },
+    { id: "14", name: "Real Grade", translationKey: "filters.realGrade" },
+    { id: "15", name: "Full Mechanics", translationKey: "filters.fullMechanics" },
+    { id: "16", name: "Ver.Ka", translationKey: "filters.verKa" }
+  ];
 
   const handleLayoutSwitch = (e) => {
     if (e.target.id == "grid") {
@@ -62,15 +74,46 @@ const Browse = props => {
     }
   }
 
+  const handleCategorySelect = (category) => {
+    handleSelect({ target: { id: category.id } });
+    setDropdownOpen(false);
+  }
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setDropdownOpen(false);
+    }
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen && !event.target.closest(`.${styles.dropdownContainer}`)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
   useEffect(() => {
     if (currentFilter == "none") {
       setShownGundams(allGundams);
 
     } else if (currentFilter != "Ratings" && currentFilter != "Reviews" && currentFilter != "Wishlist") {
+      // Filter by category while maintaining original order
       let filteredShownGundams = allGundams.filter(gundam => gundam.genre === currentFilter);
       setShownGundams(filteredShownGundams);
 
     } else if (currentFilter === "Ratings") {
+      // Only sort by ratings when explicitly requested
       let filteredShownGundams = allGundams.slice(0);
       filteredShownGundams = filteredShownGundams.sort(function (a, b) {
         return b.rating - a.rating;
@@ -81,6 +124,7 @@ const Browse = props => {
       setReviewDisplay(true);
 
     } else if (currentFilter === "Wishlist") {
+      // Filter liked items while maintaining original order
       let filteredShownGundams = allGundams.filter(gundam => gundam.isLiked === true);
       setShownGundams(filteredShownGundams);
     }
@@ -156,6 +200,42 @@ const Browse = props => {
 
             <div className={styles.applied}>
               <div className={styles.filterList}>
+                <div className={styles.dropdownContainer}>
+                  <button
+                    className={styles.dropdownButton}
+                    onClick={toggleDropdown}
+                    onKeyDown={handleKeyDown}
+                    aria-label="Select category"
+                    aria-expanded={dropdownOpen}
+                  >
+                    <BrowseIcon className={styles.dropdownIcon} />
+                    {currentFilter !== "none" && currentFilter !== "Ratings" && currentFilter !== "Reviews" && currentFilter !== "Wishlist"
+                      ? currentFilter
+                      : t('filters.categories')
+                    }
+                    <Down
+                      className={styles.dropdownArrow}
+                      style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    />
+                  </button>
+
+                  {dropdownOpen && (
+                    <div className={styles.dropdownMenu}>
+                      {categories.map((category) => (
+                        <button
+                          key={category.id}
+                          className={`${styles.dropdownItem} ${currentFilter === category.name ? styles.active : ''}`}
+                          onClick={() => handleCategorySelect(category)}
+                          aria-label={`Select ${category.name}`}
+                        >
+                          <BrowseIcon className={styles.dropdownItemIcon} />
+                          {t(category.translationKey)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <button
                   className={styles.filterButton}
                   aria-label="Current Filter"

@@ -36,15 +36,13 @@
         "wishlist": "Wishlist",
         "ratings": "Ratings",
         "reviews": "Reviews",
-        "genres": "Genres",
-        "action": "Action",
-        "strategy": "Strategy",
-        "rpg": "RPG",
-        "shooter": "Shooter",
-        "adventure": "Adventure",
-        "puzzle": "Puzzle",
-        "racing": "Racing",
-        "sports": "Sports"
+        "categories": "Categories",
+        "realGrade": "Real Grade",
+        "masterGrade": "Master Grade",
+        "perfectGrade": "Perfect Grade",
+        "fullMechanics": "Full Mechanics",
+        "verKa": "Ver.Ka",
+        "highGrade": "High Grade"
     },
     "cart": {
         "title": "Cart",
@@ -63,7 +61,7 @@
         "addedToCart": "Added to Cart",
         "like": "Like"
     },
-    "gamePage": {
+    "gundamPage": {
         "addToCart": "Add to Cart",
         "description": "Description",
         "specifications": "Specifications",
@@ -72,10 +70,10 @@
         "about": "About",
         "website": "Website",
         "released": "Released",
-        "platforms": "Platforms",
-        "mainGenre": "Main Genre",
-        "developers": "Developers",
-        "publishers": "Publishers",
+        "scale": "Scale",
+        "category": "Category",
+        "manufacturer": "Manufacturer",
+        "publisher": "Publisher",
         "more": "More",
         "hide": "Hide",
         "notAvailable": "Not available",

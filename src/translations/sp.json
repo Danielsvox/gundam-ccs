@@ -36,15 +36,13 @@
         "wishlist": "Lista de Deseos",
         "ratings": "Calificaciones",
         "reviews": "Reseñas",
-        "genres": "Géneros",
-        "action": "Acción",
-        "strategy": "Estrategia",
-        "rpg": "RPG",
-        "shooter": "Disparos",
-        "adventure": "Aventura",
-        "puzzle": "Puzzle",
-        "racing": "Carreras",
-        "sports": "Deportes"
+        "categories": "Categorías",
+        "realGrade": "Real Grade",
+        "masterGrade": "Master Grade",
+        "perfectGrade": "Perfect Grade",
+        "fullMechanics": "Full Mechanics",
+        "verKa": "Ver.Ka",
+        "highGrade": "High Grade"
     },
     "cart": {
         "title": "Carrito",
@@ -63,7 +61,7 @@
         "addedToCart": "Agregado al Carrito",
         "like": "Me Gusta"
     },
-    "gamePage": {
+    "gundamPage": {
         "addToCart": "Agregar al Carrito",
         "description": "Descripción",
         "specifications": "Especificaciones",
@@ -72,10 +70,10 @@
         "about": "Acerca de",
         "website": "Sitio Web",
         "released": "Lanzado",
-        "platforms": "Plataformas",
-        "mainGenre": "Género Principal",
-        "developers": "Desarrolladores",
-        "publishers": "Editores",
+        "scale": "Escala",
+        "category": "Categoría",
+        "manufacturer": "Fabricante",
+        "publisher": "Editor",
         "more": "Más",
         "hide": "Ocultar",
         "notAvailable": "No disponible",
