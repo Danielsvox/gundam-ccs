@@ -15,8 +15,11 @@ import { ReactComponent as Add } from "../../Resources/image/add.svg";
 import AddedToCartBig from '../../Components/AddedToCart/AddedToCartBig';
 import Cart from '../../Components/Cart/Cart';
 import templateGame from '../../utils/templateGame';
+import { useTranslation } from 'react-i18next';
 
 const GamePage = props => {
+  const { t } = useTranslation();
+
   const {
     handleHover,
     hoverState,
@@ -129,7 +132,7 @@ const GamePage = props => {
                 aria-label='Back'
               >
                 <Arrow style={{ fill: hoverState[19].hovered ? "#92f" : "#cccccc" }} className={styles.arrow} />
-                Store
+                {t('gamePage.store')}
               </button>
 
               <h1>{selectedGundam ? selectedGundam.name : templateGame.name}</h1>
@@ -150,7 +153,7 @@ const GamePage = props => {
               <div className={styles.gameInfo}>
                 <div className={styles.about}>
                   <div className={styles.aboutTop}>
-                    <h2>About</h2>
+                    <h2>{t('gamePage.about')}</h2>
                     <p>{selectedGundam ? selectedGundam.desc : templateGame.desc}</p>
                   </div>
                   <div
@@ -159,12 +162,12 @@ const GamePage = props => {
                   >
                     <AnimatedText>
                       <div className={textExtended ? styles.open : styles.closed}>
-                        <a href={selectedGundam ? selectedGundam.link : templateGame.link} target="_blank">{selectedGundam ? selectedGundam.name : "No"} Website</a>
-                        <h4>Released: {selectedGundam ? selectedGundam.release : templateGame.release}</h4>
-                        <h4>Platforms: {selectedGundam ? selectedGundam.platforms : templateGame.platforms}</h4>
-                        <h4>Main Genre: {selectedGundam ? selectedGundam.genre : templateGame.genre}</h4>
-                        <h4>Developers: {selectedGundam ? selectedGundam.developers : templateGame.developers}</h4>
-                        <h4 className={styles.lastChild}>Publishers: {selectedGundam ? selectedGundam.publishers : templateGame.publishers}</h4>
+                        <a href={selectedGundam ? selectedGundam.link : templateGame.link} target="_blank">{selectedGundam ? selectedGundam.name : "No"} {t('gamePage.website')}</a>
+                        <h4>{t('gamePage.released')}: {selectedGundam ? selectedGundam.release : templateGame.release}</h4>
+                        <h4>{t('gamePage.platforms')}: {selectedGundam ? selectedGundam.platforms : templateGame.platforms}</h4>
+                        <h4>{t('gamePage.mainGenre')}: {selectedGundam ? selectedGundam.genre : templateGame.genre}</h4>
+                        <h4>{t('gamePage.developers')}: {selectedGundam ? selectedGundam.developers : templateGame.developers}</h4>
+                        <h4 className={styles.lastChild}>{t('gamePage.publishers')}: {selectedGundam ? selectedGundam.publishers : templateGame.publishers}</h4>
                       </div>
                     </AnimatedText>
 
@@ -176,7 +179,7 @@ const GamePage = props => {
                       className={hoverState[20].hovered ? styles.buttonHovered : styles.buttonNotHovered}
                       aria-label="Extend"
                     >
-                      {extended ? "Hide" : "More"}
+                      {extended ? t('gamePage.hide') : t('gamePage.more')}
                       {extended ? <Up className={styles.up} style={{ fill: hoverState[20].hovered ? "#fff" : "#cccccc" }} /> : <Up className={styles.down} style={{ fill: hoverState[20].hovered ? "#fff" : "#cccccc" }} />}
                     </button>
                   </div>
@@ -201,7 +204,7 @@ const GamePage = props => {
                       onClick={handleAddToCart}
                       aria-label="Add"
                     >
-                      Add to cart
+                      {t('gamePage.addToCart')}
                       <Add
                         className={styles.add}
                         style={{ fill: hoverState[21].hovered ? "#92f" : "#999999" }}
@@ -216,7 +219,7 @@ const GamePage = props => {
                       onClick={handleAddToCart}
                       aria-label="Add"
                     >
-                      Not available
+                      {t('gamePage.notAvailable')}
                       <Add
                         className={styles.add}
                         style={{ fill: hoverState[21].hovered ? "#D2042D" : "#999999" }}

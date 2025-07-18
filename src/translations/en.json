@@ -4,7 +4,7 @@
         "browse": "Browse Ccs",
         "search": "Search gundams...",
         "cart": "Cart",
-        "user": "gianlucajahn"
+        "user": "carlos-daniel"
     },
     "home": {
         "title": "Gundam Ccs",
@@ -52,7 +52,11 @@
         "total": "Total:",
         "checkout": "Checkout",
         "clearCart": "Clear Cart",
-        "remove": "Remove"
+        "remove": "Remove",
+        "gundams": "gundams",
+        "gundam": "gundam",
+        "noGundams": "No gundams added",
+        "clear": "Clear"
     },
     "card": {
         "addToCart": "Add to Cart",
@@ -64,16 +68,52 @@
         "description": "Description",
         "specifications": "Specifications",
         "reviews": "Reviews",
-        "related": "Related Products"
+        "related": "Related Products",
+        "about": "About",
+        "website": "Website",
+        "released": "Released",
+        "platforms": "Platforms",
+        "mainGenre": "Main Genre",
+        "developers": "Developers",
+        "publishers": "Publishers",
+        "more": "More",
+        "hide": "Hide",
+        "notAvailable": "Not available",
+        "store": "Store"
     },
     "notFound": {
         "title": "404 - Page Not Found",
-        "message": "The page you're looking for doesn't exist.",
+        "message": "is not available!",
+        "description": "The page you tried to access is not available. You will be redirected to our browse section shortly. If you think this is an error,",
+        "contact": "contact us!",
         "goHome": "Go Home",
         "goBack": "Go Back"
     },
     "footer": {
-        "copyright": "© 2024 Gundam Ccs. All rights reserved."
+        "copyright": "© 2024 Gundam Ccs. All rights reserved.",
+        "company": "Company",
+        "about": "About",
+        "pressCenter": "Press Center",
+        "careers": "Careers",
+        "categories": "Categories",
+        "masterGrade": "Master Grade",
+        "perfectGrade": "Perfect Grade",
+        "realGrade": "Real Grade",
+        "resources": "Resources",
+        "helpCenter": "Help Center",
+        "contact": "Contact",
+        "productHelp": "Product Help",
+        "support": "Support",
+        "fileABug": "File a Bug",
+        "builtBy": "This page was built by",
+        "withReact": "with React.",
+        "inspiredBy": "Portions of this page are inspired by",
+        "educationalPurposes": "This page was built solely for educational purposes.",
+        "privacy": "Privacy",
+        "security": "Security",
+        "cookies": "Cookies",
+        "legal": "Legal",
+        "collaborativeGuidelines": "Collaborative Guidelines"
     },
     "language": {
         "en": "EN",

@@ -11,8 +11,11 @@ import Grid from '../../Components/Grid/Grid';
 import gundams from '../../utils/gundams';
 import Cart from '../../Components/Cart/Cart';
 import Footer from '../../Components/Footer/Footer';
+import { useTranslation } from 'react-i18next';
 
 const Browse = props => {
+  const { t } = useTranslation();
+
   const {
     handleHover,
     handleSelect,
@@ -148,8 +151,8 @@ const Browse = props => {
           />
 
           <div className={styles.list}>
-            <h1>Trending and interesting</h1>
-            <p>Based on popularity and ratings</p>
+            <h1>{t('browse.title')}</h1>
+            <p>{t('browse.subtitle')}</p>
 
             <div className={styles.applied}>
               <div className={styles.filterList}>
@@ -157,7 +160,7 @@ const Browse = props => {
                   className={styles.filterButton}
                   aria-label="Current Filter"
                 >
-                  Filter by:
+                  {t('browse.filterBy')}
                   <span> {currentFilter}</span>
                 </button>
                 <button
@@ -165,12 +168,12 @@ const Browse = props => {
                   onClick={clearFilter}
                   aria-label="Clear Filters"
                 >
-                  Clear Filter
+                  {t('browse.clearFilter')}
                 </button>
               </div>
 
               <div className={styles.displayStyle}>
-                <p>Display options:</p>
+                <p>{t('browse.displayOptions')}</p>
                 <button
                   className={styles.displayBtn}
                   onClick={handleLayoutSwitch}

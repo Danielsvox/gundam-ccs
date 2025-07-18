@@ -4,7 +4,7 @@
         "browse": "Explorar Ccs",
         "search": "Buscar gundams...",
         "cart": "Carrito",
-        "user": "gianlucajahn"
+        "user": "carlos-daniel"
     },
     "home": {
         "title": "Gundam Ccs",
@@ -52,7 +52,11 @@
         "total": "Total:",
         "checkout": "Pagar",
         "clearCart": "Vaciar Carrito",
-        "remove": "Eliminar"
+        "remove": "Eliminar",
+        "gundams": "gundams",
+        "gundam": "gundam",
+        "noGundams": "No se agregaron gundams",
+        "clear": "Limpiar"
     },
     "card": {
         "addToCart": "Agregar al Carrito",
@@ -64,16 +68,52 @@
         "description": "Descripción",
         "specifications": "Especificaciones",
         "reviews": "Reseñas",
-        "related": "Productos Relacionados"
+        "related": "Productos Relacionados",
+        "about": "Acerca de",
+        "website": "Sitio Web",
+        "released": "Lanzado",
+        "platforms": "Plataformas",
+        "mainGenre": "Género Principal",
+        "developers": "Desarrolladores",
+        "publishers": "Editores",
+        "more": "Más",
+        "hide": "Ocultar",
+        "notAvailable": "No disponible",
+        "store": "Tienda"
     },
     "notFound": {
         "title": "404 - Página No Encontrada",
-        "message": "La página que buscas no existe.",
+        "message": "no está disponible!",
+        "description": "La página que intentaste acceder no está disponible. Serás redirigido a nuestra sección de exploración en breve. Si crees que esto es un error,",
+        "contact": "¡contáctanos!",
         "goHome": "Ir al Inicio",
         "goBack": "Volver"
     },
     "footer": {
-        "copyright": "© 2024 Gundam Ccs. Todos los derechos reservados."
+        "copyright": "© 2024 Gundam Ccs. Todos los derechos reservados.",
+        "company": "Empresa",
+        "about": "Acerca de",
+        "pressCenter": "Centro de Prensa",
+        "careers": "Carreras",
+        "categories": "Categorías",
+        "masterGrade": "Master Grade",
+        "perfectGrade": "Perfect Grade",
+        "realGrade": "Real Grade",
+        "resources": "Recursos",
+        "helpCenter": "Centro de Ayuda",
+        "contact": "Contacto",
+        "productHelp": "Ayuda del Producto",
+        "support": "Soporte",
+        "fileABug": "Reportar un Error",
+        "builtBy": "Esta página fue construida por",
+        "withReact": "con React.",
+        "inspiredBy": "Partes de esta página están inspiradas en",
+        "educationalPurposes": "Esta página fue construida únicamente con fines educativos.",
+        "privacy": "Privacidad",
+        "security": "Seguridad",
+        "cookies": "Cookies",
+        "legal": "Legal",
+        "collaborativeGuidelines": "Pautas de Colaboración"
     },
     "language": {
         "en": "EN",

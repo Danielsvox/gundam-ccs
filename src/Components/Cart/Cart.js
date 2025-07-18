@@ -5,8 +5,11 @@ import { ReactComponent as Cross } from "../../Resources/image/cross.svg";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedCart from '../../Containers/AnimatedPage/AnimatedCart';
 import AnimatedCard from '../../Containers/AnimatedPage/AnimatedCard';
+import { useTranslation } from 'react-i18next';
 
 const Cart = props => {
+    const { t } = useTranslation();
+
     const {
         cartAmount,
         cart,
@@ -50,8 +53,8 @@ const Cart = props => {
                 >
                     <div className={styles.top}>
                         <div className={styles.topHeader}>
-                            <h2>{cartAmount >= 1 ? cartAmount > 1 ? `${cartAmount} gundams` : "1 gundam" : "No gundams added"}</h2>
-                            <h3 onClick={clearCart}>{cartAmount >= 1 ? "Clear" : ""}</h3>
+                            <h2>{cartAmount >= 1 ? cartAmount > 1 ? `${cartAmount} ${t('cart.gundams')}` : `1 ${t('cart.gundam')}` : t('cart.noGundams')}</h2>
+                            <h3 onClick={clearCart}>{cartAmount >= 1 ? t('cart.clear') : ""}</h3>
                         </div>
 
                         <div className={styles.topGundams}>
@@ -80,7 +83,7 @@ const Cart = props => {
                         className={styles.bottom}
                         style={{ width: "87.5%", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                     >
-                        <h3>Total: ${newTotal}</h3>
+                        <h3>{t('cart.total')} ${newTotal}</h3>
                         <button
                             id="24"
                             onMouseEnter={handleHover}
@@ -88,7 +91,7 @@ const Cart = props => {
                             style={{ color: hoverState[24].hovered ? "#92f" : "#fff" }}
                             aria-label="Checkout"
                         >
-                            Checkout
+                            {t('cart.checkout')}
                             <Right
                                 className={styles.right}
                                 style={{ fill: hoverState[24].hovered ? "#92f" : "#fff" }}
