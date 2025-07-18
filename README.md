@@ -1,135 +1,272 @@
-<h1 align="center">🤖 Gundam Ccs Frontend</h1>
+# 🤖 Gundam Ccs Backend API
 
-<p align="center">
-  <strong>Frontend for Your Ultimate Destination for Premium Gundam Model Kits</strong>
-</p>
-
-## What is Gundam Ccs Frontend?
-
-This is the frontend React application for Gundam Ccs, a modern, interactive e-commerce platform designed specifically for Gundam enthusiasts and model kit collectors. This repository contains the user interface and client-side logic.
+Backend API for the Gundam Ccs e-commerce platform, built with Node.js, Express, and Firebase.
 
 ## 🏗️ Architecture
 
-This project follows a **separate repository architecture**:
-
-- **Frontend** (this repo) - React application with user interface
-- **Backend** ([gundam-ccs-backend](https://github.com/Danielsvox/gundam-ccs-backend)) - Node.js/Express API
-- **Database** - Firebase/Supabase for data persistence
-
-## 🎯 What This Frontend Does
-
-### **Browse & Discover**
-- **Comprehensive Catalog**: Explore a carefully curated collection of Gundam model kits from various series
-- **Smart Filtering**: Find exactly what you're looking for with filters by genre (Action, Strategy, RPG, Shooter, Adventure, Puzzle, Racing, Sports)
-- **Advanced Search**: Search by model name, series, or any keyword to discover your next build
-- **Visual Grid/List Views**: Switch between grid and list layouts to browse your way
-
-### **User Experience**
-- **User Authentication**: Register, login, and manage your account
-- **Persistent Cart**: Your cart is saved and synchronized across devices
-- **Secure Checkout**: Integrated payment processing with Stripe
-- **Order History**: Track your past purchases and order status
-
-### **Personalized Experience**
-- **Wishlist Management**: Save your favorite models for later
-- **Rating System**: See community ratings and reviews
-- **Like & Save**: Build your personal collection
-- **Random Discovery**: Use the "Play Dice" feature to discover random models
-
-### **Shopping Experience**
-- **Smart Cart System**: Add models to your cart with one click, manage quantities
-- **Real-time Updates**: See cart updates instantly with smooth animations
-- **Responsive Design**: Shop seamlessly on desktop, tablet, or mobile devices
-- **Quick Navigation**: Access all features through intuitive navigation
-
-### **Visual Design**
-- **RX-78-2 Themed**: Features the iconic RX-78-2 Gundam as the centerpiece background
-- **Modern UI**: Clean, professional interface with smooth animations powered by Framer Motion
-- **Custom Typography**: Beautiful GT Walsheim fonts for a premium feel
-- **Dark Theme**: Easy on the eyes with a sophisticated dark color scheme
-
-## 🚀 Key Features
-
-- **Responsive Design**: Works perfectly on all devices and screen sizes
-- **Smooth Animations**: Fluid transitions and micro-interactions enhance user experience
-- **Search & Filter**: Powerful search functionality with multiple filter options
-- **Cart Management**: Full-featured shopping cart with real-time updates
-- **Wishlist System**: Save and organize your favorite models
-- **Performance Optimized**: Fast loading times and smooth interactions
-- **Accessibility**: Built with accessibility best practices in mind
-- **Internationalization**: Support for English and Spanish languages
+This backend provides a RESTful API for:
+- **User Authentication** - Registration, login, profile management
+- **Cart Management** - Persistent shopping cart with synchronization
+- **Product Catalog** - Gundam model kits with search and filtering
+- **Order Processing** - Complete order lifecycle management
+- **Payment Processing** - Secure payments with Stripe
+- **Wishlist Management** - User wishlists and favorites
 
 ## 🛠 Built With
 
-- **React 18** - Modern React with hooks and functional components
-- **React Router** - Client-side routing for smooth navigation
-- **Framer Motion** - Beautiful animations and transitions
-- **CSS Modules** - Scoped styling for maintainable code
-- **Axios** - HTTP client for API communication
-- **i18next** - Internationalization support
-- **Jest** - Comprehensive testing suite
-- **Git** - Version control and collaboration
-
-## 🔧 Technical Highlights
-
-- **Component Architecture**: Modular, reusable components for maintainable code
-- **State Management**: Efficient state handling with React hooks
-- **API Integration**: Clean separation between frontend and backend
-- **Performance**: Optimized for speed with lazy loading and efficient rendering
-- **Testing**: Comprehensive test coverage ensuring reliability
-- **Responsive**: Mobile-first design that scales beautifully
-
-## 🌐 API Integration
-
-This frontend communicates with the backend API for:
-- User authentication and management
-- Cart persistence and synchronization
-- Order processing and payment
-- Product catalog and inventory
-- User preferences and wishlists
-
-## 🎯 Perfect For
-
-- **Gundam Enthusiasts**: Find and collect your favorite mobile suits
-- **Model Kit Collectors**: Discover new additions to your collection
-- **Beginners**: Easy-to-use interface for those new to Gundam models
-- **Veterans**: Advanced search and filtering for experienced collectors
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web framework
+- **Firebase** - Authentication and database
+- **Stripe** - Payment processing
+- **JWT** - Token-based authentication
+- **Helmet** - Security middleware
+- **CORS** - Cross-origin resource sharing
+- **Rate Limiting** - API protection
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v16 or higher)
 - npm or yarn
+- Firebase project
+- Stripe account
 
 ### Installation
-```bash
-# Clone the repository
-git clone https://github.com/Danielsvox/gundam-ccs-frontend.git
 
-# Navigate to the project directory
-cd gundam-ccs-frontend
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Danielsvox/gundam-ccs-backend.git
+   cd gundam-ccs-backend
+   ```
 
-# Install dependencies
-npm install
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-# Start the development server
-npm start
-```
+3. **Set up environment variables**
+   ```bash
+   cp env.example .env
+   ```
+   
+   Edit `.env` with your configuration:
+   - Firebase service account credentials
+   - JWT secret key
+   - Stripe API keys
+   - Database configuration
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+The API will be available at `http://localhost:5000`
+
+## 📋 API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/auth/register` | Register new user | No |
+| POST | `/api/auth/login` | Login user | No |
+| POST | `/api/auth/logout` | Logout user | Yes |
+| GET | `/api/auth/profile` | Get user profile | Yes |
+| PUT | `/api/auth/profile` | Update user profile | Yes |
+
+### Cart Management
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/cart` | Get user cart | Yes |
+| POST | `/api/cart/items` | Add item to cart | Yes |
+| PUT | `/api/cart/items/:id` | Update cart item | Yes |
+| DELETE | `/api/cart/items/:id` | Remove item from cart | Yes |
+| DELETE | `/api/cart` | Clear cart | Yes |
+
+### Products
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/products` | Get all products | No |
+| GET | `/api/products/:id` | Get product by ID | No |
+| GET | `/api/products/search` | Search products | No |
+| GET | `/api/products/categories` | Get categories | No |
+
+### Orders
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/orders` | Create new order | Yes |
+| GET | `/api/orders` | Get user orders | Yes |
+| GET | `/api/orders/:id` | Get order by ID | Yes |
+| PUT | `/api/orders/:id/cancel` | Cancel order | Yes |
+
+### Wishlist
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/wishlist` | Get user wishlist | Yes |
+| POST | `/api/wishlist` | Add item to wishlist | Yes |
+| DELETE | `/api/wishlist/:id` | Remove item from wishlist | Yes |
+
+### Payments
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/payments/create-intent` | Create payment intent | Yes |
+| POST | `/api/payments/confirm` | Confirm payment | Yes |
+
+## 🔧 Configuration
 
 ### Environment Variables
+
 Create a `.env` file in the root directory:
+
 ```env
-REACT_APP_API_URL=http://localhost:5000/api
-REACT_APP_STRIPE_PUBLIC_KEY=your_stripe_public_key
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key_here
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:3000
+
+# Firebase Configuration
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY=your_private_key
+FIREBASE_CLIENT_EMAIL=your_service_account_email
+# ... other Firebase config
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+```
+
+### Firebase Setup
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable Authentication (Email/Password)
+3. Enable Firestore Database
+4. Create a service account and download the JSON file
+5. Add the service account credentials to your `.env` file
+
+### Stripe Setup
+
+1. Create a Stripe account at [Stripe Dashboard](https://dashboard.stripe.com/)
+2. Get your API keys from the dashboard
+3. Add the keys to your `.env` file
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
 ```
 
 ## 📦 Deployment
 
-This frontend is deployed on GitHub Pages and can be easily deployed to:
-- **Vercel** (recommended for React apps)
-- **Netlify**
-- **AWS S3 + CloudFront**
-- **Firebase Hosting**
+### Heroku
+
+1. Create a Heroku app
+2. Set environment variables in Heroku dashboard
+3. Deploy:
+   ```bash
+   git push heroku main
+   ```
+
+### Railway
+
+1. Connect your GitHub repository to Railway
+2. Set environment variables in Railway dashboard
+3. Deploy automatically on push
+
+### Vercel
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Deploy: `vercel`
+
+## 🔒 Security Features
+
+- **Helmet** - Security headers
+- **CORS** - Cross-origin protection
+- **Rate Limiting** - API abuse prevention
+- **JWT Authentication** - Secure token-based auth
+- **Input Validation** - Request data validation
+- **Error Handling** - Secure error responses
+
+## 📊 Database Schema
+
+### Users Collection
+```javascript
+{
+  uid: string,
+  email: string,
+  displayName: string,
+  phone: string,
+  address: object,
+  createdAt: timestamp,
+  updatedAt: timestamp
+}
+```
+
+### Carts Collection
+```javascript
+{
+  userId: string,
+  items: array,
+  total: number,
+  updatedAt: timestamp
+}
+```
+
+### Orders Collection
+```javascript
+{
+  orderId: string,
+  userId: string,
+  items: array,
+  total: number,
+  status: string,
+  paymentIntent: string,
+  shippingAddress: object,
+  createdAt: timestamp,
+  updatedAt: timestamp
+}
+```
+
+### Products Collection
+```javascript
+{
+  productId: string,
+  name: string,
+  description: string,
+  price: number,
+  category: string,
+  images: array,
+  inStock: boolean,
+  rating: number,
+  reviews: array
+}
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -m 'Add feature'`
+4. Push to branch: `git push origin feature-name`
+5. Submit a pull request
+
+## 📝 License
+
+This project is licensed under the MIT License.
 
 ## 👨‍💻 Developer
 
@@ -140,9 +277,9 @@ This frontend is deployed on GitHub Pages and can be easily deployed to:
 
 ## 🔗 Related Repositories
 
-- **Backend API**: [gundam-ccs-backend](https://github.com/Danielsvox/gundam-ccs-backend)
-- **Database**: Firebase/Supabase project
+- **Frontend**: [gundam-ccs-frontend](https://github.com/Danielsvox/gundam-ccs-frontend)
+- **Database**: Firebase project
 
 ---
 
-*Gundam Ccs is a demonstration project showcasing modern React development practices and e-commerce design principles. All Gundam-related content and imagery are property of their respective owners and used for educational purposes only.*
+*Gundam Ccs Backend API - Powering the ultimate Gundam model kit e-commerce experience.*
