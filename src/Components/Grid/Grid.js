@@ -1,8 +1,8 @@
 import styles from './Grid.module.css';
 import React, { useEffect } from 'react';
 import Card from '../Card/Card';
-import AnimatedPage from '../../Containers/AnimatedPage/AnimatedPage';
-import { v4 as uuidv4 } from 'uuid';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
 const Grid = props => {
     const {
@@ -10,13 +10,16 @@ const Grid = props => {
         reviewDisplay,
         handleLike,
         handleHoverGundam,
-        hoverState,
+        getHoverState,
         handleAddToCart,
         grid,
         search,
         searching,
         handleSelectGundam,
-        cartDisplayed
+        cartDisplayed,
+        loading = false,
+        error = null,
+        onRetry = null
     } = props;
 
     useEffect(() => {
@@ -30,7 +33,7 @@ const Grid = props => {
                 gridContainer.className = styles.gridContainer;
             }
         }
-    }, [grid, styles.noGrid, styles.gridContainer])
+    }, [grid])
 
     return (
         <>
@@ -39,7 +42,11 @@ const Grid = props => {
                 <h3>You can add some, soon.</h3>
             </div>
             <div className={styles.gridContainer} style={{ display: reviewDisplay ? "none" : "grid" }} id="gridContainer">
-                {searching === false ? cartDisplayed ? shownGundams.map((gundam, i) => {
+                {loading ? (
+                    <LoadingSpinner message="Loading products..." />
+                ) : error ? (
+                    <ErrorMessage message={error} onRetry={onRetry} />
+                ) : searching === false ? cartDisplayed ? shownGundams.map((gundam, i) => {
                     if (i <= 7) {
                         return <Card
                             gundam={gundam}
@@ -48,7 +55,7 @@ const Grid = props => {
                             handleHoverGundam={handleHoverGundam}
                             handleAddToCart={handleAddToCart}
                             handleSelectGundam={handleSelectGundam}
-                            hoverState={hoverState}
+                            getHoverState={getHoverState}
                         />
                     }
                     return null;
@@ -60,7 +67,7 @@ const Grid = props => {
                         handleHoverGundam={handleHoverGundam}
                         handleAddToCart={handleAddToCart}
                         handleSelectGundam={handleSelectGundam}
-                        hoverState={hoverState}
+                        getHoverState={getHoverState}
                     />
                 }) : shownGundams.map((gundam, i) => {
                     if (gundam.name.toLowerCase().includes(search.toLowerCase())) {
@@ -71,7 +78,7 @@ const Grid = props => {
                             handleHoverGundam={handleHoverGundam}
                             handleAddToCart={handleAddToCart}
                             handleSelectGundam={handleSelectGundam}
-                            hoverState={hoverState}
+                            getHoverState={getHoverState}
                         />
                     }
                     return null;

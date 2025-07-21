@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './NavBar.module.css';
 import { ReactComponent as Logo } from "../../Resources/image/logo.svg";
 import { ReactComponent as Browse } from "../../Resources/image/browse.svg";
 import { ReactComponent as Cart } from "../../Resources/image/cart.svg";
-import { ReactComponent as GitHub } from "../../Resources/image/github.svg";
+import { ReactComponent as Login } from "../../Resources/image/login.svg";
 import { ReactComponent as Search } from "../../Resources/image/search.svg";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import authService from '../../services/authService';
+import LogoutModal from '../Auth/LogoutModal';
 
 const NavBar = props => {
   const { t } = useTranslation();
+  const [user, setUser] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
+  const userMenuRef = useRef(null);
 
   const {
     handleHover,
     hoverState,
+    getHoverState,
     handleHome,
     handleBrowse,
     browsing,
@@ -29,6 +37,77 @@ const NavBar = props => {
     handleOpenCart,
     handleCloseCart
   } = props;
+
+  // Load user data on component mount
+  useEffect(() => {
+    const loadUser = () => {
+      const currentUser = authService.getCurrentUser();
+      const isAuthenticated = authService.isUserAuthenticated();
+
+      // Only set user if actually authenticated
+      if (isAuthenticated && currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  // Handle click outside to close user menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
+  const handleUserClick = () => {
+    if (user) {
+      setShowUserMenu(!showUserMenu);
+    } else {
+      // Save current location before redirecting to login
+      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+      navigate('/login');
+    }
+  };
+
+  const handleProfileClick = () => {
+    console.log('Profile clicked');
+    setShowUserMenu(false);
+    navigate('/profile');
+  };
+
+  const handleLogoutClick = () => {
+    console.log('Logout clicked');
+    setShowUserMenu(false);
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutSuccess = () => {
+    setUser(null);
+    setShowUserMenu(false);
+    setShowLogoutModal(false);
+    // Force reload user state from authService
+    const currentUser = authService.getCurrentUser();
+    const isAuthenticated = authService.isUserAuthenticated();
+
+    if (isAuthenticated && currentUser) {
+      setUser(currentUser);
+    } else {
+      setUser(null);
+    }
+  };
 
   const variants = {
     hidden: { opacity: 1, y: 15 },
@@ -90,7 +169,7 @@ const NavBar = props => {
                     <button type="submit">
                       <Search
                         className={styles.svg}
-                        style={{ fill: hoverState[7].hovered ? "#fff" : "#cccccc" }}
+                        style={{ fill: getHoverState(7).hovered ? "#fff" : "#cccccc" }}
                         onMouseEnter={handleHover}
                         onMouseLeave={handleHover}
                         id="7"
@@ -117,13 +196,51 @@ const NavBar = props => {
           <LanguageSwitcher />
 
           <div
-            className={styles.githubdiv}
+            className={styles.userdiv}
             id="2"
             onMouseEnter={handleHover}
             onMouseLeave={handleHover}
+            onClick={handleUserClick}
           >
-            <GitHub className={styles.gh} />
-            <h3>{t('nav.user')}</h3>
+            {user ? (
+              <div className={styles.userAvatar}>
+                <span>{user.first_name ? user.first_name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</span>
+              </div>
+            ) : (
+              <Login className={styles.loginIcon} />
+            )}
+            <h3>{user ? user.first_name || user.email : t('nav.user')}</h3>
+
+            {showUserMenu && user && (
+              <motion.div
+                ref={userMenuRef}
+                className={styles.userMenu}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleProfileClick();
+                  }}
+                  className={styles.menuItem}
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogoutClick();
+                  }}
+                  className={styles.menuItem}
+                >
+                  Sign Out
+                </button>
+              </motion.div>
+            )}
           </div>
 
           <div
@@ -142,6 +259,12 @@ const NavBar = props => {
           </div>
         </div>
       </motion.div>
+
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onLogoutSuccess={handleLogoutSuccess}
+      />
     </>
   );
 }

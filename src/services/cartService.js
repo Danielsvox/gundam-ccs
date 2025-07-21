@@ -15,11 +15,6 @@ class CartService {
 
     // Load cart from API
     async loadCart() {
-        if (!authService.isUserAuthenticated()) {
-            this.cart = null;
-            return null;
-        }
-
         this.loading = true;
         this.error = null;
 
@@ -31,6 +26,14 @@ class CartService {
         } catch (error) {
             this.error = error.response?.data?.message || 'Failed to load cart';
             console.error('Error loading cart:', error);
+
+            // Don't throw 401 errors - let the calling code handle auth
+            if (error.response?.status === 401) {
+                console.log('Cart service: Unauthorized - user needs to login');
+                this.cart = null;
+                return null;
+            }
+
             throw error;
         } finally {
             this.loading = false;
@@ -39,12 +42,11 @@ class CartService {
 
     // Add item to cart
     async addToCart(productId, quantity = 1) {
-        if (!authService.isUserAuthenticated()) {
-            throw new Error('User must be authenticated to add items to cart');
-        }
-
         this.loading = true;
         this.error = null;
+
+        console.log('Cart service: Adding to cart, product ID:', productId);
+        console.log('Cart service: Auth state:', authService.getAuthState());
 
         try {
             const response = await cartAPI.addToCart(productId, quantity);
@@ -54,6 +56,14 @@ class CartService {
         } catch (error) {
             this.error = error.response?.data?.message || 'Failed to add item to cart';
             console.error('Error adding to cart:', error);
+
+            // Handle 401 errors specifically
+            if (error.response?.status === 401) {
+                console.log('Cart service: Unauthorized during add to cart');
+                // Clear auth data
+                authService.clearAuth();
+            }
+
             throw error;
         } finally {
             this.loading = false;

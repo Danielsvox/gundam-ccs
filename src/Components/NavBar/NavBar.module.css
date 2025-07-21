@@ -39,6 +39,7 @@ form button {
 .pathdiv,
 .cartdiv,
 .githubdiv,
+.userdiv,
 .searchdiv,
 .browsediv {
     display: flex;
@@ -52,14 +53,20 @@ form button {
 
 .logodiv *,
 .cartdiv *,
-.githubdiv * {
+.githubdiv *,
+.userdiv * {
     pointer-events: none;
+}
+
+.userMenu {
+    pointer-events: auto;
 }
 
 .logodiv:active,
 .cartdiv:active,
 .browsediv:active,
-.githubdiv:active {
+.githubdiv:active,
+.userdiv:active {
     transform: scale(0.945);
 }
 
@@ -76,17 +83,48 @@ form button {
     transition: 0.3s;
 }
 
-.githubdiv {
+.githubdiv,
+.userdiv {
     gap: 18px;
+    position: relative;
 }
 
-.gh {
+.loginIcon {
     padding-bottom: 3px;
-    transform: scale(1.5);
-    fill: white;
+    transform: scale(1.8);
+    fill: #4a90e2;
+    stroke: #4a90e2;
+    stroke-width: 2px;
     padding-top: 3px;
     transition: 0.3s;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
+
+.userAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    transition: all 0.3s ease;
+}
+
+.userAvatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+}
+
+
+
+
+
+
 
 .cartdiv h3,
 .logodiv h3,
@@ -95,6 +133,12 @@ form button {
     color: white;
     font-family: "GT Bold";
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.userdiv h3 {
+    color: #4a90e2;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .pathdiv h3,
@@ -224,4 +268,54 @@ form button:active {
     .cartdiv h3 {
         font-size: 14px;
     }
+}
+
+/* User Menu Styles */
+.userMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    margin-top: 8px;
+    min-width: 120px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.menuItem {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    color: white;
+    font-family: "GT Medium";
+    font-size: 0.9rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    pointer-events: auto;
+}
+
+.menuItem:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.menuItem:active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.98);
+}
+
+.menuItem:first-child {
+    border-radius: 8px 8px 0 0;
+}
+
+.menuItem:last-child {
+    border-radius: 0 0 8px 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }

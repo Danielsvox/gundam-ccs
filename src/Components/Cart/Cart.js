@@ -18,9 +18,12 @@ const Cart = props => {
         cartDisplayed,
         handleHover,
         hoverState,
+        getHoverState,
         clearCart,
         handleRemoveFromCart,
-        openGundamPage
+        openGundamPage,
+        cartError,
+        showCartError
     } = props;
 
     const [total, setTotal] = useState(0);
@@ -52,6 +55,18 @@ const Cart = props => {
                     style={{ backgroundColor: "#1A1A1A", height: "100vh" }}
                 >
                     <div className={styles.top}>
+                        {showCartError && cartError && (
+                            <div style={{
+                                backgroundColor: '#ff4444',
+                                color: 'white',
+                                padding: '10px',
+                                marginBottom: '10px',
+                                borderRadius: '5px',
+                                fontSize: '14px'
+                            }}>
+                                {cartError}
+                            </div>
+                        )}
                         <div className={styles.topHeader}>
                             <h2>{cartAmount >= 1 ? cartAmount > 1 ? `${cartAmount} ${t('cart.gundams')}` : `1 ${t('cart.gundam')}` : t('cart.noGundams')}</h2>
                             <h3 onClick={clearCart}>{cartAmount >= 1 ? t('cart.clear') : ""}</h3>
@@ -88,13 +103,13 @@ const Cart = props => {
                             id="24"
                             onMouseEnter={handleHover}
                             onMouseLeave={handleHover}
-                            style={{ color: hoverState[24].hovered ? "#92f" : "#fff" }}
+                            style={{ color: getHoverState(24).hovered ? "#92f" : "#fff" }}
                             aria-label="Checkout"
                         >
                             {t('cart.checkout')}
                             <Right
                                 className={styles.right}
-                                style={{ fill: hoverState[24].hovered ? "#92f" : "#fff" }}
+                                style={{ fill: getHoverState(24).hovered ? "#92f" : "#fff" }}
                             />
                         </button>
                     </div>

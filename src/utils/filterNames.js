@@ -1,15 +1,13 @@
 const filterNames = [
-    "Wishlist",
-    "Ratings",
-    "Reviews",
-    "High Grade",
-    "Master Grade",
-    "Perfect Grade",
-    "Real Grade",
-    "Full Mechanics",
-    "Ver.Ka",
-    "1/144 Scale",
-    "1/100 Scale"
+    "Wishlist",      // id: 8
+    "Ratings",       // id: 9
+    "Reviews",       // id: 10
+    "High Grade",    // id: 11
+    "Master Grade",  // id: 12
+    "Perfect Grade", // id: 13
+    "Real Grade",    // id: 14
+    "Full Mechanics", // id: 15
+    "Ver.Ka"         // id: 16
 ];
 
 export default filterNames;

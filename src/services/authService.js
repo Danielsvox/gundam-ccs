@@ -7,8 +7,12 @@ class AuthService {
         this.loading = false;
         this.error = null;
 
+        console.log('AuthService constructor called');
+
         // Load user from localStorage on initialization
         this.loadUserFromStorage();
+
+        console.log('AuthService constructor completed - state:', this.getAuthState());
     }
 
     // Load user data from localStorage
@@ -17,9 +21,17 @@ class AuthService {
             const userData = localStorage.getItem('user');
             const accessToken = localStorage.getItem('accessToken');
 
+            console.log('Loading user from storage:', {
+                userData: userData ? 'Present' : 'Missing',
+                accessToken: accessToken ? 'Present' : 'Missing'
+            });
+
             if (userData && accessToken) {
                 this.user = JSON.parse(userData);
                 this.isAuthenticated = true;
+                console.log('User loaded successfully:', this.user);
+            } else {
+                console.log('No user data or token found in storage');
             }
         } catch (error) {
             console.error('Error loading user from storage:', error);
@@ -30,11 +42,19 @@ class AuthService {
     // Save user data to localStorage
     saveUserToStorage(user, accessToken, refreshToken) {
         try {
+            console.log('Saving user to storage:', {
+                user: user,
+                accessToken: accessToken ? 'Present' : 'Missing',
+                refreshToken: refreshToken ? 'Present' : 'Missing'
+            });
+
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('accessToken', accessToken);
             if (refreshToken) {
                 localStorage.setItem('refreshToken', refreshToken);
             }
+
+            console.log('User saved to storage successfully');
         } catch (error) {
             console.error('Error saving user to storage:', error);
         }
@@ -52,6 +72,21 @@ class AuthService {
         localStorage.removeItem('refreshToken');
     }
 
+    // Clear all local storage and session storage
+    clearLocalStorage() {
+        // Clear specific items
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('cart');
+
+        // Clear all session storage
+        sessionStorage.clear();
+
+        // Also clear auth service state
+        this.clearAuth();
+    }
+
     // Register new user
     async register(userData) {
         this.loading = true;
@@ -59,7 +94,8 @@ class AuthService {
 
         try {
             const response = await authAPI.register(userData);
-            const { user, access, refresh } = response.data;
+            const { user, tokens } = response.data;
+            const { access, refresh } = tokens;
 
             this.user = user;
             this.isAuthenticated = true;
@@ -79,16 +115,23 @@ class AuthService {
         this.loading = true;
         this.error = null;
 
+        console.log('AuthService: Login attempt with credentials:', credentials);
+
         try {
             const response = await authAPI.login(credentials);
             const { user, access, refresh } = response.data;
+
+            console.log('AuthService: Login successful, response:', response.data);
 
             this.user = user;
             this.isAuthenticated = true;
             this.saveUserToStorage(user, access, refresh);
 
+            console.log('AuthService: Login completed, auth state:', this.getAuthState());
+
             return { success: true, user };
         } catch (error) {
+            console.error('AuthService: Login failed:', error);
             this.error = error.response?.data?.message || 'Login failed';
             throw error;
         } finally {
@@ -96,18 +139,48 @@ class AuthService {
         }
     }
 
-    // Logout user
+    // Standard logout - current device only
     async logout() {
         this.loading = true;
 
         try {
             if (this.isAuthenticated) {
-                await authAPI.logout();
+                const accessToken = localStorage.getItem('accessToken');
+                const refreshToken = localStorage.getItem('refreshToken');
+
+                if (accessToken && refreshToken) {
+                    await authAPI.logout({
+                        refresh_token: refreshToken,
+                        access_token: accessToken
+                    });
+                }
             }
         } catch (error) {
             console.error('Logout error:', error);
+            // Continue with logout even if API call fails
         } finally {
-            this.clearAuth();
+            this.clearLocalStorage();
+            this.loading = false;
+        }
+    }
+
+    // Logout from all devices
+    async logoutAllDevices() {
+        this.loading = true;
+
+        try {
+            if (this.isAuthenticated) {
+                const accessToken = localStorage.getItem('accessToken');
+
+                if (accessToken) {
+                    await authAPI.logoutAllDevices();
+                }
+            }
+        } catch (error) {
+            console.error('Logout all devices error:', error);
+            // Continue with logout even if API call fails
+        } finally {
+            this.clearLocalStorage();
             this.loading = false;
         }
     }
@@ -240,5 +313,9 @@ class AuthService {
 
 // Create singleton instance
 const authService = new AuthService();
+
+// Debug: Log when auth service is created
+console.log('AuthService instance created:', authService);
+console.log('Initial auth state:', authService.getAuthState());
 
 export default authService; 

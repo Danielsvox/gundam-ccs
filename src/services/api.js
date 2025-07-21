@@ -1,13 +1,39 @@
 import axios from 'axios';
 
 // Create axios instance with base configuration for Django REST API
-const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1',
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+console.log('API Base URL:', baseURL); // Debug log
+console.log('Environment variables:', {
+    REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+    NODE_ENV: process.env.NODE_ENV
+});
+
+// Create public API instance (no auth required)
+const publicApi = axios.create({
+    baseURL: baseURL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
+// Create authenticated API instance
+const api = axios.create({
+    baseURL: baseURL,
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Add request logging for debugging
+const addRequestLogging = (config) => {
+    console.log('API Request:', config.method?.toUpperCase(), config.url);
+    return config;
+};
+
+publicApi.interceptors.request.use(addRequestLogging);
+api.interceptors.request.use(addRequestLogging);
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
@@ -47,18 +73,22 @@ api.interceptors.response.use(
                     originalRequest.headers.Authorization = `Bearer ${access}`;
                     return api(originalRequest);
                 } catch (refreshError) {
-                    // Refresh token failed, redirect to login
+                    // Refresh token failed, clear auth but don't redirect
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
                     localStorage.removeItem('user');
-                    window.location.href = '/login';
+                    localStorage.removeItem('cart');
+                    sessionStorage.clear();
+                    // Don't redirect automatically - let components handle auth requirements
                 }
             } else {
-                // No refresh token, redirect to login
+                // No refresh token, clear auth but don't redirect
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
                 localStorage.removeItem('user');
-                window.location.href = '/login';
+                localStorage.removeItem('cart');
+                sessionStorage.clear();
+                // Don't redirect automatically - let components handle auth requirements
             }
         }
         return Promise.reject(error);
@@ -69,7 +99,8 @@ api.interceptors.response.use(
 export const authAPI = {
     register: (userData) => api.post('/accounts/register/', userData),
     login: (credentials) => api.post('/accounts/login/', credentials),
-    logout: () => api.post('/accounts/logout/'),
+    logout: (data) => api.post('/accounts/logout/', data),
+    logoutAllDevices: () => api.post('/accounts/logout-all/'),
     getProfile: () => api.get('/accounts/profile/'),
     updateProfile: (userData) => api.put('/accounts/profile/', userData),
     refreshToken: (refreshToken) => api.post('/accounts/token/refresh/', { refresh: refreshToken }),
@@ -78,73 +109,24 @@ export const authAPI = {
     confirmResetPassword: (token, newPassword) => api.post('/accounts/reset-password/confirm/', { token, new_password: newPassword }),
 };
 
-// Cart API endpoints for Django REST API
-export const cartAPI = {
-    getCart: () => api.get('/cart/cart/'),
-    addToCart: (productId, quantity = 1) => api.post('/cart/cart/items/add/', { product: productId, quantity }),
-    updateCartItem: (itemId, quantity) => api.put(`/cart/cart/items/${itemId}/update/`, { quantity }),
-    removeFromCart: (itemId) => api.delete(`/cart/cart/items/${itemId}/remove/`),
-    clearCart: () => api.delete('/cart/cart/'),
-    applyCoupon: (code) => api.post('/cart/cart/apply-coupon/', { code }),
-    removeCoupon: () => api.delete('/cart/cart/remove-coupon/'),
-};
-
-// Products API endpoints for Django REST API
+// Products API endpoints (public - no auth required)
 export const productsAPI = {
-    getProducts: (params = {}) => api.get('/products/products/', { params }),
-    getProduct: (productId) => api.get(`/products/products/${productId}/`),
-    searchProducts: (query) => api.get('/products/products/search/', { params: { q: query } }),
-    getCategories: () => api.get('/products/categories/'),
-    getProductSpecifications: (productId) => api.get(`/products/products/${productId}/specifications/`),
-    getProductReviews: (productId) => api.get(`/products/products/${productId}/reviews/`),
-    addProductReview: (productId, reviewData) => api.post(`/products/products/${productId}/reviews/`, reviewData),
-    getProductsByCategory: (categoryId) => api.get(`/products/categories/${categoryId}/products/`),
-    getProductsBySeries: (series) => api.get('/products/products/', { params: { series } }),
-    getProductsByGrade: (grade) => api.get('/products/products/', { params: { grade } }),
-    getProductsByScale: (scale) => api.get('/products/products/', { params: { scale } }),
+    getProducts: (params = {}) => publicApi.get('/products/products/', { params }),
+    getProduct: (slug) => publicApi.get(`/products/products/${slug}/`),
+    getCategories: () => publicApi.get('/products/categories/'),
+    getProductsByCategory: (categorySlug) => publicApi.get(`/products/categories/${categorySlug}/products/`),
+    searchProducts: (query) => publicApi.get('/products/products/search/', { params: { q: query } }),
 };
 
-// Orders API endpoints for Django REST API
-export const ordersAPI = {
-    createOrder: (orderData) => api.post('/orders/orders/create/', orderData),
-    getOrders: () => api.get('/orders/orders/'),
-    getOrder: (orderId) => api.get(`/orders/orders/${orderId}/`),
-    cancelOrder: (orderId) => api.post(`/orders/orders/${orderId}/cancel/`),
-    getOrderStatus: (orderId) => api.get(`/orders/orders/${orderId}/status/`),
-    getShippingMethods: () => api.get('/orders/shipping-methods/'),
-    getTaxRates: (address) => api.post('/orders/tax-rates/', address),
-};
-
-// Wishlist API endpoints for Django REST API
-export const wishlistAPI = {
-    getWishlists: () => api.get('/wishlist/wishlists/'),
-    createWishlist: (wishlistData) => api.post('/wishlist/wishlists/create/', wishlistData),
-    getWishlist: (wishlistId) => api.get(`/wishlist/wishlists/${wishlistId}/`),
-    addToWishlist: (wishlistId, productId) => api.post(`/wishlist/wishlists/${wishlistId}/items/add/`, { product: productId }),
-    removeFromWishlist: (wishlistId, itemId) => api.delete(`/wishlist/wishlists/${wishlistId}/items/${itemId}/remove/`),
-    shareWishlist: (wishlistId, email) => api.post(`/wishlist/wishlists/${wishlistId}/share/`, { email }),
-    getSharedWishlist: (shareToken) => api.get(`/wishlist/shared/${shareToken}/`),
-    createPriceAlert: (productId, targetPrice) => api.post('/wishlist/price-alerts/', { product: productId, target_price: targetPrice }),
-    getPriceAlerts: () => api.get('/wishlist/price-alerts/'),
-    deletePriceAlert: (alertId) => api.delete(`/wishlist/price-alerts/${alertId}/`),
-};
-
-// Payment API endpoints for Django REST API
-export const paymentAPI = {
-    createPayment: (paymentData) => api.post('/payments/payments/create/', paymentData),
-    createPaymentIntent: (amount, currency = 'usd') => api.post('/payments/payment-intent/create/', { amount, currency }),
-    confirmPayment: (paymentData) => api.post('/payments/payments/confirm/', paymentData),
-    getPaymentMethods: () => api.get('/payments/payment-methods/'),
-    savePaymentMethod: (paymentMethodData) => api.post('/payments/payment-methods/', paymentMethodData),
-    deletePaymentMethod: (methodId) => api.delete(`/payments/payment-methods/${methodId}/`),
-    getPaymentHistory: () => api.get('/payments/payments/'),
-    requestRefund: (paymentId, reason) => api.post(`/payments/payments/${paymentId}/refund/`, { reason }),
-};
-
-// Health and info endpoints
-export const systemAPI = {
-    healthCheck: () => api.get('/health/'),
-    apiInfo: () => api.get('/info/'),
+// Cart API endpoints
+export const cartAPI = {
+    getCart: () => api.get('/cart/'),
+    addToCart: (productId, quantity = 1) => api.post('/cart/add/', { product_id: productId, quantity }),
+    updateCartItem: (itemId, quantity) => api.put(`/cart/items/${itemId}/`, { quantity }),
+    removeFromCart: (itemId) => api.delete(`/cart/items/${itemId}/`),
+    clearCart: () => api.delete('/cart/clear/'),
+    applyCoupon: (code) => api.post('/cart/apply-coupon/', { code }),
+    removeCoupon: () => api.delete('/cart/remove-coupon/'),
 };
 
 export default api; 

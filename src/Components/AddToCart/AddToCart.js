@@ -13,8 +13,20 @@ const AddToCart = props => {
     handleAddToCart
   } = props;
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleAddToCart(e);
+  };
+
   return (
-    <div className={styles.addToCart} onMouseEnter={handleHoverGundam} onMouseLeave={handleHoverGundam} id={gundam.id} onClick={handleAddToCart}>
+    <div
+      className={`${styles.addToCart} addToCart`}
+      onMouseEnter={handleHoverGundam}
+      onMouseLeave={handleHoverGundam}
+      id={gundam.id}
+      onClick={handleClick}
+    >
       <h4 style={{ color: gundam.isHovered ? "#92f" : "#999" }}>{t('card.addToCart')}</h4>
       <Add className={styles.add} style={{ fill: gundam.isHovered ? "#92f" : "#999" }} />
     </div>

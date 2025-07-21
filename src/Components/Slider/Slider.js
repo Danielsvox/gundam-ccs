@@ -1,9 +1,7 @@
 import styles from './Slider.module.css';
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect } from 'react';
 import { ReactComponent as Left } from "../../Resources/image/left.svg";
 import { ReactComponent as Right } from "../../Resources/image/right.svg";
-import { ReactComponent as Dot } from "../../Resources/image/dot.svg";
 import { useLocation } from 'react-router-dom';
 import "react-slideshow-image/dist/styles.css";
 import { Slide } from "react-slideshow-image";
@@ -14,22 +12,21 @@ const Slider = props => {
     selectedGundam,
     setSelectedGundam,
     allGundams,
-    incrementCarousel,
-    decrementCarousel,
     carouselState,
     setCarouselState,
-    hoverState,
+    getHoverState,
     handleHover
   } = props;
 
-  const [footageIndex, setFootageIndex] = useState(0);
   const slideRef = React.createRef();
   const location = useLocation();
 
   useEffect(() => {
-    const selectedGundamIndex = allGundams.findIndex(gundam => "/react-ecommerce-store/gundams/" + gundam.surname === location.pathname);
-    setSelectedGundam(allGundams[selectedGundamIndex]);
-  }, []);
+    const selectedGundamIndex = allGundams.findIndex(gundam => "/gundams/" + gundam.surname === location.pathname);
+    if (selectedGundamIndex !== -1) {
+      setSelectedGundam(allGundams[selectedGundamIndex]);
+    }
+  }, [allGundams, location.pathname, setSelectedGundam]);
 
   const properties = {
     duration: 6000,
@@ -118,7 +115,7 @@ const Slider = props => {
       >
         <Left
           className={styles.left}
-          style={{ fill: hoverState[22].hovered ? "#fff" : "#ccc" }}
+          style={{ fill: getHoverState(22).hovered ? "#fff" : "#ccc" }}
         />
       </button>
 
@@ -131,7 +128,7 @@ const Slider = props => {
       >
         <Right
           className={styles.right}
-          style={{ fill: hoverState[23].hovered ? "#fff" : "#ccc" }}
+          style={{ fill: getHoverState(23).hovered ? "#fff" : "#ccc" }}
         />
       </button>
       <div className={styles.selectorContainer}>

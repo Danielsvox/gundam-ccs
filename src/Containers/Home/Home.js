@@ -11,18 +11,16 @@ import { ReactComponent as NotFoundQuery } from "../../Resources/image/notfoundq
 import { ReactComponent as Git } from "../../Resources/image/git.svg";
 import { ReactComponent as Performance } from "../../Resources/image/performance.svg";
 import { ReactComponent as Sources } from "../../Resources/image/sources.svg";
-import { motion, AnimatePresence, m } from "framer-motion";
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom';
 import Cart from '../../Components/Cart/Cart';
-import AnimatedScroll from '../AnimatedPage/AnimatedScroll';
-import gundams from '../../utils/gundams';
+
 import { useTranslation } from 'react-i18next';
 
 const Home = props => {
   const { t } = useTranslation();
 
   const {
-    shownGundams,
     cartAmount,
     cart,
     cartDisplayed,
@@ -31,31 +29,26 @@ const Home = props => {
     clearCart,
     handleRemoveFromCart,
     hoverState,
-    setHoverState,
+    getHoverState,
+    handleHover,
     overlap,
     setOverlap,
-    openGundamPage
+    openGundamPage,
+    allGundams,
+    cartError,
+    showCartError
   } = props;
 
   const [browsing, setBrowsing] = useState(false);
-  const [landingPage, setLandingPage] = useState(true);
+  const [landingPage] = useState(true);
 
   const navigate = useNavigate();
-
-  const handleHover = (e) => {
-    let newHoverState = hoverState[e.target.id];
-    newHoverState.hovered = !newHoverState.hovered;
-
-    setHoverState([
-      ...hoverState, hoverState[e.target.id] = newHoverState
-    ]);
-  }
 
   const handleBrowse = () => {
     setOverlap(true);
     setTimeout(() => {
       setBrowsing(true);
-      navigate('/react-ecommerce-store/browse');
+      navigate('/browse');
     }, 1500);
   }
 
@@ -65,32 +58,27 @@ const Home = props => {
   }
 
   const handleNavGundamPage = () => {
-    setHoverState([...hoverState, hoverState[21].hovered = false]);
-    navigate('/react-ecommerce-store/gundams/rx78-2');
+    navigate('/gundams/rx78-2');
   }
 
   const handleNavNotFoundPage = () => {
-    navigate('/react-ecommerce-store/this-page');
+    navigate('/this-page');
   }
 
   const handleNavNotFoundQuery = () => {
-    navigate('/react-ecommerce-store/gundams/404');
+    navigate('/gundams/404');
   }
 
   const handlePlayDice = () => {
-    let randomIndex = Math.floor(Math.random() * 10);
-    let randomSurname = gundams[randomIndex].surname;
-    setOverlap(true);
-    setTimeout(() => {
-      setBrowsing(true);
-      navigate(`/react-ecommerce-store/gundams/${randomSurname}`);
-    }, 1500);
-  }
-
-  const variants = {
-    hidden: { opacity: 1, x: -150 },
-    visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 150 },
+    if (allGundams.length > 0) {
+      let randomIndex = Math.floor(Math.random() * allGundams.length);
+      let randomSurname = allGundams[randomIndex].surname;
+      setOverlap(true);
+      setTimeout(() => {
+        setBrowsing(true);
+        navigate(`/gundams/${randomSurname}`);
+      }, 1500);
+    }
   }
 
   const buttonVariants = {
@@ -119,9 +107,12 @@ const Home = props => {
         cartAmount={cartAmount}
         handleHover={handleHover}
         hoverState={hoverState}
+        getHoverState={getHoverState}
         clearCart={clearCart}
         handleRemoveFromCart={handleRemoveFromCart}
-        openGamePage={openGundamPage}
+        openGundamPage={openGundamPage}
+        cartError={cartError}
+        showCartError={showCartError}
       /> : null}
       <div className={styles.home}>
 
@@ -130,6 +121,7 @@ const Home = props => {
         <NavBar
           handleHover={handleHover}
           hoverState={hoverState}
+          getHoverState={getHoverState}
           browsing={browsing}
           handleBrowse={handleBrowse}
           handleHome={handleHome}
@@ -154,11 +146,11 @@ const Home = props => {
                 <Dice className={styles.ctaSVG} />
                 {t('home.playDice')}
               </button>
-              <a href="https://github.com/Danielsvox" target="_blank"><button className={styles.cta} aria-label="View Repository">
+              <a href="https://github.com/Danielsvox" target="_blank" rel="noreferrer"><button className={styles.cta} aria-label="View Repository">
                 <GitHubLogo className={styles.ctaSVG} />
                 {t('home.github')}
               </button></a>
-              <a href="https://www.linkedin.com/in/carlos-daniel-441685161/" target="_blank"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="Open LinkedIn">
+              <a href="https://www.linkedin.com/in/carlos-daniel-441685161/" target="_blank" rel="noreferrer"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="Open LinkedIn">
                 <LinkedIn className={`${styles.ctaSVG} ${styles.linkedin}`} />
                 <span>{t('home.linkedin')}</span>
               </button></a>
@@ -180,19 +172,19 @@ const Home = props => {
                 <NotFoundQuery className={`${styles.ctaSVG}`} />
                 {t('home.notFoundQuery')}
               </button>
-              <a href='https://github.com/Danielsvox/gundam-ccs/commits/main' target="_blank"><button className={styles.cta} aria-label="Open commit log">
+              <a href='https://github.com/Danielsvox/gundam-ccs/commits/main' target="_blank" rel="noreferrer"><button className={styles.cta} aria-label="Open commit log">
                 <Git className={styles.ctaSVG} />
                 {t('home.commitLog')}
               </button></a>
-              <a href="https://github.com/Danielsvox/gundam-ccs/blob/main/README.md#performance" target="_blank"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="Open performance test results">
+              <a href="https://github.com/Danielsvox/gundam-ccs/blob/main/README.md#performance" target="_blank" rel="noreferrer"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="Open performance test results">
                 <Performance className={`${styles.ctaSVG}`} />
                 {t('home.performance')}
               </button></a>
-              <a href="https://github.com/Danielsvox/gundam-ccs/blob/main/README.md#technologies-used" target="_blank"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="View technologies used">
+              <a href="https://github.com/Danielsvox/gundam-ccs/blob/main/README.md#technologies-used" target="_blank" rel="noreferrer"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="View technologies used">
                 <img className={styles.technologies} src={require("../../Resources/image/whatruns.png")} alt="WhatRuns logo" />
                 {t('home.technologies')}
               </button></a>
-              <a href="https://github.com/Danielsvox/gundam-ccs/blob/main/README.md#sources" target="_blank"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="View Sources">
+              <a href="https://github.com/Danielsvox/gundam-ccs/blob/main/README.md#sources" target="_blank" rel="noreferrer"><button className={`${styles.cta} ${styles.lastChild}`} aria-label="View Sources">
                 <Sources className={`${styles.ctaSVG}`} />
                 {t('home.sources')}
               </button></a>

@@ -1,22 +1,19 @@
 import styles from './Card.module.css';
 import React from 'react';
 import { ReactComponent as Like } from "../../Resources/image/like.svg";
-import { ReactComponent as Add } from "../../Resources/image/add.svg";
 import { motion } from "framer-motion";
 import AddToCart from '../AddToCart/AddToCart';
 import AddedToCart from '../AddedToCart/AddedToCart';
-import AnimatedCard from '../../Containers/AnimatedPage/AnimatedCard';
 import { useLocation } from 'react-router-dom';
 
 const Card = props => {
   const {
     gundam,
-    handleAddToCart,
-    handleHover,
-    hoverState,
-    handleLike,
     handleHoverGundam,
-    handleSelectGundam
+    handleSelectGundam,
+    handleAddToCart,
+    handleLike,
+    getHoverState
   } = props;
 
   const variants = {
@@ -28,14 +25,14 @@ const Card = props => {
   const location = useLocation();
 
   // Only use special positioning classes on the home page
-  const isHomePage = location.pathname === '/' || location.pathname === '/react-ecommerce-store';
+  const isHomePage = location.pathname === '/';
 
   const getCardClassName = () => {
     if (!isHomePage) {
       return styles.card;
     }
 
-    if (hoverState[1].selected === false) {
+    if (getHoverState(1).selected === false) {
       return styles.card;
     }
 
@@ -47,10 +44,18 @@ const Card = props => {
     return styles.cardHome;
   };
 
+  const handleCardClick = (e) => {
+    // Don't navigate if clicking on add to cart or like button
+    if (e.target.closest('.addToCart') || e.target.closest('.like')) {
+      return;
+    }
+    handleSelectGundam(e);
+  };
+
   return (
     <motion.div
       className={getCardClassName()}
-      onClick={handleSelectGundam}
+      onClick={handleCardClick}
       id={gundam.id}
       style={{ margin: 0, padding: 0 }}
       variants={variants}
@@ -58,7 +63,14 @@ const Card = props => {
       animate="animate"
       exit="exit"
     >
-      <img src={gundam.cover} className={styles.img} alt="Gundam Cover Image" />
+      <img
+        src={gundam.cover || gundam.link || 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=500&h=500&fit=crop'}
+        className={styles.img}
+        alt={`${gundam.name} Cover`}
+        onError={(e) => {
+          e.target.src = 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=500&h=500&fit=crop';
+        }}
+      />
 
       <div className={styles.price}>
         {gundam.inCart ? <AddedToCart /> : <AddToCart
@@ -71,7 +83,7 @@ const Card = props => {
       </div>
       <h2 className={styles.name} title={gundam.name}>{gundam.name}</h2>
       <button
-        className={styles.like}
+        className={`${styles.like} like`}
         id={gundam.id}
         onClick={handleLike}
         aria-label="Like"

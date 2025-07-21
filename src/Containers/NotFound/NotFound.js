@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import NavBar from '../../Components/NavBar/NavBar';
 import Cart from '../../Components/Cart/Cart';
-import AnimatedHome from '../AnimatedPage/AnimatedHome';
 import { motion } from "framer-motion";
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +16,7 @@ const NotFound = props => {
     cartAmount,
     clearCart,
     hoverState,
+    getHoverState,
     handleHome,
     handleHover,
     handleBrowse,
@@ -45,7 +45,7 @@ const NotFound = props => {
 
   useEffect(() => {
     setTimeout(handleBrowse, 6800);
-  }, [])
+  }, [handleBrowse])
 
   return (
     <div className={styles.notFound}>
@@ -57,6 +57,7 @@ const NotFound = props => {
         cartAmount={cartAmount}
         handleHover={handleHover}
         hoverState={hoverState}
+        getHoverState={getHoverState}
         clearCart={clearCart}
         handleRemoveFromCart={handleRemoveFromCart}
         openGundamPage={openGundamPage}
@@ -65,6 +66,7 @@ const NotFound = props => {
       <NavBar
         handleHover={handleHover}
         hoverState={hoverState}
+        getHoverState={getHoverState}
         handleHome={handleHome}
         browsing={browsing}
         landingPage={landingPage}

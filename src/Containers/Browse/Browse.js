@@ -1,8 +1,7 @@
 import styles from './Browse.module.css';
 import React, { useEffect, useState } from 'react';
 import NavBar from '../../Components/NavBar/NavBar';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { AnimatePresence } from "framer-motion";
+
 import AnimatedPage from '../AnimatedPage/AnimatedPage';
 import { ReactComponent as Grids } from "../../Resources/image/grid.svg";
 import { ReactComponent as Columns } from "../../Resources/image/columns.svg";
@@ -10,7 +9,6 @@ import { ReactComponent as BrowseIcon } from "../../Resources/image/browse.svg";
 import { ReactComponent as Down } from "../../Resources/image/down.svg";
 import Filters from '../../Components/Filters/Filters';
 import Grid from '../../Components/Grid/Grid';
-import gundams from '../../utils/gundams';
 import Cart from '../../Components/Cart/Cart';
 import Footer from '../../Components/Footer/Footer';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +27,6 @@ const Browse = props => {
     setReviewDisplay,
     reviewDisplay,
     allGundams,
-    setAllGundams,
     handleLike,
     handleHoverGundam,
     cart,
@@ -49,11 +46,13 @@ const Browse = props => {
     clearCart,
     handleRemoveFromCart,
     setHoverState,
-    openGundamPage
+    openGundamPage,
+    getHoverState,
+    productsLoading,
+    productsError,
+    onRetryProducts
   } = props;
 
-  const navigate = useNavigate();
-  const [landingPage, setLandingPage] = useState(false);
   const [grid, setGrid] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -67,7 +66,7 @@ const Browse = props => {
   ];
 
   const handleLayoutSwitch = (e) => {
-    if (e.target.id == "grid") {
+    if (e.target.id === "grid") {
       setGrid(true);
     } else {
       setGrid(false);
@@ -103,11 +102,12 @@ const Browse = props => {
     };
   }, [dropdownOpen]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (currentFilter == "none") {
+    if (currentFilter === "none") {
       setShownGundams(allGundams);
 
-    } else if (currentFilter != "Ratings" && currentFilter != "Reviews" && currentFilter != "Wishlist") {
+    } else if (currentFilter !== "Ratings" && currentFilter !== "Reviews" && currentFilter !== "Wishlist") {
       // Filter by category while maintaining original order
       let filteredShownGundams = allGundams.filter(gundam => gundam.genre === currentFilter);
       setShownGundams(filteredShownGundams);
@@ -129,11 +129,12 @@ const Browse = props => {
       setShownGundams(filteredShownGundams);
     }
 
-    if (currentFilter != "Reviews") {
+    if (currentFilter !== "Reviews") {
       setReviewDisplay(false);
     }
-  }, [currentFilter])
+  }, [currentFilter, allGundams]) // Removed setShownGundams and setReviewDisplay from dependencies
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (cartDisplayed) {
       document.body.style.overflow = "hidden";
@@ -142,18 +143,24 @@ const Browse = props => {
     }
   }, [cartDisplayed])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    let unhoveredState = hoverState.map((element, i) => {
-      if (i >= 25) {
-        return
-      } else {
-        element.hovered = false;
-        return element;
+    // Reset hover states for elements 0-24 when component mounts
+    // Only run this once when the component mounts
+    const resetHoverStates = () => {
+      let newHoverState = new Map(hoverState);
+      for (let i = 0; i < 25; i++) {
+        const currentState = newHoverState.get(i.toString()) || { hovered: false, selected: false };
+        newHoverState.set(i.toString(), {
+          ...currentState,
+          hovered: false
+        });
       }
-    });
+      setHoverState(newHoverState);
+    };
 
-    setHoverState(unhoveredState);
-  }, []);
+    resetHoverStates();
+  }, []); // Empty dependency array - only run once on mount
 
   return (
     <section className={styles.Browse} style={{ maxHeight: cartDisplayed ? "100vh" : "1000vh", minHeight: "100vh" }}>
@@ -165,6 +172,7 @@ const Browse = props => {
         cartAmount={cartAmount}
         handleHover={handleHover}
         hoverState={hoverState}
+        getHoverState={getHoverState}
         clearCart={clearCart}
         handleRemoveFromCart={handleRemoveFromCart}
         openGundamPage={openGundamPage}
@@ -173,10 +181,11 @@ const Browse = props => {
       <NavBar
         handleHover={handleHover}
         hoverState={hoverState}
+        getHoverState={getHoverState}
         handleBrowse={handleBrowse}
         handleHome={handleHome}
         browsing={browsing}
-        landingPage={landingPage}
+        landingPage={false}
         cartAmount={cartAmount}
         search={search}
         searching={searching}
@@ -189,6 +198,7 @@ const Browse = props => {
         <div className={styles.browseContent}>
           <Filters
             hoverState={hoverState}
+            getHoverState={getHoverState}
             handleHover={handleHover}
             handleSelect={handleSelect}
             currentFilter={currentFilter}
@@ -291,7 +301,10 @@ const Browse = props => {
               searching={searching}
               handleSelectGundam={handleSelectGundam}
               cartDisplayed={cartDisplayed}
-              hoverState={hoverState}
+              getHoverState={getHoverState}
+              loading={productsLoading}
+              error={productsError}
+              onRetry={onRetryProducts}
             />
           </div>
         </div>
