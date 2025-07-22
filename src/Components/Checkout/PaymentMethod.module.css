@@ -1,0 +1,286 @@
+.paymentMethod {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section {
+    background-color: #262626;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #333;
+}
+
+.section h2 {
+    color: white;
+    font-size: 20px;
+    font-family: "GT Bold";
+    margin: 0 0 8px 0;
+}
+
+.section h3 {
+    color: white;
+    font-size: 16px;
+    font-family: "GT Medium";
+    margin: 0 0 20px 0;
+}
+
+.section h4 {
+    color: white;
+    font-size: 14px;
+    font-family: "GT Medium";
+    margin: 0 0 8px 0;
+}
+
+.description {
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.paymentOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.paymentOption {
+    background-color: #1A1A1A;
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: 0.3s all;
+}
+
+.paymentOption:hover {
+    border-color: #555;
+}
+
+.paymentOption.selected {
+    border-color: #ff4444;
+    background-color: #1A1A1A;
+}
+
+.optionHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.radio {
+    width: 18px;
+    height: 18px;
+    accent-color: #ff4444;
+}
+
+.optionInfo {
+    flex: 1;
+}
+
+.optionInfo h4 {
+    color: white;
+    font-size: 16px;
+    font-family: "GT Medium";
+    margin: 0 0 4px 0;
+}
+
+.optionInfo p {
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0;
+}
+
+.optionIcon {
+    font-size: 24px;
+    width: 40px;
+    text-align: center;
+}
+
+.stripeInfo,
+.manualInfo {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+}
+
+.stripeInfo p,
+.manualInfo p {
+    color: #ccc;
+    font-size: 13px;
+    font-family: "GT Regular";
+    margin: 0;
+}
+
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+}
+
+.totalRow {
+    color: white;
+    font-size: 18px;
+    font-family: "GT Bold";
+    padding-top: 12px;
+    border-top: 1px solid #333;
+}
+
+.shippingPreview {
+    background-color: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.shippingPreview h4 {
+    color: white;
+    font-size: 14px;
+    font-family: "GT Medium";
+    margin: 0 0 8px 0;
+}
+
+.shippingPreview p {
+    color: #ccc;
+    font-size: 13px;
+    font-family: "GT Regular";
+    margin: 0;
+    line-height: 1.4;
+}
+
+.errorSection {
+    background-color: #1A1A1A;
+    border: 1px solid #ff4444;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.error {
+    color: #ff4444;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+}
+
+.backBtn {
+    background-color: transparent;
+    border: 1px solid #666;
+    color: #ccc;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "GT Medium";
+    cursor: pointer;
+    transition: 0.3s all;
+}
+
+.backBtn:hover {
+    background-color: #333;
+    border-color: #888;
+    color: white;
+}
+
+.submitBtn {
+    background-color: #ff4444;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "GT Medium";
+    cursor: pointer;
+    transition: 0.3s all;
+}
+
+.submitBtn:hover:not(:disabled) {
+    background-color: #ff6666;
+}
+
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .section {
+        padding: 16px;
+    }
+
+    .optionHeader {
+        gap: 12px;
+    }
+
+    .optionIcon {
+        font-size: 20px;
+        width: 32px;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .backBtn,
+    .submitBtn {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .section {
+        padding: 12px;
+    }
+
+    .paymentOption {
+        padding: 12px;
+    }
+
+    .optionHeader {
+        gap: 8px;
+    }
+
+    .optionInfo h4 {
+        font-size: 14px;
+    }
+
+    .optionInfo p {
+        font-size: 12px;
+    }
+
+    .optionIcon {
+        font-size: 18px;
+        width: 28px;
+    }
+
+    .backBtn,
+    .submitBtn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}

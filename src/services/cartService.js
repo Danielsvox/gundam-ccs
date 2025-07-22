@@ -149,10 +149,10 @@ class CartService {
         this.error = null;
 
         try {
-            await cartAPI.clearCart();
+            const response = await cartAPI.clearCart();
             this.cart = null;
             this.resetTotals();
-            return null;
+            return response.data; // Return the API response for success message
         } catch (error) {
             this.error = error.response?.data?.message || 'Failed to clear cart';
             console.error('Error clearing cart:', error);

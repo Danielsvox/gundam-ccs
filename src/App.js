@@ -1,5 +1,6 @@
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Browse from './Containers/Browse/Browse';
 import GamePage from './Containers/GamePage/GamePage';
 import NotFound from './Containers/NotFound/NotFound';
@@ -8,6 +9,8 @@ import Login from './Components/Auth/Login';
 import Register from './Components/Auth/Register';
 import UserProfile from './Components/Auth/UserProfile';
 import ForgotPassword from './Components/Auth/ForgotPassword';
+import Modal from './Components/Modal/Modal';
+import Checkout from './Components/Checkout/Checkout';
 import { AnimatePresence } from "framer-motion";
 import filterNames from './utils/filterNames';
 import templateGame from './utils/templateGame';
@@ -16,6 +19,7 @@ import authService from './services/authService';
 import cartService from './services/cartService';
 
 function App() {
+  const { t } = useTranslation();
   const [currentFilter, setCurrentFilter] = useState("none");
   const [allGundams, setAllGundams] = useState([]);
   const [cart, setCart] = useState([]);
@@ -35,6 +39,8 @@ function App() {
   const [cartLoading, setCartLoading] = useState(false);
   const [cartError, setCartError] = useState(null);
   const [showCartError, setShowCartError] = useState(false);
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [hoverState, setHoverState] = useState(() => {
     // Use a Map to handle any ID value dynamically
     const initialState = new Map();
@@ -357,9 +363,21 @@ function App() {
   };
 
   const clearCart = async () => {
+    // Show the custom modal instead of system confirmation
+    setShowClearCartModal(true);
+  };
+
+  const handleClearCartConfirm = async () => {
     try {
       setCartLoading(true);
-      await cartService.clearCart();
+      setCartError(null);
+
+      const response = await cartService.clearCart();
+
+      // Display success message if provided by API
+      if (response && response.message) {
+        console.log('Cart cleared successfully:', response.message);
+      }
 
       // Update local state
       setCart([]);
@@ -379,6 +397,9 @@ function App() {
         newHoverState.set("21", { ...newHoverState.get("21"), hovered: false });
         setHoverState(newHoverState);
       }
+
+      // Close the modal
+      setShowClearCartModal(false);
     } catch (error) {
       console.error('Error clearing cart:', error);
 
@@ -391,10 +412,18 @@ function App() {
         return;
       }
 
-      setCartError('Failed to clear cart');
+      // Display error message from API or fallback
+      const errorMessage = error.response?.data?.message || 'Failed to clear cart';
+      setCartError(errorMessage);
+      setShowCartError(true);
+      setTimeout(() => setShowCartError(false), 5000);
     } finally {
       setCartLoading(false);
     }
+  };
+
+  const handleClearCartCancel = () => {
+    setShowClearCartModal(false);
   };
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
@@ -563,6 +592,15 @@ function App() {
     setCartDisplayed(false);
   }
 
+  const handleOpenCheckout = () => {
+    setShowCheckout(true);
+    setCartDisplayed(false);
+  }
+
+  const handleCloseCheckout = () => {
+    setShowCheckout(false);
+  }
+
   useEffect(() => {
     if (cartDisplayed) {
       document.body.style.overflow = "hidden !important";
@@ -598,6 +636,7 @@ function App() {
           allGundams={allGundams}
           cartError={cartError}
           showCartError={showCartError}
+          onCheckout={handleOpenCheckout}
         />} />
         <Route path="/browse" element={<Browse
           cart={cart}
@@ -638,6 +677,7 @@ function App() {
           onRetryProducts={loadProducts}
           cartError={cartError}
           showCartError={showCartError}
+          onCheckout={handleOpenCheckout}
         />} />
         <Route path="/gundams/:gundamId" element={<GamePage
           cart={cart}
@@ -672,6 +712,7 @@ function App() {
           openGundamPage={openGundamPage}
           cartError={cartError}
           showCartError={showCartError}
+          onCheckout={handleOpenCheckout}
         />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -699,8 +740,32 @@ function App() {
           openGundamPage={openGundamPage}
           cartError={cartError}
           showCartError={showCartError}
+          onCheckout={handleOpenCheckout}
         />} />
       </Routes>
+
+      {/* Clear Cart Confirmation Modal */}
+      <Modal
+        isOpen={showClearCartModal}
+        onClose={handleClearCartCancel}
+        onConfirm={handleClearCartConfirm}
+        title={t('modal.clearCartTitle')}
+        message={t('modal.clearCartMessage')}
+        confirmText={t('modal.confirm')}
+        cancelText={t('modal.cancel')}
+      />
+
+      {/* Checkout Component */}
+      {showCheckout && (
+        <Checkout
+          cart={cart}
+          cartAmount={cartAmount}
+          handleUpdateQuantity={handleUpdateQuantity}
+          handleRemoveFromCart={handleRemoveFromCart}
+          clearCart={clearCart}
+          onClose={handleCloseCheckout}
+        />
+      )}
     </AnimatePresence>
   );
 }

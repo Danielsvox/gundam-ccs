@@ -1,0 +1,138 @@
+.stepperContainer {
+    padding: 20px 24px;
+    background-color: #262626;
+    border-bottom: 1px solid #333;
+}
+
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.stepItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.stepCircle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #333;
+    border: 2px solid #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    transition: 0.3s all;
+}
+
+.stepCircle.active {
+    background-color: #ff4444;
+    border-color: #ff4444;
+}
+
+.stepNumber {
+    color: #ccc;
+    font-size: 16px;
+    font-family: "GT Bold";
+    font-weight: bold;
+}
+
+.stepCircle.active .stepNumber {
+    color: white;
+}
+
+.checkmark {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stepLabel {
+    color: #888;
+    font-size: 12px;
+    font-family: "GT Medium";
+    text-align: center;
+    transition: 0.3s all;
+}
+
+.stepLabel.active {
+    color: #ff4444;
+}
+
+.stepLine {
+    flex: 1;
+    height: 2px;
+    background-color: #555;
+    margin: 0 8px;
+    margin-bottom: 24px;
+    transition: 0.3s all;
+}
+
+.stepLine.active {
+    background-color: #ff4444;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .stepperContainer {
+        padding: 16px 20px;
+    }
+
+    .stepCircle {
+        width: 32px;
+        height: 32px;
+    }
+
+    .stepNumber {
+        font-size: 14px;
+    }
+
+    .checkmark {
+        font-size: 16px;
+    }
+
+    .stepLabel {
+        font-size: 11px;
+    }
+
+    .stepLine {
+        margin: 0 4px;
+        margin-bottom: 20px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .stepperContainer {
+        padding: 12px 16px;
+    }
+
+    .stepCircle {
+        width: 28px;
+        height: 28px;
+    }
+
+    .stepNumber {
+        font-size: 12px;
+    }
+
+    .checkmark {
+        font-size: 14px;
+    }
+
+    .stepLabel {
+        font-size: 10px;
+    }
+
+    .stepLine {
+        margin: 0 2px;
+        margin-bottom: 16px;
+    }
+}

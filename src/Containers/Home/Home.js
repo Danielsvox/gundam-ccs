@@ -37,7 +37,8 @@ const Home = props => {
     allGundams,
     cartError,
     showCartError,
-    handleUpdateQuantity
+    handleUpdateQuantity,
+    onCheckout
   } = props;
 
   const [browsing, setBrowsing] = useState(false);
@@ -115,6 +116,7 @@ const Home = props => {
         openGundamPage={openGundamPage}
         cartError={cartError}
         showCartError={showCartError}
+        onCheckout={onCheckout}
       /> : null}
       <div className={styles.home}>
 

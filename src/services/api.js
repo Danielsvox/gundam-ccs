@@ -140,7 +140,7 @@ export const cartAPI = {
     addToCart: (productId, quantity = 1) => api.post('/cart/add/', { product_id: productId, quantity }),
     updateCartItem: (itemId, quantity) => api.put(`/cart/items/${itemId}/`, { quantity }),
     removeFromCart: (itemId) => api.delete(`/cart/items/${itemId}/`),
-    clearCart: () => api.delete('/cart/clear/'),
+    clearCart: () => api.delete('/cart/'),
     applyCoupon: (code) => api.post('/cart/apply-coupon/', { code }),
     removeCoupon: () => api.delete('/cart/remove-coupon/'),
 };

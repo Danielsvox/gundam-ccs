@@ -56,6 +56,123 @@
         "noGundams": "No gundams added",
         "clear": "Clear"
     },
+    "modal": {
+        "clearCartTitle": "Clear Cart",
+        "clearCartMessage": "Are you sure you want to clear your cart? This action cannot be undone.",
+        "confirm": "Clear Cart",
+        "cancel": "Cancel"
+    },
+    "checkout": {
+        "title": "Checkout",
+        "loading": "Loading...",
+        "emptyCart": "Your cart is empty",
+        "emptyCartMessage": "Add some items to your cart to continue with checkout.",
+        "continueShopping": "Continue Shopping",
+        "steps": {
+            "cartReview": "Cart Review",
+            "shipping": "Shipping",
+            "payment": "Payment",
+            "confirmation": "Confirmation"
+        },
+        "cartReview": {
+            "title": "Review Your Cart",
+            "discount": "Discount Code",
+            "discountPlaceholder": "Enter discount code",
+            "apply": "Apply",
+            "remove": "Remove",
+            "subtotal": "Subtotal",
+            "total": "Total",
+            "continue": "Continue to Shipping"
+        },
+        "shipping": {
+            "title": "Shipping Information",
+            "description": "Please provide your shipping address for delivery.",
+            "personalInfo": "Personal Information",
+            "addressInfo": "Address Information",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "city": "City",
+            "state": "State/Province",
+            "postalCode": "Postal Code",
+            "country": "Country",
+            "firstNamePlaceholder": "Enter your first name",
+            "lastNamePlaceholder": "Enter your last name",
+            "emailPlaceholder": "Enter your email",
+            "phonePlaceholder": "Enter your phone number",
+            "addressPlaceholder": "Enter your address",
+            "cityPlaceholder": "Enter your city",
+            "statePlaceholder": "Enter your state/province",
+            "postalCodePlaceholder": "Enter your postal code",
+            "countryPlaceholder": "Enter your country",
+            "back": "Back to Cart",
+            "continue": "Continue to Payment",
+            "errors": {
+                "firstNameRequired": "First name is required",
+                "lastNameRequired": "Last name is required",
+                "emailRequired": "Email is required",
+                "emailInvalid": "Please enter a valid email",
+                "phoneRequired": "Phone number is required",
+                "addressRequired": "Address is required",
+                "cityRequired": "City is required",
+                "stateRequired": "State/province is required",
+                "postalCodeRequired": "Postal code is required",
+                "countryRequired": "Country is required"
+            }
+        },
+        "payment": {
+            "title": "Payment Method",
+            "description": "Choose your preferred payment method.",
+            "selectMethod": "Select Payment Method",
+            "orderSummary": "Order Summary",
+            "subtotal": "Subtotal",
+            "shipping": "Shipping",
+            "total": "Total",
+            "free": "Free",
+            "shippingTo": "Shipping to",
+            "back": "Back to Shipping",
+            "placeOrder": "Place Order",
+            "stripe": {
+                "title": "Credit Card (Stripe)",
+                "description": "Pay securely with your credit card",
+                "info": "Your payment will be processed securely through Stripe."
+            },
+            "manual": {
+                "title": "Manual Payment",
+                "description": "Pay via phone or bank transfer",
+                "info": "You will be contacted to arrange payment after order confirmation."
+            }
+        },
+        "confirmation": {
+            "title": "Order Confirmed!",
+            "message": "Thank you for your order. We'll send you a confirmation email shortly.",
+            "loading": "Processing your order...",
+            "orderDetails": "Order Details",
+            "orderNumber": "Order Number",
+            "orderDate": "Order Date",
+            "paymentMethod": "Payment Method",
+            "status": "Status",
+            "shippingAddress": "Shipping Address",
+            "items": "Order Items",
+            "subtotal": "Subtotal",
+            "discount": "Discount",
+            "shipping": "Shipping",
+            "total": "Total",
+            "free": "Free",
+            "continueShopping": "Continue Shopping",
+            "manualPayment": {
+                "title": "Manual Payment Required",
+                "message": "Please contact us to arrange payment for your order.",
+                "contact": "Contact Information"
+            },
+            "whatsapp": {
+                "title": "WhatsApp Notification",
+                "message": "You will receive a WhatsApp notification with your order details shortly."
+            }
+        }
+    },
     "card": {
         "addToCart": "Add to Cart",
         "addedToCart": "Added to Cart",

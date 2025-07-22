@@ -51,7 +51,8 @@ const Browse = props => {
     getHoverState,
     productsLoading,
     productsError,
-    onRetryProducts
+    onRetryProducts,
+    onCheckout
   } = props;
 
   const [grid, setGrid] = useState(true);
@@ -178,6 +179,7 @@ const Browse = props => {
         handleRemoveFromCart={handleRemoveFromCart}
         handleUpdateQuantity={handleUpdateQuantity}
         openGundamPage={openGundamPage}
+        onCheckout={onCheckout}
       /> : null}
 
       <NavBar

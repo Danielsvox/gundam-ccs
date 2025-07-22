@@ -56,6 +56,123 @@
         "noGundams": "No se agregaron gundams",
         "clear": "Limpiar"
     },
+    "modal": {
+        "clearCartTitle": "Vaciar Carrito",
+        "clearCartMessage": "¿Estás seguro de que quieres vaciar tu carrito? Esta acción no se puede deshacer.",
+        "confirm": "Vaciar Carrito",
+        "cancel": "Cancelar"
+    },
+    "checkout": {
+        "title": "Finalizar Compra",
+        "loading": "Cargando...",
+        "emptyCart": "Tu carrito está vacío",
+        "emptyCartMessage": "Agrega algunos artículos a tu carrito para continuar con la compra.",
+        "continueShopping": "Continuar Comprando",
+        "steps": {
+            "cartReview": "Revisar Carrito",
+            "shipping": "Envío",
+            "payment": "Pago",
+            "confirmation": "Confirmación"
+        },
+        "cartReview": {
+            "title": "Revisar Tu Carrito",
+            "discount": "Código de Descuento",
+            "discountPlaceholder": "Ingresa código de descuento",
+            "apply": "Aplicar",
+            "remove": "Eliminar",
+            "subtotal": "Subtotal",
+            "total": "Total",
+            "continue": "Continuar al Envío"
+        },
+        "shipping": {
+            "title": "Información de Envío",
+            "description": "Por favor proporciona tu dirección de envío para la entrega.",
+            "personalInfo": "Información Personal",
+            "addressInfo": "Información de Dirección",
+            "firstName": "Nombre",
+            "lastName": "Apellido",
+            "email": "Correo Electrónico",
+            "phone": "Teléfono",
+            "address": "Dirección",
+            "city": "Ciudad",
+            "state": "Estado/Provincia",
+            "postalCode": "Código Postal",
+            "country": "País",
+            "firstNamePlaceholder": "Ingresa tu nombre",
+            "lastNamePlaceholder": "Ingresa tu apellido",
+            "emailPlaceholder": "Ingresa tu correo electrónico",
+            "phonePlaceholder": "Ingresa tu número de teléfono",
+            "addressPlaceholder": "Ingresa tu dirección",
+            "cityPlaceholder": "Ingresa tu ciudad",
+            "statePlaceholder": "Ingresa tu estado/provincia",
+            "postalCodePlaceholder": "Ingresa tu código postal",
+            "countryPlaceholder": "Ingresa tu país",
+            "back": "Volver al Carrito",
+            "continue": "Continuar al Pago",
+            "errors": {
+                "firstNameRequired": "El nombre es requerido",
+                "lastNameRequired": "El apellido es requerido",
+                "emailRequired": "El correo electrónico es requerido",
+                "emailInvalid": "Por favor ingresa un correo válido",
+                "phoneRequired": "El número de teléfono es requerido",
+                "addressRequired": "La dirección es requerida",
+                "cityRequired": "La ciudad es requerida",
+                "stateRequired": "El estado/provincia es requerido",
+                "postalCodeRequired": "El código postal es requerido",
+                "countryRequired": "El país es requerido"
+            }
+        },
+        "payment": {
+            "title": "Método de Pago",
+            "description": "Elige tu método de pago preferido.",
+            "selectMethod": "Seleccionar Método de Pago",
+            "orderSummary": "Resumen del Pedido",
+            "subtotal": "Subtotal",
+            "shipping": "Envío",
+            "total": "Total",
+            "free": "Gratis",
+            "shippingTo": "Enviar a",
+            "back": "Volver al Envío",
+            "placeOrder": "Realizar Pedido",
+            "stripe": {
+                "title": "Tarjeta de Crédito (Stripe)",
+                "description": "Paga de forma segura con tu tarjeta de crédito",
+                "info": "Tu pago será procesado de forma segura a través de Stripe."
+            },
+            "manual": {
+                "title": "Pago Manual",
+                "description": "Paga por teléfono o transferencia bancaria",
+                "info": "Serás contactado para arreglar el pago después de la confirmación del pedido."
+            }
+        },
+        "confirmation": {
+            "title": "¡Pedido Confirmado!",
+            "message": "Gracias por tu pedido. Te enviaremos un correo de confirmación pronto.",
+            "loading": "Procesando tu pedido...",
+            "orderDetails": "Detalles del Pedido",
+            "orderNumber": "Número de Pedido",
+            "orderDate": "Fecha del Pedido",
+            "paymentMethod": "Método de Pago",
+            "status": "Estado",
+            "shippingAddress": "Dirección de Envío",
+            "items": "Artículos del Pedido",
+            "subtotal": "Subtotal",
+            "discount": "Descuento",
+            "shipping": "Envío",
+            "total": "Total",
+            "free": "Gratis",
+            "continueShopping": "Continuar Comprando",
+            "manualPayment": {
+                "title": "Pago Manual Requerido",
+                "message": "Por favor contáctanos para arreglar el pago de tu pedido.",
+                "contact": "Información de Contacto"
+            },
+            "whatsapp": {
+                "title": "Notificación de WhatsApp",
+                "message": "Recibirás una notificación de WhatsApp con los detalles de tu pedido pronto."
+            }
+        }
+    },
     "card": {
         "addToCart": "Agregar al Carrito",
         "addedToCart": "Agregado al Carrito",

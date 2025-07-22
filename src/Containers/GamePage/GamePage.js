@@ -47,7 +47,8 @@ const GamePage = props => {
     clearCart,
     handleRemoveFromCart,
     handleUpdateQuantity,
-    openGundamPage
+    openGundamPage,
+    onCheckout
   } = props;
 
   const [carouselState, setCarouselState] = useState(0);
@@ -156,6 +157,7 @@ const GamePage = props => {
           handleRemoveFromCart={handleRemoveFromCart}
           handleUpdateQuantity={handleUpdateQuantity}
           openGundamPage={openGundamPage}
+          onCheckout={onCheckout}
         /> : null}
 
         <NavBar

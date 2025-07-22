@@ -1,0 +1,213 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modalContainer {
+    background-color: #1A1A1A;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 24px 16px 24px;
+    border-bottom: 1px solid #333;
+}
+
+.modalTitle {
+    color: white;
+    font-size: 20px;
+    font-family: "GT Bold";
+    margin: 0;
+    flex: 1;
+}
+
+.closeButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: 0.3s all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 16px;
+}
+
+.closeButton:hover {
+    background-color: #333;
+}
+
+.closeIcon {
+    width: 16px;
+    height: 16px;
+    fill: #ccc;
+    transition: 0.3s all;
+}
+
+.closeButton:hover .closeIcon {
+    fill: white;
+}
+
+.modalContent {
+    padding: 24px;
+}
+
+.modalMessage {
+    color: #ccc;
+    font-size: 16px;
+    font-family: "GT Regular";
+    line-height: 1.5;
+    margin: 0;
+}
+
+.modalActions {
+    display: flex;
+    gap: 12px;
+    padding: 16px 24px 24px 24px;
+    justify-content: flex-end;
+}
+
+.cancelButton {
+    background-color: transparent;
+    border: 1px solid #666;
+    color: #ccc;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "GT Medium";
+    cursor: pointer;
+    transition: 0.3s all;
+    min-width: 80px;
+}
+
+.cancelButton:hover {
+    background-color: #333;
+    border-color: #888;
+    color: white;
+}
+
+.cancelButton:active {
+    transform: scale(0.98);
+}
+
+.confirmButton {
+    background-color: #ff4444;
+    border: 1px solid #ff4444;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "GT Medium";
+    cursor: pointer;
+    transition: 0.3s all;
+    min-width: 80px;
+}
+
+.confirmButton:hover {
+    background-color: #ff6666;
+    border-color: #ff6666;
+}
+
+.confirmButton:active {
+    transform: scale(0.98);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .modalOverlay {
+        padding: 16px;
+    }
+
+    .modalContainer {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .modalHeader {
+        padding: 20px 20px 12px 20px;
+    }
+
+    .modalTitle {
+        font-size: 18px;
+    }
+
+    .modalContent {
+        padding: 20px;
+    }
+
+    .modalMessage {
+        font-size: 15px;
+    }
+
+    .modalActions {
+        padding: 12px 20px 20px 20px;
+        flex-direction: column;
+    }
+
+    .cancelButton,
+    .confirmButton {
+        width: 100%;
+        padding: 14px 24px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .modalOverlay {
+        padding: 12px;
+    }
+
+    .modalHeader {
+        padding: 16px 16px 8px 16px;
+    }
+
+    .modalContent {
+        padding: 16px;
+    }
+
+    .modalActions {
+        padding: 8px 16px 16px 16px;
+    }
+
+    .modalTitle {
+        font-size: 16px;
+    }
+
+    .modalMessage {
+        font-size: 14px;
+    }
+}

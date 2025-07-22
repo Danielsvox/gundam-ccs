@@ -24,7 +24,8 @@ const Cart = props => {
         handleUpdateQuantity,
         openGundamPage,
         cartError,
-        showCartError
+        showCartError,
+        onCheckout
     } = props;
 
     // Debug cart data
@@ -76,7 +77,15 @@ const Cart = props => {
                         )}
                         <div className={styles.topHeader}>
                             <h2>{cartAmount >= 1 ? cartAmount > 1 ? `${cartAmount} ${t('cart.gundams')}` : `1 ${t('cart.gundam')}` : t('cart.noGundams')}</h2>
-                            <h3 onClick={clearCart}>{cartAmount >= 1 ? t('cart.clear') : ""}</h3>
+                            {cartAmount >= 1 && (
+                                <button
+                                    className={styles.clearCartBtn}
+                                    onClick={clearCart}
+                                    aria-label="Clear cart"
+                                >
+                                    {t('cart.clear')}
+                                </button>
+                            )}
                         </div>
 
                         <div className={styles.topGundams}>
@@ -94,7 +103,7 @@ const Cart = props => {
                                         onClick={openGundamPage}
                                         title={item.product?.name}
                                     >
-                                        {item.product?.name}
+                                        {item.product?.name || 'Unknown Product'}
                                         {item.quantity > 1 && <span style={{ color: '#888', fontSize: '0.9em' }}> x{item.quantity}</span>}
                                     </h3>
                                     <div className={styles.itemControls}>
@@ -102,7 +111,7 @@ const Cart = props => {
                                             <button
                                                 className={styles.quantityBtn}
                                                 onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                                                disabled={item.quantity <= 1}
+                                                disabled={item.quantity <= 0}
                                                 aria-label="Decrease quantity"
                                             >
                                                 −
@@ -134,8 +143,10 @@ const Cart = props => {
                             id="24"
                             onMouseEnter={handleHover}
                             onMouseLeave={handleHover}
+                            onClick={onCheckout}
                             style={{ color: getHoverState(24).hovered ? "#92f" : "#fff" }}
                             aria-label="Checkout"
+                            disabled={cart.length === 0}
                         >
                             {t('cart.checkout')}
                             <Right

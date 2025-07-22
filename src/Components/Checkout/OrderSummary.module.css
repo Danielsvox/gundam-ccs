@@ -1,0 +1,331 @@
+.orderSummary {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section {
+    background-color: #262626;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #333;
+}
+
+.section h2 {
+    color: white;
+    font-size: 20px;
+    font-family: "GT Bold";
+    margin: 0 0 8px 0;
+}
+
+.section h3 {
+    color: white;
+    font-size: 16px;
+    font-family: "GT Medium";
+    margin: 0 0 20px 0;
+}
+
+.section h4 {
+    color: white;
+    font-size: 14px;
+    font-family: "GT Medium";
+    margin: 0 0 4px 0;
+}
+
+.successHeader {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.successIcon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.successHeader h2 {
+    color: #4CAF50;
+    font-size: 24px;
+    font-family: "GT Bold";
+    margin: 0 0 8px 0;
+}
+
+.successHeader p {
+    color: #ccc;
+    font-size: 16px;
+    font-family: "GT Regular";
+    margin: 0;
+}
+
+.orderInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+}
+
+.orderNumber {
+    color: #ff4444;
+    font-weight: bold;
+    font-family: "GT Bold";
+}
+
+.status {
+    color: #4CAF50;
+    font-weight: bold;
+    font-family: "GT Medium";
+}
+
+.addressInfo {
+    background-color: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.addressInfo p {
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0;
+    line-height: 1.4;
+}
+
+.itemsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.orderItem {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background-color: #1A1A1A;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.itemImage {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.itemImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.itemDetails {
+    flex: 1;
+    min-width: 0;
+}
+
+.itemDetails h4 {
+    color: white;
+    font-size: 14px;
+    font-family: "GT Medium";
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.itemDetails p {
+    color: #ccc;
+    font-size: 12px;
+    font-family: "GT Regular";
+    margin: 0 0 2px 0;
+}
+
+.itemTotal {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: "GT Medium";
+    min-width: 60px;
+    text-align: right;
+}
+
+.totalSummary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+}
+
+.totalRow {
+    color: white;
+    font-size: 18px;
+    font-family: "GT Bold";
+    padding-top: 12px;
+    border-top: 1px solid #333;
+}
+
+.manualPaymentInfo {
+    background-color: #1A1A1A;
+    border: 1px solid #ff4444;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.manualPaymentInfo h3 {
+    color: #ff4444;
+    font-size: 16px;
+    font-family: "GT Medium";
+    margin: 0 0 8px 0;
+}
+
+.manualPaymentInfo p {
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0 0 12px 0;
+}
+
+.contactInfo {
+    background-color: #262626;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.contactInfo p {
+    color: #ccc;
+    font-size: 13px;
+    font-family: "GT Regular";
+    margin: 0 0 4px 0;
+}
+
+.contactInfo p:last-child {
+    margin-bottom: 0;
+}
+
+.whatsappInfo {
+    background-color: #1A1A1A;
+    border: 1px solid #25D366;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.whatsappInfo h3 {
+    color: #25D366;
+    font-size: 16px;
+    font-family: "GT Medium";
+    margin: 0 0 8px 0;
+}
+
+.whatsappInfo p {
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+}
+
+.continueBtn {
+    background-color: #ff4444;
+    border: none;
+    color: white;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: "GT Medium";
+    cursor: pointer;
+    transition: 0.3s all;
+}
+
+.continueBtn:hover {
+    background-color: #ff6666;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .section {
+        padding: 16px;
+    }
+
+    .successHeader h2 {
+        font-size: 20px;
+    }
+
+    .successHeader p {
+        font-size: 14px;
+    }
+
+    .orderItem {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .itemDetails {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .itemTotal {
+        min-width: 50px;
+    }
+
+    .continueBtn {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .section {
+        padding: 12px;
+    }
+
+    .orderItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .itemImage {
+        width: 80px;
+        height: 80px;
+    }
+
+    .itemTotal {
+        align-self: flex-end;
+    }
+
+    .successIcon {
+        font-size: 36px;
+    }
+
+    .successHeader h2 {
+        font-size: 18px;
+    }
+
+    .continueBtn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+}

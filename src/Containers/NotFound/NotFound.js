@@ -29,7 +29,8 @@ const NotFound = props => {
     handleSearchSubmit,
     handleRemoveFromCart,
     handleUpdateQuantity,
-    openGundamPage
+    openGundamPage,
+    onCheckout
   } = props;
   const location = useLocation();
 
@@ -63,6 +64,7 @@ const NotFound = props => {
         handleRemoveFromCart={handleRemoveFromCart}
         handleUpdateQuantity={handleUpdateQuantity}
         openGundamPage={openGundamPage}
+        onCheckout={onCheckout}
       /> : null}
 
       <NavBar
