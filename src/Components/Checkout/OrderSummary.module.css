@@ -200,7 +200,163 @@
     color: #ccc;
     font-size: 14px;
     font-family: "GT Regular";
+    margin: 0 0 16px 0;
+}
+
+.contactButtons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.whatsappBtn {
+    background-color: #25D366;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "GT Medium";
+    cursor: pointer;
+    transition: 0.3s all;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.whatsappBtn:hover {
+    background-color: #128C7E;
+}
+
+.contactInfoBtn {
+    background-color: #ff4444;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "GT Medium";
+    cursor: pointer;
+    transition: 0.3s all;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contactInfoBtn:hover {
+    background-color: #ff6666;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modalContent {
+    background-color: #262626;
+    border-radius: 12px;
+    border: 1px solid #333;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #333;
+}
+
+.modalHeader h3 {
+    color: white;
+    font-size: 18px;
+    font-family: "GT Medium";
+    margin: 0;
+}
+
+.closeModalBtn {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: 0.3s all;
+}
+
+.closeModalBtn:hover {
+    background-color: #333;
+    color: white;
+}
+
+.modalBody {
+    padding: 24px;
+}
+
+.contactInfo {
+    background-color: #1A1A1A;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.contactInfo p {
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0 0 8px 0;
+}
+
+.contactInfo p:last-child {
+    margin-bottom: 0;
+}
+
+.paymentInstructions {
+    background-color: #1A1A1A;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.paymentInstructions h4 {
+    color: white;
+    font-size: 16px;
+    font-family: "GT Medium";
     margin: 0 0 12px 0;
+}
+
+.paymentInstructions ul {
+    color: #ccc;
+    font-size: 14px;
+    font-family: "GT Regular";
+    margin: 0;
+    padding-left: 20px;
+}
+
+.paymentInstructions li {
+    margin-bottom: 8px;
+}
+
+.paymentInstructions li:last-child {
+    margin-bottom: 0;
 }
 
 .contactInfo {

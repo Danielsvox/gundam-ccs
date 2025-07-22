@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Checkout.module.css';
 import CartReview from './CartReview';
 import ShippingInfo from './ShippingInfo';
+import ShippingMethod from './ShippingMethod';
 import PaymentMethod from './PaymentMethod';
 import OrderSummary from './OrderSummary';
 import CheckoutStepper from './CheckoutStepper';
+import { orderAPI, cartAPI } from '../../services/api';
 
 const Checkout = ({
     cart,
@@ -31,12 +33,14 @@ const Checkout = ({
         postalCode: '',
         country: ''
     });
+    const [selectedShippingMethod, setSelectedShippingMethod] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [discountCode, setDiscountCode] = useState('');
     const [appliedDiscount, setAppliedDiscount] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [orderDetails, setOrderDetails] = useState(null);
+    const [pendingShippingMethod, setPendingShippingMethod] = useState(null);
 
     // Calculate totals
     const subtotal = cart.reduce((sum, item) => {
@@ -47,7 +51,7 @@ const Checkout = ({
     const total = subtotal - discountAmount;
 
     const handleNext = () => {
-        if (currentStep < 4) {
+        if (currentStep < 5) {
             setCurrentStep(currentStep + 1);
         }
     };
@@ -63,61 +67,90 @@ const Checkout = ({
         handleNext();
     };
 
+    const handleShippingMethodSubmit = (method) => {
+        console.log('Shipping method selected:', method);
+        console.log('Method ID:', method?.id);
+        setSelectedShippingMethod(method);
+        setPendingShippingMethod(method);
+        console.log('State updated, moving to next step');
+        handleNext();
+    };
+
     const handlePaymentSubmit = async (paymentData) => {
         setLoading(true);
         setError(null);
 
         try {
-            // Create order with shipping and payment data
+            // Always use manual payment method
+            setPaymentMethod('manual');
+
+            // Debug: Check if we have a shipping method
+            console.log('Current step:', currentStep);
+            console.log('Selected shipping method:', selectedShippingMethod);
+            console.log('Shipping method ID:', selectedShippingMethod?.id);
+            console.log('Pending shipping method:', pendingShippingMethod);
+
+            // Use the selected shipping method or the pending one
+            const effectiveShippingMethod = selectedShippingMethod || pendingShippingMethod || {
+                id: 1,
+                name: 'Standard Shipping',
+                description: '5-7 business days',
+                price: '0.00'
+            };
+
+            console.log('Effective shipping method for checkout:', effectiveShippingMethod);
+
+            // Create order with shipping and payment data according to backend requirements
             const orderData = {
                 shipping_address: {
-                    first_name: shippingData.firstName,
-                    last_name: shippingData.lastName,
-                    email: shippingData.email,
-                    phone: shippingData.phone,
-                    address: shippingData.address,
+                    name: `${shippingData.firstName} ${shippingData.lastName}`,
+                    line1: shippingData.address,
+                    line2: '', // Optional apartment/suite
                     city: shippingData.city,
                     state: shippingData.state,
                     postal_code: shippingData.postalCode,
-                    country: shippingData.country
+                    country: shippingData.country,
+                    phone: shippingData.phone
                 },
-                payment_method: paymentMethod,
-                discount_code: discountCode,
-                items: cart.map(item => ({
-                    product_id: item.product.id,
-                    quantity: item.quantity
-                }))
+                shipping_method_id: effectiveShippingMethod.id,
+                payment_method: 'manual', // Explicitly set manual payment
+                customer_notes: '' // Optional field
             };
 
-            // If Stripe payment, handle payment intent
-            if (paymentMethod === 'stripe' && paymentData.paymentIntent) {
-                orderData.payment_intent_id = paymentData.paymentIntent.id;
-            }
+            console.log('Order data being sent:', orderData);
 
-            // Create order
-            const response = await fetch('/api/v1/orders/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                },
-                body: JSON.stringify(orderData)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to create order');
-            }
-
-            const order = await response.json();
+            // Create order using centralized API service
+            // The backend will handle the order creation without payment intent
+            const response = await orderAPI.createOrder(orderData);
+            const order = response.data;
             setOrderDetails(order);
 
             // Clear cart
             await clearCart();
 
             // Move to confirmation step
-            setCurrentStep(4);
+            setCurrentStep(5);
         } catch (err) {
-            setError(err.message || 'Failed to process order');
+            // Display any 400-level error from the backend clearly to the user
+            if (err.response?.status >= 400 && err.response?.status < 500) {
+                const errorData = err.response.data;
+                if (typeof errorData === 'object') {
+                    // Handle structured error responses
+                    const errorMessages = Object.entries(errorData)
+                        .map(([field, messages]) => {
+                            if (Array.isArray(messages)) {
+                                return messages.join(', ');
+                            }
+                            return messages;
+                        })
+                        .join('. ');
+                    setError(errorMessages);
+                } else {
+                    setError(errorData || 'Invalid request. Please check your information.');
+                }
+            } else {
+                setError(err.message || 'Failed to process order. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -130,25 +163,11 @@ const Checkout = ({
         setError(null);
 
         try {
-            const response = await fetch('/api/v1/cart/apply-coupon/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                },
-                body: JSON.stringify({ code: discountCode })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Invalid discount code');
-            }
-
-            const data = await response.json();
-            setAppliedDiscount(data.applied_coupon);
+            const response = await cartAPI.applyCoupon(discountCode);
+            setAppliedDiscount(response.data.applied_coupon);
             setError(null);
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message || 'Invalid discount code');
             setAppliedDiscount(null);
         } finally {
             setLoading(false);
@@ -157,13 +176,7 @@ const Checkout = ({
 
     const handleRemoveDiscount = async () => {
         try {
-            await fetch('/api/v1/cart/remove-coupon/', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                }
-            });
-
+            await cartAPI.removeCoupon();
             setAppliedDiscount(null);
             setDiscountCode('');
         } catch (err) {
@@ -200,16 +213,28 @@ const Checkout = ({
                 );
             case 3:
                 return (
+                    <ShippingMethod
+                        key="shipping-method-step"
+                        selectedMethod={selectedShippingMethod}
+                        onMethodSelect={setSelectedShippingMethod}
+                        onBack={handleBack}
+                        onNext={handleShippingMethodSubmit}
+                        loading={loading}
+                    />
+                );
+            case 4:
+                return (
                     <PaymentMethod
                         total={total}
                         shippingData={shippingData}
+                        selectedShippingMethod={selectedShippingMethod}
                         onSubmit={handlePaymentSubmit}
                         onBack={handleBack}
                         loading={loading}
                         error={error}
                     />
                 );
-            case 4:
+            case 5:
                 return (
                     <OrderSummary
                         orderDetails={orderDetails}
@@ -221,7 +246,7 @@ const Checkout = ({
         }
     };
 
-    if (cart.length === 0 && currentStep !== 4) {
+    if (cart.length === 0 && currentStep !== 5) {
         return (
             <div className={styles.emptyCart}>
                 <h2>{t('checkout.emptyCart')}</h2>

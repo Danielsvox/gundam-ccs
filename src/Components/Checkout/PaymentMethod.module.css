@@ -75,12 +75,6 @@
     gap: 16px;
 }
 
-.radio {
-    width: 18px;
-    height: 18px;
-    accent-color: #ff4444;
-}
-
 .optionInfo {
     flex: 1;
 }
@@ -105,14 +99,12 @@
     text-align: center;
 }
 
-.stripeInfo,
 .manualInfo {
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid #333;
 }
 
-.stripeInfo p,
 .manualInfo p {
     color: #ccc;
     font-size: 13px;
@@ -164,6 +156,26 @@
     font-family: "GT Regular";
     margin: 0;
     line-height: 1.4;
+}
+
+.shippingMethodInfo {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+}
+
+.shippingMethodInfo h5 {
+    color: white;
+    font-size: 13px;
+    font-family: "GT Medium";
+    margin: 0 0 4px 0;
+}
+
+.shippingMethodInfo p {
+    color: #ccc;
+    font-size: 12px;
+    font-family: "GT Regular";
+    margin: 0;
 }
 
 .errorSection {

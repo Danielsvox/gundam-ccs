@@ -1,59 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './PaymentMethod.module.css';
 
-const PaymentMethod = ({ total, shippingData, onSubmit, onBack, loading, error }) => {
+const PaymentMethod = ({ total, shippingData, selectedShippingMethod, onSubmit, onBack, loading, error }) => {
     const { t } = useTranslation();
 
-    const [paymentMethod, setPaymentMethod] = useState('');
-    const [stripeLoading, setStripeLoading] = useState(false);
+    // Debug: Log the selected shipping method
+    console.log('PaymentMethod received selectedShippingMethod:', selectedShippingMethod);
+    console.log('PaymentMethod received selectedShippingMethod ID:', selectedShippingMethod?.id);
 
-    const handlePaymentMethodSelect = (method) => {
-        setPaymentMethod(method);
+    // Use the selected shipping method or fallback to a default
+    const effectiveShippingMethod = selectedShippingMethod || {
+        id: 1,
+        name: 'Standard Shipping',
+        description: '5-7 business days',
+        price: '0.00'
     };
+
+    console.log('Effective shipping method:', effectiveShippingMethod);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!paymentMethod) {
-            return;
-        }
-
-        if (paymentMethod === 'stripe') {
-            setStripeLoading(true);
-            try {
-                // Create payment intent with Stripe
-                const response = await fetch('/api/v1/payments/create-payment-intent/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                    },
-                    body: JSON.stringify({
-                        amount: Math.round(total * 100), // Convert to cents
-                        currency: 'usd'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to create payment intent');
-                }
-
-                const paymentIntent = await response.json();
-
-                // Submit with payment intent
-                onSubmit({ paymentIntent });
-            } catch (err) {
-                console.error('Stripe error:', err);
-                // Continue with manual payment if Stripe fails
-                onSubmit({});
-            } finally {
-                setStripeLoading(false);
-            }
-        } else {
-            // Manual payment
-            onSubmit({});
-        }
+        // Submit with manual payment method
+        onSubmit({ paymentMethod: 'manual' });
     };
 
     return (
@@ -68,56 +38,17 @@ const PaymentMethod = ({ total, shippingData, onSubmit, onBack, loading, error }
                     <h3>{t('checkout.payment.selectMethod')}</h3>
 
                     <div className={styles.paymentOptions}>
-                        <div
-                            className={`${styles.paymentOption} ${paymentMethod === 'stripe' ? styles.selected : ''}`}
-                            onClick={() => handlePaymentMethodSelect('stripe')}
-                        >
+                        <div className={`${styles.paymentOption} ${styles.selected}`}>
                             <div className={styles.optionHeader}>
-                                <input
-                                    type="radio"
-                                    name="paymentMethod"
-                                    value="stripe"
-                                    checked={paymentMethod === 'stripe'}
-                                    onChange={() => handlePaymentMethodSelect('stripe')}
-                                    className={styles.radio}
-                                />
-                                <div className={styles.optionInfo}>
-                                    <h4>{t('checkout.payment.stripe.title')}</h4>
-                                    <p>{t('checkout.payment.stripe.description')}</p>
-                                </div>
-                                <div className={styles.optionIcon}>💳</div>
-                            </div>
-                            {paymentMethod === 'stripe' && (
-                                <div className={styles.stripeInfo}>
-                                    <p>{t('checkout.payment.stripe.info')}</p>
-                                </div>
-                            )}
-                        </div>
-
-                        <div
-                            className={`${styles.paymentOption} ${paymentMethod === 'manual' ? styles.selected : ''}`}
-                            onClick={() => handlePaymentMethodSelect('manual')}
-                        >
-                            <div className={styles.optionHeader}>
-                                <input
-                                    type="radio"
-                                    name="paymentMethod"
-                                    value="manual"
-                                    checked={paymentMethod === 'manual'}
-                                    onChange={() => handlePaymentMethodSelect('manual')}
-                                    className={styles.radio}
-                                />
                                 <div className={styles.optionInfo}>
                                     <h4>{t('checkout.payment.manual.title')}</h4>
                                     <p>{t('checkout.payment.manual.description')}</p>
                                 </div>
                                 <div className={styles.optionIcon}>📞</div>
                             </div>
-                            {paymentMethod === 'manual' && (
-                                <div className={styles.manualInfo}>
-                                    <p>{t('checkout.payment.manual.info')}</p>
-                                </div>
-                            )}
+                            <div className={styles.manualInfo}>
+                                <p>{t('checkout.payment.manual.info')}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -132,11 +63,19 @@ const PaymentMethod = ({ total, shippingData, onSubmit, onBack, loading, error }
                         </div>
                         <div className={styles.summaryRow}>
                             <span>{t('checkout.payment.shipping')}</span>
-                            <span>{t('checkout.payment.free')}</span>
+                            <span>
+                                {effectiveShippingMethod.price === 0 || effectiveShippingMethod.price === null ? (
+                                    t('checkout.payment.free')
+                                ) : (
+                                    `$${parseFloat(effectiveShippingMethod.price).toFixed(2)}`
+                                )}
+                            </span>
                         </div>
                         <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                             <span>{t('checkout.payment.total')}</span>
-                            <span>${total.toFixed(2)}</span>
+                            <span>
+                                ${(total + (effectiveShippingMethod.price ? parseFloat(effectiveShippingMethod.price) : 0)).toFixed(2)}
+                            </span>
                         </div>
                     </div>
 
@@ -148,6 +87,12 @@ const PaymentMethod = ({ total, shippingData, onSubmit, onBack, loading, error }
                             {shippingData.city}, {shippingData.state} {shippingData.postalCode}<br />
                             {shippingData.country}
                         </p>
+                        <div className={styles.shippingMethodInfo}>
+                            <h5>{t('checkout.payment.shippingMethod')}</h5>
+                            <p>
+                                {effectiveShippingMethod.name} - {effectiveShippingMethod.description}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -164,9 +109,9 @@ const PaymentMethod = ({ total, shippingData, onSubmit, onBack, loading, error }
                     <button
                         type="submit"
                         className={styles.submitBtn}
-                        disabled={!paymentMethod || loading || stripeLoading}
+                        disabled={loading}
                     >
-                        {loading || stripeLoading ? t('checkout.loading') : t('checkout.payment.placeOrder')}
+                        {loading ? t('checkout.loading') : t('checkout.payment.placeOrder')}
                     </button>
                 </div>
             </form>

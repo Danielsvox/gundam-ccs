@@ -71,6 +71,7 @@
         "steps": {
             "cartReview": "Cart Review",
             "shipping": "Shipping",
+            "shippingMethod": "Shipping Method",
             "payment": "Payment",
             "confirmation": "Confirmation"
         },
@@ -132,6 +133,7 @@
             "total": "Total",
             "free": "Free",
             "shippingTo": "Shipping to",
+            "shippingMethod": "Shipping Method",
             "back": "Back to Shipping",
             "placeOrder": "Place Order",
             "stripe": {
@@ -143,6 +145,23 @@
                 "title": "Manual Payment",
                 "description": "Pay via phone or bank transfer",
                 "info": "You will be contacted to arrange payment after order confirmation."
+            }
+        },
+        "shippingMethod": {
+            "title": "Shipping Method",
+            "description": "Choose your preferred shipping method.",
+            "selectMethod": "Select Shipping Method",
+            "loading": "Loading shipping methods...",
+            "estimatedDays": "Estimated delivery: {{days}} business days",
+            "free": "Free",
+            "noMethodsAvailable": "No shipping methods available at this time.",
+            "back": "Back to Shipping Info",
+            "continue": "Continue to Payment",
+            "errors": {
+                "loadFailed": "Failed to load shipping methods. Please try again later.",
+                "noMethodsAvailable": "No shipping methods are currently available.",
+                "invalidMethod": "Invalid shipping method selected. Please choose a valid option.",
+                "noMethodSelected": "Please select a shipping method to continue."
             }
         },
         "confirmation": {
@@ -166,6 +185,14 @@
                 "title": "Manual Payment Required",
                 "message": "Please contact us to arrange payment for your order.",
                 "contact": "Contact Information"
+            },
+            "contactBusiness": {
+                "whatsapp": "Contact via WhatsApp",
+                "contactInfo": "View Contact Info",
+                "paymentInstructions": "Payment Instructions",
+                "instruction1": "Contact us via phone or WhatsApp to arrange payment",
+                "instruction2": "We accept bank transfers, cash on delivery, and other payment methods",
+                "instruction3": "Your order will be processed once payment is confirmed"
             },
             "whatsapp": {
                 "title": "WhatsApp Notification",

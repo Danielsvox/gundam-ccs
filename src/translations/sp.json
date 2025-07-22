@@ -71,6 +71,7 @@
         "steps": {
             "cartReview": "Revisar Carrito",
             "shipping": "Envío",
+            "shippingMethod": "Método de Envío",
             "payment": "Pago",
             "confirmation": "Confirmación"
         },
@@ -132,6 +133,7 @@
             "total": "Total",
             "free": "Gratis",
             "shippingTo": "Enviar a",
+            "shippingMethod": "Método de Envío",
             "back": "Volver al Envío",
             "placeOrder": "Realizar Pedido",
             "stripe": {
@@ -143,6 +145,23 @@
                 "title": "Pago Manual",
                 "description": "Paga por teléfono o transferencia bancaria",
                 "info": "Serás contactado para arreglar el pago después de la confirmación del pedido."
+            }
+        },
+        "shippingMethod": {
+            "title": "Método de Envío",
+            "description": "Elige tu método de envío preferido.",
+            "selectMethod": "Seleccionar Método de Envío",
+            "loading": "Cargando métodos de envío...",
+            "estimatedDays": "Entrega estimada: {{days}} días hábiles",
+            "free": "Gratis",
+            "noMethodsAvailable": "No hay métodos de envío disponibles en este momento.",
+            "back": "Volver a Información de Envío",
+            "continue": "Continuar al Pago",
+            "errors": {
+                "loadFailed": "Error al cargar métodos de envío. Por favor, inténtalo de nuevo más tarde.",
+                "noMethodsAvailable": "No hay métodos de envío disponibles actualmente.",
+                "invalidMethod": "Método de envío inválido seleccionado. Por favor, elige una opción válida.",
+                "noMethodSelected": "Por favor, selecciona un método de envío para continuar."
             }
         },
         "confirmation": {
@@ -166,6 +185,14 @@
                 "title": "Pago Manual Requerido",
                 "message": "Por favor contáctanos para arreglar el pago de tu pedido.",
                 "contact": "Información de Contacto"
+            },
+            "contactBusiness": {
+                "whatsapp": "Contactar por WhatsApp",
+                "contactInfo": "Ver Información de Contacto",
+                "paymentInstructions": "Instrucciones de Pago",
+                "instruction1": "Contáctanos por teléfono o WhatsApp para arreglar el pago",
+                "instruction2": "Aceptamos transferencias bancarias, efectivo contra entrega y otros métodos de pago",
+                "instruction3": "Tu pedido será procesado una vez confirmado el pago"
             },
             "whatsapp": {
                 "title": "Notificación de WhatsApp",

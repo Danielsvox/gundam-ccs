@@ -8,8 +8,9 @@ const CheckoutStepper = ({ currentStep }) => {
     const steps = [
         { id: 1, label: t('checkout.steps.cartReview'), icon: '🛒' },
         { id: 2, label: t('checkout.steps.shipping'), icon: '📍' },
-        { id: 3, label: t('checkout.steps.payment'), icon: '💳' },
-        { id: 4, label: t('checkout.steps.confirmation'), icon: '✅' }
+        { id: 3, label: t('checkout.steps.shippingMethod'), icon: '🚚' },
+        { id: 4, label: t('checkout.steps.payment'), icon: '💳' },
+        { id: 5, label: t('checkout.steps.confirmation'), icon: '✅' }
     ];
 
     return (
