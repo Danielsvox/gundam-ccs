@@ -28,6 +28,7 @@ const NotFound = props => {
     handleSearch,
     handleSearchSubmit,
     handleRemoveFromCart,
+    handleUpdateQuantity,
     openGundamPage
   } = props;
   const location = useLocation();
@@ -60,6 +61,7 @@ const NotFound = props => {
         getHoverState={getHoverState}
         clearCart={clearCart}
         handleRemoveFromCart={handleRemoveFromCart}
+        handleUpdateQuantity={handleUpdateQuantity}
         openGundamPage={openGundamPage}
       /> : null}
 

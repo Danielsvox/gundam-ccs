@@ -21,22 +21,29 @@ const Cart = props => {
         getHoverState,
         clearCart,
         handleRemoveFromCart,
+        handleUpdateQuantity,
         openGundamPage,
         cartError,
         showCartError
     } = props;
 
-    const [total, setTotal] = useState(0);
-    let newTotal = 0;
-    cart.forEach((item, i) => {
-        let priceAsNumber = parseFloat(item.price);
-        let currentTotal = parseFloat(newTotal);
-        newTotal = (priceAsNumber + currentTotal).toFixed(2);
+    // Debug cart data
+    console.log('Cart component - cartAmount:', cartAmount);
+    console.log('Cart component - cart items:', cart);
+    console.log('Cart component - cart items length:', cart?.length);
 
-        if (i === cart.length) {
-            setTotal(newTotal);
-        }
-    })
+    const [total, setTotal] = useState(0);
+
+    // Calculate total from cart items
+    React.useEffect(() => {
+        let newTotal = 0;
+        cart.forEach((item) => {
+            // Use total_price from the cart item (includes quantity)
+            let priceAsNumber = parseFloat(item.total_price || 0);
+            newTotal += priceAsNumber;
+        });
+        setTotal(newTotal.toFixed(2));
+    }, [cart]);
 
     const variants = {
         initial: { x: 100 },
@@ -76,18 +83,42 @@ const Cart = props => {
                             {cart.map((item, i) => {
                                 return <motion.div
                                     className={styles.item}
-                                    key={i}
+                                    key={item.id}
                                     variants={variants}
                                     initial="initial"
                                     animate="animate"
                                     exit="exit"
                                 >
-                                    <h3 id={item.surname} onClick={openGundamPage} title={item.name}>{item.name}</h3>
-                                    <div>
-                                        ${item.price}
-                                        <button id={item.id} onClick={handleRemoveFromCart} className={styles.removeButton} aria-label="Close">
-                                            <Cross className={styles.cross} />
-                                        </button>
+                                    <h3
+                                        id={item.product?.slug}
+                                        onClick={openGundamPage}
+                                        title={item.product?.name}
+                                    >
+                                        {item.product?.name}
+                                        {item.quantity > 1 && <span style={{ color: '#888', fontSize: '0.9em' }}> x{item.quantity}</span>}
+                                    </h3>
+                                    <div className={styles.itemControls}>
+                                        <div className={styles.quantityControls}>
+                                            <button
+                                                className={styles.quantityBtn}
+                                                onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                                disabled={item.quantity <= 1}
+                                                aria-label="Decrease quantity"
+                                            >
+                                                −
+                                            </button>
+                                            <span className={styles.quantity}>{item.quantity}</span>
+                                            <button
+                                                className={styles.quantityBtn}
+                                                onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                                aria-label="Increase quantity"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                        <div className={styles.itemPrice}>
+                                            ${item.total_price}
+                                        </div>
                                     </div>
                                 </motion.div>
                             })}
@@ -98,7 +129,7 @@ const Cart = props => {
                         className={styles.bottom}
                         style={{ width: "87.5%", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                     >
-                        <h3>{t('cart.total')} ${newTotal}</h3>
+                        <h3>{t('cart.total')} ${total}</h3>
                         <button
                             id="24"
                             onMouseEnter={handleHover}

@@ -44,8 +44,8 @@ class AuthService {
         try {
             console.log('Saving user to storage:', {
                 user: user,
-                accessToken: accessToken ? 'Present' : 'Missing',
-                refreshToken: refreshToken ? 'Present' : 'Missing'
+                accessToken: accessToken ? `Present (${accessToken.substring(0, 20)}...)` : 'Missing',
+                refreshToken: refreshToken ? `Present (${refreshToken.substring(0, 20)}...)` : 'Missing'
             });
 
             localStorage.setItem('user', JSON.stringify(user));
@@ -55,6 +55,8 @@ class AuthService {
             }
 
             console.log('User saved to storage successfully');
+            console.log('Verification - localStorage accessToken:', localStorage.getItem('accessToken') ? 'Present' : 'Missing');
+            console.log('Verification - localStorage refreshToken:', localStorage.getItem('refreshToken') ? 'Present' : 'Missing');
         } catch (error) {
             console.error('Error saving user to storage:', error);
         }
@@ -119,9 +121,11 @@ class AuthService {
 
         try {
             const response = await authAPI.login(credentials);
-            const { user, access, refresh } = response.data;
+            const { user, tokens } = response.data;
+            const { access, refresh } = tokens;
 
             console.log('AuthService: Login successful, response:', response.data);
+            console.log('AuthService: Extracted tokens:', { access, refresh });
 
             this.user = user;
             this.isAuthenticated = true;

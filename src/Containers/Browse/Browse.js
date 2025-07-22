@@ -45,6 +45,7 @@ const Browse = props => {
     cartDisplayed,
     clearCart,
     handleRemoveFromCart,
+    handleUpdateQuantity,
     setHoverState,
     openGundamPage,
     getHoverState,
@@ -175,6 +176,7 @@ const Browse = props => {
         getHoverState={getHoverState}
         clearCart={clearCart}
         handleRemoveFromCart={handleRemoveFromCart}
+        handleUpdateQuantity={handleUpdateQuantity}
         openGundamPage={openGundamPage}
       /> : null}
 

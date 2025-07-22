@@ -44,6 +44,8 @@ const NavBar = props => {
       const currentUser = authService.getCurrentUser();
       const isAuthenticated = authService.isUserAuthenticated();
 
+      console.log('NavBar: Loading user - isAuthenticated:', isAuthenticated, 'currentUser:', currentUser);
+
       // Only set user if actually authenticated
       if (isAuthenticated && currentUser) {
         setUser(currentUser);
@@ -98,7 +100,54 @@ const NavBar = props => {
     setUser(null);
     setShowUserMenu(false);
     setShowLogoutModal(false);
-    // Force reload user state from authService
+  };
+
+  // Debug function to show auth status
+  const handleDebugAuth = () => {
+    const authState = authService.getAuthState();
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const user = localStorage.getItem('user');
+
+    console.log('=== DEBUG AUTH STATUS ===');
+    console.log('Auth State:', authState);
+    console.log('Access Token:', accessToken ? `Present (${accessToken.substring(0, 20)}...)` : 'Missing');
+    console.log('Refresh Token:', refreshToken ? `Present (${refreshToken.substring(0, 20)}...)` : 'Missing');
+    console.log('User Data:', user ? JSON.parse(user) : 'Missing');
+    console.log('========================');
+
+    alert(`Auth Status: ${authState.isAuthenticated ? 'Logged In' : 'Not Logged In'}\nUser: ${authState.user ? authState.user.email : 'None'}\nAccess Token: ${accessToken ? 'Present' : 'Missing'}\nRefresh Token: ${refreshToken ? 'Present' : 'Missing'}`);
+
+    // Test token validity
+    if (accessToken) {
+      console.log('Testing token validity...');
+      // Import the API to test token
+      import('../../services/api').then(({ authAPI, cartAPI }) => {
+        authAPI.getProfile()
+          .then(response => {
+            console.log('Token is valid - Profile response:', response.data);
+
+            // Also test cart API
+            return cartAPI.getCart();
+          })
+          .then(cartResponse => {
+            console.log('Cart API test - Cart response:', cartResponse.data);
+          })
+          .catch(error => {
+            console.log('API test error:', error.response?.status, error.response?.data);
+            // If token is invalid, clear auth and suggest re-login
+            if (error.response?.status === 401) {
+              console.log('Token is invalid - clearing auth data');
+              authService.clearAuth();
+              alert('Token is invalid. Please log in again.');
+            }
+          });
+      });
+    }
+  };
+
+  // Force reload user state from authService - moved to useEffect to prevent infinite re-renders
+  useEffect(() => {
     const currentUser = authService.getCurrentUser();
     const isAuthenticated = authService.isUserAuthenticated();
 
@@ -107,7 +156,7 @@ const NavBar = props => {
     } else {
       setUser(null);
     }
-  };
+  }, []);
 
   const variants = {
     hidden: { opacity: 1, y: 15 },
@@ -210,6 +259,31 @@ const NavBar = props => {
               <Login className={styles.loginIcon} />
             )}
             <h3>{user ? user.first_name || user.email : t('nav.user')}</h3>
+
+            {/* Debug button - remove in production */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDebugAuth();
+              }}
+              style={{
+                position: 'absolute',
+                top: '-10px',
+                right: '-10px',
+                background: '#ff4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                fontSize: '10px',
+                cursor: 'pointer',
+                zIndex: 1000
+              }}
+              title="Debug Auth"
+            >
+              D
+            </button>
 
             {showUserMenu && user && (
               <motion.div

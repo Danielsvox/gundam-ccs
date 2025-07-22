@@ -39,8 +39,13 @@ api.interceptors.request.use(addRequestLogging);
 api.interceptors.request.use(
     (config) => {
         const accessToken = localStorage.getItem('accessToken');
+        console.log('API Request Interceptor - URL:', config.url);
+        console.log('API Request Interceptor - Access Token:', accessToken ? 'Present' : 'Missing');
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
+            console.log('API Request Interceptor - Authorization Header:', `Bearer ${accessToken.substring(0, 20)}...`);
+        } else {
+            console.log('API Request Interceptor - No Authorization Header');
         }
         return config;
     },
@@ -58,21 +63,31 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+            console.log('API Response Interceptor - 401 Error detected');
+            console.log('API Response Interceptor - Original request URL:', originalRequest.url);
+            console.log('API Response Interceptor - Original request headers:', originalRequest.headers);
+
             originalRequest._retry = true;
 
             const refreshToken = localStorage.getItem('refreshToken');
+            console.log('API Response Interceptor - Refresh token:', refreshToken ? 'Present' : 'Missing');
+
             if (refreshToken) {
                 try {
+                    console.log('API Response Interceptor - Attempting token refresh...');
                     const response = await api.post('/accounts/token/refresh/', {
                         refresh: refreshToken
                     });
 
                     const { access } = response.data;
                     localStorage.setItem('accessToken', access);
+                    console.log('API Response Interceptor - Token refreshed successfully');
 
                     originalRequest.headers.Authorization = `Bearer ${access}`;
                     return api(originalRequest);
                 } catch (refreshError) {
+                    console.log('API Response Interceptor - Token refresh failed:', refreshError);
+                    console.log('API Response Interceptor - Refresh error response:', refreshError.response?.data);
                     // Refresh token failed, clear auth but don't redirect
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
@@ -82,6 +97,7 @@ api.interceptors.response.use(
                     // Don't redirect automatically - let components handle auth requirements
                 }
             } else {
+                console.log('API Response Interceptor - No refresh token available');
                 // No refresh token, clear auth but don't redirect
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');

@@ -83,7 +83,7 @@ function App() {
       const cartData = await cartService.loadCart();
       if (cartData) {
         setCart(cartData.items || []);
-        setCartAmount(cartData.items?.length || 0);
+        setCartAmount(cartData.total_items || cartData.items?.length || 0);
       } else {
         // No cart data (user not authenticated)
         setCart([]);
@@ -122,6 +122,15 @@ function App() {
       refreshToken: localStorage.getItem('refreshToken') ? 'Present' : 'Missing',
       user: localStorage.getItem('user') ? 'Present' : 'Missing'
     });
+
+    // Test instructions for user
+    console.log('=== TESTING INSTRUCTIONS ===');
+    console.log('1. Click the red "D" button in the navbar to check auth status');
+    console.log('2. If not logged in, go to /register to create a test account');
+    console.log('3. Login with your credentials');
+    console.log('4. Try adding items to cart - should work when logged in');
+    console.log('5. Logout and try adding to cart - should redirect to login');
+    console.log('===========================');
   }, []);
 
   // Handle product selection from URL
@@ -303,11 +312,17 @@ function App() {
       // Add to cart via API - let the API handle authentication
       const updatedCart = await cartService.addToCart(productId, 1);
       console.log('Cart updated:', updatedCart);
+      console.log('Cart structure:', {
+        hasCart: !!updatedCart,
+        hasItems: !!(updatedCart && updatedCart.items),
+        itemsLength: updatedCart?.items?.length,
+        cartKeys: updatedCart ? Object.keys(updatedCart) : 'no cart'
+      });
 
       // Update local state
       if (updatedCart && updatedCart.items) {
         setCart(updatedCart.items);
-        setCartAmount(updatedCart.items.length);
+        setCartAmount(updatedCart.total_items || updatedCart.items.length);
 
         // Update product inCart status
         const updatedGundams = allGundams.map(gundam => ({
@@ -315,6 +330,8 @@ function App() {
           inCart: updatedCart.items.some(item => item.product.id === gundam.id)
         }));
         setAllGundams(updatedGundams);
+      } else {
+        console.log('Cart structure is not as expected:', updatedCart);
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -375,6 +392,89 @@ function App() {
       }
 
       setCartError('Failed to clear cart');
+    } finally {
+      setCartLoading(false);
+    }
+  };
+
+  const handleUpdateQuantity = async (itemId, newQuantity) => {
+    if (!authService.isUserAuthenticated()) {
+      return;
+    }
+
+    console.log('Updating quantity for item ID:', itemId, 'to quantity:', newQuantity);
+
+    if (isNaN(itemId) || itemId <= 0) {
+      console.error('Invalid item ID:', itemId);
+      return;
+    }
+
+    if (newQuantity < 0) {
+      console.error('Invalid quantity:', newQuantity);
+      return;
+    }
+
+    try {
+      setCartLoading(true);
+      setCartError(null);
+
+      let updatedCart;
+
+      if (newQuantity === 0) {
+        // Remove item if quantity becomes 0
+        console.log('Quantity is 0, removing item from cart');
+        updatedCart = await cartService.removeFromCart(itemId);
+      } else {
+        // Update quantity
+        console.log('Updating item quantity');
+        updatedCart = await cartService.updateCartItem(itemId, newQuantity);
+      }
+
+      console.log('Cart updated after quantity change:', updatedCart);
+
+      // Update local state
+      if (updatedCart && updatedCart.items) {
+        setCart(updatedCart.items);
+        setCartAmount(updatedCart.total_items || updatedCart.items.length);
+
+        // Update product inCart status
+        const updatedGundams = allGundams.map(gundam => ({
+          ...gundam,
+          inCart: updatedCart.items.some(item => item.product.id === gundam.id)
+        }));
+        setAllGundams(updatedGundams);
+      }
+
+      // Safety check for hoverState[21]
+      if (hoverState.has("21")) {
+        let newHoverState = new Map(hoverState);
+        newHoverState.set("21", { ...newHoverState.get("21"), hovered: false });
+        setHoverState(newHoverState);
+      }
+    } catch (error) {
+      console.error('Error updating cart item quantity:', error);
+
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        console.log('Unauthorized - user needs to login');
+        authService.clearAuth();
+        localStorage.setItem('redirectAfterLogin', location.pathname);
+        navigate('/login');
+        return;
+      }
+
+      // Handle validation errors
+      if (error.response?.status === 400) {
+        const errorMessage = error.response?.data?.message || 'Invalid quantity';
+        setCartError(errorMessage);
+        setShowCartError(true);
+        setTimeout(() => setShowCartError(false), 5000);
+        return;
+      }
+
+      setCartError('Failed to update item quantity');
+      setShowCartError(true);
+      setTimeout(() => setShowCartError(false), 5000);
     } finally {
       setCartLoading(false);
     }
@@ -490,6 +590,7 @@ function App() {
           handleHoverGundam={handleHoverGundam}
           handleSelectGundam={handleSelectGundam}
           handleRemoveFromCart={handleRemoveFromCart}
+          handleUpdateQuantity={handleUpdateQuantity}
           setHoverState={setHoverState}
           overlap={overlap}
           setOverlap={setOverlap}
@@ -529,6 +630,7 @@ function App() {
           handleCloseCart={handleCloseCart}
           clearCart={clearCart}
           handleRemoveFromCart={handleRemoveFromCart}
+          handleUpdateQuantity={handleUpdateQuantity}
           setHoverState={setHoverState}
           openGundamPage={openGundamPage}
           productsLoading={productsLoading}
@@ -566,6 +668,7 @@ function App() {
           handleCloseCart={handleCloseCart}
           clearCart={clearCart}
           handleRemoveFromCart={handleRemoveFromCart}
+          handleUpdateQuantity={handleUpdateQuantity}
           openGundamPage={openGundamPage}
           cartError={cartError}
           showCartError={showCartError}
@@ -592,6 +695,7 @@ function App() {
           handleSearchSubmit={handleSearchSubmit}
           handleBrowse={handleBrowse}
           handleRemoveFromCart={handleRemoveFromCart}
+          handleUpdateQuantity={handleUpdateQuantity}
           openGundamPage={openGundamPage}
           cartError={cartError}
           showCartError={showCartError}

@@ -36,7 +36,8 @@ const Home = props => {
     openGundamPage,
     allGundams,
     cartError,
-    showCartError
+    showCartError,
+    handleUpdateQuantity
   } = props;
 
   const [browsing, setBrowsing] = useState(false);
@@ -110,6 +111,7 @@ const Home = props => {
         getHoverState={getHoverState}
         clearCart={clearCart}
         handleRemoveFromCart={handleRemoveFromCart}
+        handleUpdateQuantity={handleUpdateQuantity}
         openGundamPage={openGundamPage}
         cartError={cartError}
         showCartError={showCartError}

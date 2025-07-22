@@ -20,8 +20,10 @@ class CartService {
 
         try {
             const response = await cartAPI.getCart();
+            console.log('Cart service: Load cart response:', response.data);
             this.cart = response.data;
             this.calculateTotals();
+            console.log('Cart service: Cart loaded successfully:', this.cart);
             return this.cart;
         } catch (error) {
             this.error = error.response?.data?.message || 'Failed to load cart';
@@ -49,9 +51,16 @@ class CartService {
         console.log('Cart service: Auth state:', authService.getAuthState());
 
         try {
+            // Add item to cart
             const response = await cartAPI.addToCart(productId, quantity);
-            this.cart = response.data;
+            console.log('Cart service: Add to cart response:', response.data);
+
+            // After adding item, fetch the full cart to get updated state
+            const cartResponse = await cartAPI.getCart();
+            this.cart = cartResponse.data;
             this.calculateTotals();
+
+            console.log('Cart service: Updated cart after adding item:', this.cart);
             return this.cart;
         } catch (error) {
             this.error = error.response?.data?.message || 'Failed to add item to cart';
@@ -80,9 +89,16 @@ class CartService {
         this.error = null;
 
         try {
+            // Update cart item
             const response = await cartAPI.updateCartItem(itemId, quantity);
-            this.cart = response.data;
+            console.log('Cart service: Update cart item response:', response.data);
+
+            // After updating item, fetch the full cart to get updated state
+            const cartResponse = await cartAPI.getCart();
+            this.cart = cartResponse.data;
             this.calculateTotals();
+
+            console.log('Cart service: Updated cart after updating item:', this.cart);
             return this.cart;
         } catch (error) {
             this.error = error.response?.data?.message || 'Failed to update cart item';
@@ -103,9 +119,16 @@ class CartService {
         this.error = null;
 
         try {
+            // Remove item from cart
             const response = await cartAPI.removeFromCart(itemId);
-            this.cart = response.data;
+            console.log('Cart service: Remove from cart response:', response.data);
+
+            // After removing item, fetch the full cart to get updated state
+            const cartResponse = await cartAPI.getCart();
+            this.cart = cartResponse.data;
             this.calculateTotals();
+
+            console.log('Cart service: Updated cart after removing item:', this.cart);
             return this.cart;
         } catch (error) {
             this.error = error.response?.data?.message || 'Failed to remove item from cart';

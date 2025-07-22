@@ -46,6 +46,7 @@ const GamePage = props => {
     cartDisplayed,
     clearCart,
     handleRemoveFromCart,
+    handleUpdateQuantity,
     openGundamPage
   } = props;
 
@@ -153,6 +154,7 @@ const GamePage = props => {
           getHoverState={getHoverState}
           clearCart={clearCart}
           handleRemoveFromCart={handleRemoveFromCart}
+          handleUpdateQuantity={handleUpdateQuantity}
           openGundamPage={openGundamPage}
         /> : null}
 

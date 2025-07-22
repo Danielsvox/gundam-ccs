@@ -201,6 +201,64 @@
     fill: #fff;
 }
 
+.itemControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.quantityControls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quantityBtn {
+    background-color: transparent;
+    border: 1px solid #444;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s all;
+}
+
+.quantityBtn:hover:not(:disabled) {
+    background-color: #444;
+    border-color: #666;
+}
+
+.quantityBtn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.quantityBtn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: #222;
+}
+
+.quantity {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+
+.itemPrice {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
 .bottom h3 {
     font-family: "GT Bold";
 }
