@@ -1,10 +1,11 @@
 import styles from './Card.module.css';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReactComponent as Like } from "../../Resources/image/like.svg";
 import { motion } from "framer-motion";
 import AddToCart from '../AddToCart/AddToCart';
 import AddedToCart from '../AddedToCart/AddedToCart';
 import { useLocation } from 'react-router-dom';
+import { useCurrency } from '../../contexts/CurrencyContext';
 
 const Card = props => {
   const {
@@ -15,6 +16,23 @@ const Card = props => {
     handleLike,
     getHoverState
   } = props;
+
+  const { currency, convertAmount, formatPrice } = useCurrency();
+  const [convertedPrice, setConvertedPrice] = useState(gundam.price);
+
+  // Convert price when currency changes
+  useEffect(() => {
+    const convertPrice = async () => {
+      if (currency === 'VES') {
+        const converted = await convertAmount(gundam.price, 'USD', 'VES');
+        setConvertedPrice(converted);
+      } else {
+        setConvertedPrice(gundam.price);
+      }
+    };
+
+    convertPrice();
+  }, [currency, gundam.price, convertAmount]);
 
   const variants = {
     initial: { opacity: 0 },
@@ -79,7 +97,7 @@ const Card = props => {
           handleAddToCart={handleAddToCart}
         />
         }
-        ${gundam.price}
+        {formatPrice(convertedPrice)}
       </div>
       <h2 className={styles.name} title={gundam.name}>{gundam.name}</h2>
       <button

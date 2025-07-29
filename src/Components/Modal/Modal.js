@@ -3,8 +3,6 @@ import styles from './Modal.module.css';
 import { ReactComponent as Cross } from "../../Resources/image/cross.svg";
 
 const Modal = ({ isOpen, onClose, onConfirm, title, message, confirmText = "Confirm", cancelText = "Cancel" }) => {
-    if (!isOpen) return null;
-
     const handleOverlayClick = (e) => {
         if (e.target === e.currentTarget) {
             onClose();
@@ -28,6 +26,8 @@ const Modal = ({ isOpen, onClose, onConfirm, title, message, confirmText = "Conf
             document.body.style.overflow = 'unset';
         };
     }, [isOpen]);
+
+    if (!isOpen) return null;
 
     return (
         <div className={styles.modalOverlay} onClick={handleOverlayClick}>

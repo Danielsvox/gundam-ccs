@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import ExchangeRateDisplay from '../ExchangeRateDisplay/ExchangeRateDisplay';
+import CurrencyToggle from '../CurrencyToggle/CurrencyToggle';
 import authService from '../../services/authService';
 import LogoutModal from '../Auth/LogoutModal';
 
@@ -35,7 +37,8 @@ const NavBar = props => {
     handleSearch,
     handleSearchSubmit,
     handleOpenCart,
-    handleCloseCart
+    handleCloseCart,
+    handleOpenOrders
   } = props;
 
   // Load user data on component mount
@@ -244,6 +247,9 @@ const NavBar = props => {
         <div className={styles.navbar_right}>
           <LanguageSwitcher />
 
+          <ExchangeRateDisplay />
+          <CurrencyToggle />
+
           <div
             className={styles.userdiv}
             id="2"
@@ -303,6 +309,16 @@ const NavBar = props => {
                   className={styles.menuItem}
                 >
                   Profile
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenOrders();
+                    setShowUserMenu(false);
+                  }}
+                  className={styles.menuItem}
+                >
+                  My Orders
                 </button>
                 <button
                   onClick={(e) => {

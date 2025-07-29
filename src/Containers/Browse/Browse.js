@@ -52,7 +52,8 @@ const Browse = props => {
     productsLoading,
     productsError,
     onRetryProducts,
-    onCheckout
+    onCheckout,
+    handleOpenOrders
   } = props;
 
   const [grid, setGrid] = useState(true);
@@ -196,6 +197,7 @@ const Browse = props => {
         handleSearch={handleSearch}
         handleSearchSubmit={handleSearchSubmit}
         handleOpenCart={handleOpenCart}
+        handleOpenOrders={handleOpenOrders}
       />
 
       <AnimatedPage exitBeforeEnter>

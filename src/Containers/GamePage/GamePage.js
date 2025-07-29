@@ -14,9 +14,11 @@ import Cart from '../../Components/Cart/Cart';
 import templateGundam from '../../utils/templateGame';
 import { useTranslation } from 'react-i18next';
 import productService from '../../services/productService';
+import { useCurrency } from '../../contexts/CurrencyContext';
 
 const GamePage = props => {
   const { t } = useTranslation();
+  const { currency, convertAmount, formatPrice } = useCurrency();
 
   const {
     handleHover,
@@ -48,14 +50,31 @@ const GamePage = props => {
     handleRemoveFromCart,
     handleUpdateQuantity,
     openGundamPage,
-    onCheckout
+    onCheckout,
+    handleOpenOrders
   } = props;
 
   const [carouselState, setCarouselState] = useState(0);
   const [productLoading, setProductLoading] = useState(false);
   const [productError, setProductError] = useState(null);
   const [detailedProduct, setDetailedProduct] = useState(null);
+  const [convertedPrice, setConvertedPrice] = useState(0);
   const { gundamId } = useParams();
+
+  // Convert price when currency or product changes
+  useEffect(() => {
+    const convertPrice = async () => {
+      const price = detailedProduct?.price || selectedGundam?.price || templateGundam.price;
+      if (currency === 'VES' && price) {
+        const converted = await convertAmount(price, 'USD', 'VES');
+        setConvertedPrice(converted);
+      } else {
+        setConvertedPrice(price || 0);
+      }
+    };
+
+    convertPrice();
+  }, [currency, detailedProduct, selectedGundam, convertAmount]);
 
   // Fetch detailed product information when component mounts or slug changes
   useEffect(() => {
@@ -174,6 +193,7 @@ const GamePage = props => {
           handleSearchSubmit={handleSearchSubmit}
           handleOpenCart={handleOpenCart}
           handleCloseCart={handleCloseCart}
+          handleOpenOrders={handleOpenOrders}
         />
 
         <AnimatedGundamPage>
@@ -263,7 +283,7 @@ const GamePage = props => {
 
                 <div className={styles.addToCart}>
                   <div className={styles.infos}>
-                    <h3>${detailedProduct?.price || selectedGundam?.price || templateGundam.price}</h3>
+                    <h3>{formatPrice(convertedPrice)}</h3>
                     <button id={detailedProduct?.id || selectedGundam?.id || templateGundam.id} onClick={handleLike} aria-label="Like">
                       <Like
                         className={(detailedProduct || selectedGundam)?.isLiked ? styles.liked : styles.like}

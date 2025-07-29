@@ -38,7 +38,8 @@ const Home = props => {
     cartError,
     showCartError,
     handleUpdateQuantity,
-    onCheckout
+    onCheckout,
+    handleOpenOrders
   } = props;
 
   const [browsing, setBrowsing] = useState(false);
@@ -133,6 +134,7 @@ const Home = props => {
           cartAmount={cartAmount}
           handleOpenCart={handleOpenCart}
           handleCloseCart={handleCloseCart}
+          handleOpenOrders={handleOpenOrders}
         />
         <div className={styles.container}>
           <div className={styles.left}>

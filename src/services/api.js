@@ -41,7 +41,7 @@ api.interceptors.response.use(
 
 // Centralized endpoint mapping for orders
 export const ORDER_ENDPOINTS = {
-    create: `${API_BASE_URL}/orders/checkout/`,
+    create: `${API_BASE_URL}/payments/checkout/`,
     list: `${API_BASE_URL}/orders/orders/`,
     detail: (id) => `${API_BASE_URL}/orders/orders/${id}/`,
     cancel: (id) => `${API_BASE_URL}/orders/orders/${id}/cancel/`,
@@ -66,7 +66,7 @@ export const SHIPPING_ENDPOINTS = {
 
 // API service functions
 export const orderAPI = {
-    createOrder: (orderData) => api.post('/orders/checkout/', orderData),
+    createOrder: (orderData) => api.post('/payments/checkout/', orderData),
     getOrders: () => api.get('/orders/orders/'),
     getOrderDetail: (id) => api.get(`/orders/orders/${id}/`),
     cancelOrder: (id) => api.post(`/orders/orders/${id}/cancel/`),
@@ -108,6 +108,41 @@ export const authAPI = {
     verifyEmail: (token) => api.post('/accounts/verify-email/', { token }),
     resetPassword: (email) => api.post('/accounts/reset-password/', { email }),
     confirmResetPassword: (token, newPassword) => api.post('/accounts/reset-password/confirm/', { token, new_password: newPassword }),
+};
+
+// Exchange Rate API
+export const exchangeRateAPI = {
+    getCurrentRate: async () => {
+        const response = await api.get('/payments/exchange-rate/');
+        return response.data;
+    },
+
+    convertAmount: async (amount, fromCurrency, toCurrency) => {
+        const response = await api.post('/payments/exchange-rate/convert/', {
+            amount,
+            from_currency: fromCurrency,
+            to_currency: toCurrency
+        });
+        return response.data;
+    }
+};
+
+// Pago Móvil API
+export const pagoMovilAPI = {
+    getPaymentInfo: async () => {
+        const response = await api.get('/payments/pagomovil/info/');
+        return response.data;
+    },
+
+    submitVerification: async (verificationData) => {
+        const response = await api.post('/payments/pagomovil/verify/', verificationData);
+        return response.data;
+    },
+
+    checkStatus: async () => {
+        const response = await api.get('/payments/pagomovil/status/');
+        return response.data;
+    }
 };
 
 export default api; 

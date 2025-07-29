@@ -6,6 +6,7 @@ import CartReview from './CartReview';
 import ShippingInfo from './ShippingInfo';
 import ShippingMethod from './ShippingMethod';
 import PaymentMethod from './PaymentMethod';
+import PagoMovilPayment from './PagoMovilPayment/PagoMovilPayment';
 import OrderSummary from './OrderSummary';
 import CheckoutStepper from './CheckoutStepper';
 import { orderAPI, cartAPI } from '../../services/api';
@@ -16,6 +17,7 @@ const Checkout = ({
     handleUpdateQuantity,
     handleRemoveFromCart,
     clearCart,
+    clearCartSilently,
     onClose
 }) => {
     const { t } = useTranslation();
@@ -48,7 +50,15 @@ const Checkout = ({
     }, 0);
 
     const discountAmount = appliedDiscount ? (subtotal * appliedDiscount.discount_value / 100) : 0;
-    const total = subtotal - discountAmount;
+    const shippingCost = selectedShippingMethod ? (parseFloat(selectedShippingMethod.price) || 0) : 0;
+    const total = subtotal - discountAmount + shippingCost;
+
+    // Debug: Log the total calculation
+    console.log('Checkout - Cart items:', cart);
+    console.log('Checkout - Subtotal:', subtotal);
+    console.log('Checkout - Selected shipping method:', selectedShippingMethod);
+    console.log('Checkout - Shipping cost:', shippingCost);
+    console.log('Checkout - Total:', total);
 
     const handleNext = () => {
         if (currentStep < 5) {
@@ -76,14 +86,82 @@ const Checkout = ({
         handleNext();
     };
 
+    const handlePagoMovilSuccess = async () => {
+        // When Pago Móvil payment is successful, create the order
+        try {
+            setLoading(true);
+            setError(null);
+
+            const effectiveShippingMethod = selectedShippingMethod || pendingShippingMethod || {
+                id: 1,
+                name: 'Standard Shipping',
+                description: '5-7 business days',
+                price: '0.00'
+            };
+
+            const orderData = {
+                shipping_address: {
+                    name: `${shippingData.firstName} ${shippingData.lastName}`,
+                    line1: shippingData.address,
+                    city: shippingData.city,
+                    state: shippingData.state,
+                    postal_code: shippingData.postalCode,
+                    country: shippingData.country
+                },
+                shipping_method_id: effectiveShippingMethod.id,
+                customer_notes: 'Paid via Pago Móvil'
+            };
+
+            const response = await orderAPI.createOrder(orderData);
+            const order = response.data;
+
+            // Debug: Log the complete order response
+            console.log('PagoMovil order creation response:', order);
+
+            // Enhance the order data with frontend-calculated values if backend doesn't provide them
+            const enhancedOrder = {
+                ...order,
+                // Use backend values if available, otherwise use frontend calculations
+                subtotal: order.subtotal || subtotal,
+                shipping_amount: order.shipping_amount || (parseFloat(effectiveShippingMethod.price) || 0),
+                tax_amount: order.tax_amount || 0,
+                total_amount: order.total_amount || order.amount || order.total || total,
+                // Include shipping method details for OrderSummary
+                shipping_method: effectiveShippingMethod
+            };
+
+            console.log('PagoMovil enhanced order data:', enhancedOrder);
+            setOrderDetails(enhancedOrder);
+
+            // Clear cart silently
+            await clearCartSilently();
+
+            // Move to confirmation step
+            setCurrentStep(5);
+        } catch (err) {
+            console.error('Error creating order after Pago Móvil:', err);
+            setError('Failed to create order. Please contact support.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handlePaymentSubmit = async (paymentData) => {
         setLoading(true);
         setError(null);
 
         try {
-            // Always use manual payment method
-            setPaymentMethod('manual');
+            // Set the payment method from the form data
+            setPaymentMethod(paymentData.paymentMethod || 'manual');
 
+            // If Pago Móvil is selected, go to Pago Móvil step (step 6)
+            if (paymentData.paymentMethod === 'pagomovil') {
+                setCurrentStep(6);
+                setLoading(false);
+                return;
+            }
+
+            // For manual payment, proceed with order creation
             // Debug: Check if we have a shipping method
             console.log('Current step:', currentStep);
             console.log('Selected shipping method:', selectedShippingMethod);
@@ -100,20 +178,17 @@ const Checkout = ({
 
             console.log('Effective shipping method for checkout:', effectiveShippingMethod);
 
-            // Create order with shipping and payment data according to backend requirements
+            // Create order with shipping and payment data according to payments checkout requirements
             const orderData = {
                 shipping_address: {
                     name: `${shippingData.firstName} ${shippingData.lastName}`,
                     line1: shippingData.address,
-                    line2: '', // Optional apartment/suite
                     city: shippingData.city,
                     state: shippingData.state,
                     postal_code: shippingData.postalCode,
-                    country: shippingData.country,
-                    phone: shippingData.phone
+                    country: shippingData.country
                 },
                 shipping_method_id: effectiveShippingMethod.id,
-                payment_method: 'manual', // Explicitly set manual payment
                 customer_notes: '' // Optional field
             };
 
@@ -123,10 +198,27 @@ const Checkout = ({
             // The backend will handle the order creation without payment intent
             const response = await orderAPI.createOrder(orderData);
             const order = response.data;
-            setOrderDetails(order);
 
-            // Clear cart
-            await clearCart();
+            // Debug: Log the complete order response
+            console.log('Order creation response:', order);
+
+            // Enhance the order data with frontend-calculated values if backend doesn't provide them
+            const enhancedOrder = {
+                ...order,
+                // Use backend values if available, otherwise use frontend calculations
+                subtotal: order.subtotal || subtotal,
+                shipping_amount: order.shipping_amount || (parseFloat(effectiveShippingMethod.price) || 0),
+                tax_amount: order.tax_amount || 0,
+                total_amount: order.total_amount || order.amount || order.total || total,
+                // Include shipping method details for OrderSummary
+                shipping_method: effectiveShippingMethod
+            };
+
+            console.log('Enhanced order data:', enhancedOrder);
+            setOrderDetails(enhancedOrder);
+
+            // Clear cart silently (without showing confirmation modal)
+            await clearCartSilently();
 
             // Move to confirmation step
             setCurrentStep(5);
@@ -220,6 +312,7 @@ const Checkout = ({
                         onBack={handleBack}
                         onNext={handleShippingMethodSubmit}
                         loading={loading}
+                        cartTotal={total}
                     />
                 );
             case 4:
@@ -238,7 +331,16 @@ const Checkout = ({
                 return (
                     <OrderSummary
                         orderDetails={orderDetails}
+                        selectedShippingMethod={selectedShippingMethod || pendingShippingMethod}
                         onClose={onClose}
+                    />
+                );
+            case 6:
+                return (
+                    <PagoMovilPayment
+                        total={total}
+                        onBack={handleBack}
+                        onSuccess={handlePagoMovilSuccess}
                     />
                 );
             default:
@@ -246,13 +348,13 @@ const Checkout = ({
         }
     };
 
-    if (cart.length === 0 && currentStep !== 5) {
+    if (cart.length === 0 && currentStep !== 5 && currentStep !== 6) {
         return (
             <div className={styles.emptyCart}>
                 <h2>{t('checkout.emptyCart')}</h2>
                 <p>{t('checkout.emptyCartMessage')}</p>
-                <button onClick={() => navigate('/browse')} className={styles.browseButton}>
-                    {t('checkout.continueShopping')}
+                <button onClick={onClose} className={styles.closeBtn}>
+                    {t('checkout.close')}
                 </button>
             </div>
         );

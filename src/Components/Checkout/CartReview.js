@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../contexts/CurrencyContext';
 import styles from './CartReview.module.css';
 
 const CartReview = ({
@@ -17,9 +18,34 @@ const CartReview = ({
     error
 }) => {
     const { t } = useTranslation();
+    const { currency, convertAmount, formatPrice } = useCurrency();
+    const [convertedSubtotal, setConvertedSubtotal] = useState(subtotal);
+    const [convertedDiscountAmount, setConvertedDiscountAmount] = useState(0);
+    const [convertedTotal, setConvertedTotal] = useState(0);
 
     const discountAmount = appliedDiscount ? (subtotal * appliedDiscount.discount_value / 100) : 0;
     const total = subtotal - discountAmount;
+
+    // Convert amounts when currency changes
+    useEffect(() => {
+        const convertAmounts = async () => {
+            if (currency === 'VES') {
+                const convertedSub = await convertAmount(subtotal, 'USD', 'VES');
+                const convertedDiscount = await convertAmount(discountAmount, 'USD', 'VES');
+                const convertedTotalAmount = await convertAmount(total, 'USD', 'VES');
+
+                setConvertedSubtotal(convertedSub);
+                setConvertedDiscountAmount(convertedDiscount);
+                setConvertedTotal(convertedTotalAmount);
+            } else {
+                setConvertedSubtotal(subtotal);
+                setConvertedDiscountAmount(discountAmount);
+                setConvertedTotal(total);
+            }
+        };
+
+        convertAmounts();
+    }, [currency, subtotal, discountAmount, total, convertAmount]);
 
     const handleApplyDiscount = (e) => {
         e.preventDefault();
@@ -43,7 +69,7 @@ const CartReview = ({
 
                             <div className={styles.itemDetails}>
                                 <h3>{item.product.name}</h3>
-                                <p className={styles.itemPrice}>${item.product.price}</p>
+                                <p className={styles.itemPrice}>{formatPrice(parseFloat(item.product.price))}</p>
                             </div>
 
                             <div className={styles.itemQuantity}>
@@ -64,7 +90,7 @@ const CartReview = ({
                             </div>
 
                             <div className={styles.itemTotal}>
-                                ${item.total_price}
+                                {formatPrice(parseFloat(item.total_price))}
                             </div>
 
                             <button
@@ -115,19 +141,19 @@ const CartReview = ({
                 <div className={styles.orderSummary}>
                     <div className={styles.summaryRow}>
                         <span>{t('checkout.cartReview.subtotal')}</span>
-                        <span>${subtotal.toFixed(2)}</span>
+                        <span>{formatPrice(convertedSubtotal)}</span>
                     </div>
 
                     {appliedDiscount && (
                         <div className={styles.summaryRow}>
                             <span>{t('checkout.cartReview.discount')}</span>
-                            <span>-${discountAmount.toFixed(2)}</span>
+                            <span>-{formatPrice(convertedDiscountAmount)}</span>
                         </div>
                     )}
 
                     <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                         <span>{t('checkout.cartReview.total')}</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>{formatPrice(convertedTotal)}</span>
                     </div>
                 </div>
             </div>

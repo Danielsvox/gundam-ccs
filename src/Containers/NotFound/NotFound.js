@@ -30,7 +30,8 @@ const NotFound = props => {
     handleRemoveFromCart,
     handleUpdateQuantity,
     openGundamPage,
-    onCheckout
+    onCheckout,
+    handleOpenOrders
   } = props;
   const location = useLocation();
 
@@ -81,6 +82,7 @@ const NotFound = props => {
         handleSearchSubmit={handleSearchSubmit}
         handleOpenCart={handleOpenCart}
         handleCloseCart={handleCloseCart}
+        handleOpenOrders={handleOpenOrders}
       />
 
       <motion.div className={styles.container} variants={animations} initial="initial" animate="animate" exit="exit">

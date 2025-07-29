@@ -1,12 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useCurrency } from '../../contexts/CurrencyContext';
 import styles from './OrderSummary.module.css';
 
-const OrderSummary = ({ orderDetails, onClose }) => {
+const OrderSummary = ({ orderDetails, selectedShippingMethod, onClose }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { currency, convertAmount, formatPrice } = useCurrency();
     const [showContactModal, setShowContactModal] = useState(false);
+    const [convertedAmount, setConvertedAmount] = useState(orderDetails?.amount || 0);
+    const [convertedSubtotal, setConvertedSubtotal] = useState(orderDetails?.subtotal || 0);
+    const [convertedDiscountAmount, setConvertedDiscountAmount] = useState(0);
+    const [convertedShippingCost, setConvertedShippingCost] = useState(0);
+    const [convertedTaxAmount, setConvertedTaxAmount] = useState(0);
+
+    // Get the effective shipping method (from order details or props)
+    const embeddedShippingMethod = orderDetails?.shipping_method || selectedShippingMethod;
+
+    // Convert amounts when currency changes
+    useEffect(() => {
+        const convertAmounts = async () => {
+            if (!orderDetails) return;
+
+            // Debug: Log the order details structure to understand what fields are available
+            console.log('OrderSummary - Order Details:', orderDetails);
+            console.log('OrderSummary - Selected Shipping Method:', selectedShippingMethod);
+
+            // Use the same field structure as MyOrders component for consistency
+            const totalAmount = orderDetails.total_amount || orderDetails.amount || orderDetails.total || 0;
+            const subtotalAmount = orderDetails.subtotal || 0;
+            const shippingAmount = orderDetails.shipping_amount || (selectedShippingMethod ? (parseFloat(selectedShippingMethod.price) || 0) : 0);
+            const discountAmount = orderDetails.discount_amount || 0;
+            const taxAmount = orderDetails.tax_amount || 0;
+
+            // Note: embeddedShippingMethod is now defined at component level
+
+            console.log('OrderSummary - Calculated amounts:', {
+                totalAmount,
+                subtotalAmount,
+                shippingAmount,
+                discountAmount,
+                taxAmount
+            });
+
+            if (currency === 'VES') {
+                const convertedTotal = await convertAmount(totalAmount, 'USD', 'VES');
+                const convertedSub = await convertAmount(subtotalAmount, 'USD', 'VES');
+                const convertedDiscount = await convertAmount(discountAmount, 'USD', 'VES');
+                const convertedShipping = await convertAmount(shippingAmount, 'USD', 'VES');
+                const convertedTax = await convertAmount(taxAmount, 'USD', 'VES');
+
+                setConvertedAmount(convertedTotal);
+                setConvertedSubtotal(convertedSub);
+                setConvertedDiscountAmount(convertedDiscount);
+                setConvertedShippingCost(convertedShipping);
+                setConvertedTaxAmount(convertedTax);
+            } else {
+                setConvertedAmount(totalAmount);
+                setConvertedSubtotal(subtotalAmount);
+                setConvertedDiscountAmount(discountAmount);
+                setConvertedShippingCost(shippingAmount);
+                setConvertedTaxAmount(taxAmount);
+            }
+        };
+
+        convertAmounts();
+    }, [currency, orderDetails, selectedShippingMethod, convertAmount]);
 
     if (!orderDetails) {
         return (
@@ -36,12 +96,15 @@ const OrderSummary = ({ orderDetails, onClose }) => {
     const handleContactBusiness = () => {
         // Create WhatsApp message with order details
         const orderNumber = orderDetails.order_number || orderDetails.order_id;
-        const total = orderDetails.amount || orderDetails.total;
-        const message = `Hi! I just placed an order (#${orderNumber}) for $${total}. I'd like to arrange payment.`;
+        const total = formatPrice(convertedAmount);
+        const message = t('contact.messages.newOrderPayment', {
+            orderNumber: orderNumber,
+            total: total
+        });
 
         // Encode the message for WhatsApp URL
         const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/15551234567?text=${encodedMessage}`;
+        const whatsappUrl = `https://wa.me/584142693743?text=${encodedMessage}`;
 
         // Open WhatsApp in new tab
         window.open(whatsappUrl, '_blank');
@@ -71,7 +134,7 @@ const OrderSummary = ({ orderDetails, onClose }) => {
                 <div className={styles.orderInfo}>
                     <div className={styles.infoRow}>
                         <span>{t('checkout.confirmation.orderNumber')}</span>
-                        <span className={styles.orderNumber}>#{orderDetails.order_number || orderDetails.order_id}</span>
+                        <span className={styles.orderNumber}>#{orderDetails.order_number || orderDetails.order_id || 'N/A'}</span>
                     </div>
                     <div className={styles.infoRow}>
                         <span>{t('checkout.confirmation.orderDate')}</span>
@@ -92,14 +155,18 @@ const OrderSummary = ({ orderDetails, onClose }) => {
                 <h3>{t('checkout.confirmation.shippingAddress')}</h3>
 
                 <div className={styles.addressInfo}>
-                    <p>
-                        {orderDetails.shipping_address.name}<br />
-                        {orderDetails.shipping_address.line1}<br />
-                        {orderDetails.shipping_address.line2 && `${orderDetails.shipping_address.line2}<br />`}
-                        {orderDetails.shipping_address.city}, {orderDetails.shipping_address.state} {orderDetails.shipping_address.postal_code}<br />
-                        {orderDetails.shipping_address.country}
-                        {orderDetails.shipping_address.phone && `<br />${orderDetails.shipping_address.phone}`}
-                    </p>
+                    {orderDetails.shipping_address ? (
+                        <p>
+                            {orderDetails.shipping_address.name}<br />
+                            {orderDetails.shipping_address.line1}<br />
+                            {orderDetails.shipping_address.line2 && `${orderDetails.shipping_address.line2}<br />`}
+                            {orderDetails.shipping_address.city}, {orderDetails.shipping_address.state} {orderDetails.shipping_address.postal_code}<br />
+                            {orderDetails.shipping_address.country}
+                            {orderDetails.shipping_address.phone && `<br />${orderDetails.shipping_address.phone}`}
+                        </p>
+                    ) : (
+                        <p>{t('checkout.confirmation.addressNotAvailable')}</p>
+                    )}
                 </div>
             </div>
 
@@ -112,17 +179,17 @@ const OrderSummary = ({ orderDetails, onClose }) => {
                             <div key={index} className={styles.orderItem}>
                                 <div className={styles.itemImage}>
                                     <img
-                                        src={item.product.image_url || '/placeholder-image.jpg'}
-                                        alt={item.product.name}
+                                        src={item.product?.image_url || '/placeholder-image.jpg'}
+                                        alt={item.product?.name || 'Product'}
                                     />
                                 </div>
                                 <div className={styles.itemDetails}>
-                                    <h4>{item.product.name}</h4>
-                                    <p>Quantity: {item.quantity}</p>
-                                    <p>Price: ${item.product.price}</p>
+                                    <h4>{item.product?.name || 'Product'}</h4>
+                                    <p>Quantity: {item.quantity || 0}</p>
+                                    <p>Price: {formatPrice(parseFloat(item.product?.price || 0))}</p>
                                 </div>
                                 <div className={styles.itemTotal}>
-                                    ${(item.product.price * item.quantity).toFixed(2)}
+                                    {formatPrice((parseFloat(item.product?.price || 0) * (item.quantity || 0)))}
                                 </div>
                             </div>
                         ))}
@@ -136,21 +203,42 @@ const OrderSummary = ({ orderDetails, onClose }) => {
                 <div className={styles.totalSummary}>
                     <div className={styles.summaryRow}>
                         <span>{t('checkout.confirmation.subtotal')}</span>
-                        <span>${orderDetails.subtotal}</span>
+                        <span>{formatPrice(convertedSubtotal)}</span>
                     </div>
-                    {orderDetails.discount_amount > 0 && (
+                    {convertedDiscountAmount > 0 && (
                         <div className={styles.summaryRow}>
                             <span>{t('checkout.confirmation.discount')}</span>
-                            <span>-${orderDetails.discount_amount}</span>
+                            <span>-{formatPrice(convertedDiscountAmount)}</span>
                         </div>
                     )}
                     <div className={styles.summaryRow}>
                         <span>{t('checkout.confirmation.shipping')}</span>
-                        <span>{t('checkout.confirmation.free')}</span>
+                        <span>
+                            {convertedShippingCost === 0 ?
+                                t('checkout.confirmation.free') :
+                                formatPrice(convertedShippingCost)
+                            }
+                        </span>
                     </div>
+                    {embeddedShippingMethod && (
+                        <div className={styles.shippingMethodInfo}>
+                            <small>
+                                {embeddedShippingMethod.name}
+                                {embeddedShippingMethod.estimated_days &&
+                                    ` (${embeddedShippingMethod.estimated_days} business days)`
+                                }
+                            </small>
+                        </div>
+                    )}
+                    {convertedTaxAmount > 0 && (
+                        <div className={styles.summaryRow}>
+                            <span>{t('checkout.confirmation.tax')}</span>
+                            <span>{formatPrice(convertedTaxAmount)}</span>
+                        </div>
+                    )}
                     <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                         <span>{t('checkout.confirmation.total')}</span>
-                        <span>${orderDetails.amount || orderDetails.total}</span>
+                        <span>{formatPrice(convertedAmount)}</span>
                     </div>
                 </div>
             </div>
@@ -193,11 +281,11 @@ const OrderSummary = ({ orderDetails, onClose }) => {
                         </div>
                         <div className={styles.modalBody}>
                             <div className={styles.contactInfo}>
-                                <p><strong>{t('checkout.confirmation.manualPayment.contact')}</strong></p>
-                                <p>📞 Phone: +1 (555) 123-4567</p>
-                                <p>📧 Email: orders@gundamccs.com</p>
-                                <p>🌐 Website: www.gundamccs.com</p>
-                                <p>⏰ Business Hours: Mon-Fri 9AM-6PM EST</p>
+                                <p><strong>{t('checkout.confirmation.contactBusiness.contactInfoTitle')}</strong></p>
+                                <p>{t('checkout.confirmation.contactBusiness.phone')}: +58 414 269 3743</p>
+                                <p>{t('checkout.confirmation.contactBusiness.email')}: orders@gundamccs.com</p>
+                                <p>{t('checkout.confirmation.contactBusiness.website')}: www.gundamccs.com</p>
+                                <p>{t('checkout.confirmation.contactBusiness.hours')}: {t('checkout.confirmation.contactBusiness.hoursText')}</p>
                             </div>
                             <div className={styles.paymentInstructions}>
                                 <h4>{t('checkout.confirmation.contactBusiness.paymentInstructions')}</h4>

@@ -1,6 +1,13 @@
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import './i18n';
+import './index.css';
+import authService from './services/authService';
+import cartService from './services/cartService';
+import productService from './services/productService';
+import { orderAPI } from './services/api';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 import Browse from './Containers/Browse/Browse';
 import GamePage from './Containers/GamePage/GamePage';
 import NotFound from './Containers/NotFound/NotFound';
@@ -11,12 +18,10 @@ import UserProfile from './Components/Auth/UserProfile';
 import ForgotPassword from './Components/Auth/ForgotPassword';
 import Modal from './Components/Modal/Modal';
 import Checkout from './Components/Checkout/Checkout';
+import Orders from './Components/Orders/Orders';
 import { AnimatePresence } from "framer-motion";
 import filterNames from './utils/filterNames';
 import templateGame from './utils/templateGame';
-import productService from './services/productService';
-import authService from './services/authService';
-import cartService from './services/cartService';
 
 function App() {
   const { t } = useTranslation();
@@ -41,6 +46,7 @@ function App() {
   const [showCartError, setShowCartError] = useState(false);
   const [showClearCartModal, setShowClearCartModal] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showOrders, setShowOrders] = useState(false);
   const [hoverState, setHoverState] = useState(() => {
     // Use a Map to handle any ID value dynamically
     const initialState = new Map();
@@ -64,6 +70,13 @@ function App() {
 
   // Load products from API on component mount
   const loadProducts = async () => {
+    // Skip loading products on auth pages
+    if (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password') {
+      console.log('On auth page, skipping products load');
+      setProductsLoading(false);
+      return;
+    }
+
     try {
       setProductsLoading(true);
       setProductsError(null);
@@ -83,6 +96,14 @@ function App() {
 
   // Load cart from API
   const loadCart = async () => {
+    // Only load cart if user is authenticated
+    if (!authService.isUserAuthenticated()) {
+      console.log('User not authenticated, skipping cart load');
+      setCart([]);
+      setCartAmount(0);
+      return;
+    }
+
     try {
       setCartLoading(true);
       setCartError(null);
@@ -117,8 +138,11 @@ function App() {
   };
 
   useEffect(() => {
-    loadProducts();
-    loadCart();
+    // Only load products and cart if not on auth pages
+    if (location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/forgot-password') {
+      loadProducts();
+      loadCart();
+    }
 
     // Debug: Log authentication state on app load
     console.log('App loaded - Auth state:', authService.getAuthState());
@@ -137,7 +161,7 @@ function App() {
     console.log('4. Try adding items to cart - should work when logged in');
     console.log('5. Logout and try adding to cart - should redirect to login');
     console.log('===========================');
-  }, []);
+  }, [location.pathname]);
 
   // Handle product selection from URL
   useEffect(() => {
@@ -365,6 +389,60 @@ function App() {
   const clearCart = async () => {
     // Show the custom modal instead of system confirmation
     setShowClearCartModal(true);
+  };
+
+  const clearCartSilently = async () => {
+    // Silent cart clearing without showing modal (for automatic clearing after order success)
+    try {
+      setCartLoading(true);
+      setCartError(null);
+
+      const response = await cartService.clearCart();
+
+      // Display success message if provided by API
+      if (response && response.message) {
+        console.log('Cart cleared successfully:', response.message);
+      }
+
+      // Update local state
+      setCart([]);
+      setCartAmount(0);
+
+      // Update product inCart status
+      const updatedGundams = allGundams.map(gundam => ({
+        ...gundam,
+        inCart: false,
+        isHovered: false
+      }));
+      setAllGundams(updatedGundams);
+
+      // Safety check for hoverState[21]
+      if (hoverState.has("21")) {
+        let newHoverState = new Map(hoverState);
+        newHoverState.set("21", { ...newHoverState.get("21"), hovered: false });
+        setHoverState(newHoverState);
+      }
+
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        console.log('Unauthorized - user needs to login');
+        authService.clearAuth();
+        localStorage.setItem('redirectAfterLogin', location.pathname);
+        navigate('/login');
+        return;
+      }
+
+      // Display error message from API or fallback
+      const errorMessage = error.response?.data?.message || 'Failed to clear cart';
+      setCartError(errorMessage);
+      setShowCartError(true);
+      setTimeout(() => setShowCartError(false), 5000);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
   const handleClearCartConfirm = async () => {
@@ -601,6 +679,20 @@ function App() {
     setShowCheckout(false);
   }
 
+  const handleOpenOrders = () => {
+    setShowOrders(true);
+  }
+
+  const handleCloseOrders = () => {
+    setShowOrders(false);
+  }
+
+  // Function to handle successful login
+  const handleSuccessfulLogin = () => {
+    // Load cart after successful login
+    loadCart();
+  }
+
   useEffect(() => {
     if (cartDisplayed) {
       document.body.style.overflow = "hidden !important";
@@ -611,161 +703,175 @@ function App() {
 
   return (
     <AnimatePresence exitBeforeEnter>
-      <Routes key={location.pathname} location={location}>
-        <Route path="/" element={<Home
-          handleHover={handleHover}
-          hoverState={hoverState}
-          getHoverState={getHoverState}
-          shownGundams={shownGundams}
-          cart={cart}
-          cartAmount={cartAmount}
-          cartDisplayed={cartDisplayed}
-          handleOpenCart={handleOpenCart}
-          handleCloseCart={handleCloseCart}
-          clearCart={clearCart}
-          handleAddToCart={handleAddToCart}
-          handleLike={handleLike}
-          handleHoverGundam={handleHoverGundam}
-          handleSelectGundam={handleSelectGundam}
-          handleRemoveFromCart={handleRemoveFromCart}
-          handleUpdateQuantity={handleUpdateQuantity}
-          setHoverState={setHoverState}
-          overlap={overlap}
-          setOverlap={setOverlap}
-          openGundamPage={openGundamPage}
-          allGundams={allGundams}
-          cartError={cartError}
-          showCartError={showCartError}
-          onCheckout={handleOpenCheckout}
-        />} />
-        <Route path="/browse" element={<Browse
-          cart={cart}
-          cartAmount={cartAmount}
-          handleHover={handleHover}
-          handleSelect={handleSelect}
-          hoverState={hoverState}
-          getHoverState={getHoverState}
-          currentFilter={currentFilter}
-          shownGundams={shownGundams}
-          setShownGundams={setShownGundams}
-          clearFilter={clearFilter}
-          reviewDisplay={reviewDisplay}
-          setReviewDisplay={setReviewDisplay}
-          allGundams={allGundams}
-          setAllGundams={setAllGundams}
-          handleLike={handleLike}
-          handleHoverGundam={handleHoverGundam}
-          handleAddToCart={handleAddToCart}
-          handleSelectGundam={handleSelectGundam}
-          handleSearch={handleSearch}
-          handleSearchSubmit={handleSearchSubmit}
-          search={search}
-          searching={searching}
-          browsing={browsing}
-          handleBrowse={handleBrowse}
-          handleHome={handleHome}
-          cartDisplayed={cartDisplayed}
-          handleOpenCart={handleOpenCart}
-          handleCloseCart={handleCloseCart}
-          clearCart={clearCart}
-          handleRemoveFromCart={handleRemoveFromCart}
-          handleUpdateQuantity={handleUpdateQuantity}
-          setHoverState={setHoverState}
-          openGundamPage={openGundamPage}
-          productsLoading={productsLoading}
-          productsError={productsError}
-          onRetryProducts={loadProducts}
-          cartError={cartError}
-          showCartError={showCartError}
-          onCheckout={handleOpenCheckout}
-        />} />
-        <Route path="/gundams/:gundamId" element={<GamePage
-          cart={cart}
-          cartAmount={cartAmount}
-          handleHover={handleHover}
-          hoverState={hoverState}
-          getHoverState={getHoverState}
-          handleLike={handleLike}
-          handleAddToCart={handleAddToCart}
-          handleSelectGundam={handleSelectGundam}
-          selectedGundam={selectedGundam}
-          setSelectedGundam={setSelectedGundam}
-          handleSearch={handleSearch}
-          handleSearchSubmit={handleSearchSubmit}
-          search={search}
-          searching={searching}
-          browsing={browsing}
-          handleBrowse={handleBrowse}
-          handleHome={handleHome}
-          setHoverState={setHoverState}
-          allGundams={allGundams}
-          extended={extended}
-          setExtended={setExtended}
-          textExtended={textExtended}
-          setTextExtended={setTextExtended}
-          cartDisplayed={cartDisplayed}
-          handleOpenCart={handleOpenCart}
-          handleCloseCart={handleCloseCart}
-          clearCart={clearCart}
-          handleRemoveFromCart={handleRemoveFromCart}
-          handleUpdateQuantity={handleUpdateQuantity}
-          openGundamPage={openGundamPage}
-          cartError={cartError}
-          showCartError={showCartError}
-          onCheckout={handleOpenCheckout}
-        />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="*" element={<NotFound
-          cartDisplayed={cartDisplayed}
-          handleCloseCart={handleCloseCart}
-          handleOpenCart={handleOpenCart}
-          cartAmount={cartAmount}
-          clearCart={clearCart}
-          hoverState={hoverState}
-          getHoverState={getHoverState}
-          handleHome={handleHome}
-          handleHover={handleHover}
-          cart={cart}
-          browsing={browsing}
-          search={search}
-          searching={searching}
-          handleSearch={handleSearch}
-          handleSearchSubmit={handleSearchSubmit}
-          handleBrowse={handleBrowse}
-          handleRemoveFromCart={handleRemoveFromCart}
-          handleUpdateQuantity={handleUpdateQuantity}
-          openGundamPage={openGundamPage}
-          cartError={cartError}
-          showCartError={showCartError}
-          onCheckout={handleOpenCheckout}
-        />} />
-      </Routes>
+      <CurrencyProvider>
+        <Routes key={location.pathname} location={location}>
+          <Route path="/" element={<Home
+            handleHover={handleHover}
+            hoverState={hoverState}
+            getHoverState={getHoverState}
+            shownGundams={shownGundams}
+            cart={cart}
+            cartAmount={cartAmount}
+            cartDisplayed={cartDisplayed}
+            handleOpenCart={handleOpenCart}
+            handleCloseCart={handleCloseCart}
+            clearCart={clearCart}
+            handleAddToCart={handleAddToCart}
+            handleLike={handleLike}
+            handleHoverGundam={handleHoverGundam}
+            handleSelectGundam={handleSelectGundam}
+            handleRemoveFromCart={handleRemoveFromCart}
+            handleUpdateQuantity={handleUpdateQuantity}
+            setHoverState={setHoverState}
+            overlap={overlap}
+            setOverlap={setOverlap}
+            openGundamPage={openGundamPage}
+            allGundams={allGundams}
+            cartError={cartError}
+            showCartError={showCartError}
+            onCheckout={handleOpenCheckout}
+            handleOpenOrders={handleOpenOrders}
+          />} />
+          <Route path="/browse" element={<Browse
+            cart={cart}
+            cartAmount={cartAmount}
+            handleHover={handleHover}
+            handleSelect={handleSelect}
+            hoverState={hoverState}
+            getHoverState={getHoverState}
+            currentFilter={currentFilter}
+            shownGundams={shownGundams}
+            setShownGundams={setShownGundams}
+            clearFilter={clearFilter}
+            reviewDisplay={reviewDisplay}
+            setReviewDisplay={setReviewDisplay}
+            allGundams={allGundams}
+            setAllGundams={setAllGundams}
+            handleLike={handleLike}
+            handleHoverGundam={handleHoverGundam}
+            handleAddToCart={handleAddToCart}
+            handleSelectGundam={handleSelectGundam}
+            handleSearch={handleSearch}
+            handleSearchSubmit={handleSearchSubmit}
+            search={search}
+            searching={searching}
+            browsing={browsing}
+            handleBrowse={handleBrowse}
+            handleHome={handleHome}
+            cartDisplayed={cartDisplayed}
+            handleOpenCart={handleOpenCart}
+            handleCloseCart={handleCloseCart}
+            clearCart={clearCart}
+            handleRemoveFromCart={handleRemoveFromCart}
+            handleUpdateQuantity={handleUpdateQuantity}
+            setHoverState={setHoverState}
+            openGundamPage={openGundamPage}
+            productsLoading={productsLoading}
+            productsError={productsError}
+            onRetryProducts={loadProducts}
+            cartError={cartError}
+            showCartError={showCartError}
+            onCheckout={handleOpenCheckout}
+            handleOpenOrders={handleOpenOrders}
+          />} />
+          <Route path="/gundams/:gundamId" element={<GamePage
+            cart={cart}
+            cartAmount={cartAmount}
+            handleHover={handleHover}
+            hoverState={hoverState}
+            getHoverState={getHoverState}
+            handleLike={handleLike}
+            handleAddToCart={handleAddToCart}
+            handleSelectGundam={handleSelectGundam}
+            selectedGundam={selectedGundam}
+            setSelectedGundam={setSelectedGundam}
+            handleSearch={handleSearch}
+            handleSearchSubmit={handleSearchSubmit}
+            search={search}
+            searching={searching}
+            browsing={browsing}
+            handleBrowse={handleBrowse}
+            handleHome={handleHome}
+            setHoverState={setHoverState}
+            allGundams={allGundams}
+            extended={extended}
+            setExtended={setExtended}
+            textExtended={textExtended}
+            setTextExtended={setTextExtended}
+            cartDisplayed={cartDisplayed}
+            handleOpenCart={handleOpenCart}
+            handleCloseCart={handleCloseCart}
+            clearCart={clearCart}
+            handleRemoveFromCart={handleRemoveFromCart}
+            handleUpdateQuantity={handleUpdateQuantity}
+            openGundamPage={openGundamPage}
+            cartError={cartError}
+            showCartError={showCartError}
+            onCheckout={handleOpenCheckout}
+            handleOpenOrders={handleOpenOrders}
+          />} />
+          <Route path="/login" element={<Login onLoginSuccess={handleSuccessfulLogin} />} />
+          <Route path="/register" element={<Register onLoginSuccess={handleSuccessfulLogin} />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="*" element={<NotFound
+            cartDisplayed={cartDisplayed}
+            handleCloseCart={handleCloseCart}
+            handleOpenCart={handleOpenCart}
+            cartAmount={cartAmount}
+            clearCart={clearCart}
+            hoverState={hoverState}
+            getHoverState={getHoverState}
+            handleHome={handleHome}
+            handleHover={handleHover}
+            cart={cart}
+            browsing={browsing}
+            search={search}
+            searching={searching}
+            handleSearch={handleSearch}
+            handleSearchSubmit={handleSearchSubmit}
+            handleBrowse={handleBrowse}
+            handleRemoveFromCart={handleRemoveFromCart}
+            handleUpdateQuantity={handleUpdateQuantity}
+            openGundamPage={openGundamPage}
+            cartError={cartError}
+            showCartError={showCartError}
+            onCheckout={handleOpenCheckout}
+            handleOpenOrders={handleOpenOrders}
+          />} />
+        </Routes>
 
-      {/* Clear Cart Confirmation Modal */}
-      <Modal
-        isOpen={showClearCartModal}
-        onClose={handleClearCartCancel}
-        onConfirm={handleClearCartConfirm}
-        title={t('modal.clearCartTitle')}
-        message={t('modal.clearCartMessage')}
-        confirmText={t('modal.confirm')}
-        cancelText={t('modal.cancel')}
-      />
-
-      {/* Checkout Component */}
-      {showCheckout && (
-        <Checkout
-          cart={cart}
-          cartAmount={cartAmount}
-          handleUpdateQuantity={handleUpdateQuantity}
-          handleRemoveFromCart={handleRemoveFromCart}
-          clearCart={clearCart}
-          onClose={handleCloseCheckout}
+        {/* Clear Cart Confirmation Modal */}
+        <Modal
+          isOpen={showClearCartModal}
+          onClose={handleClearCartCancel}
+          onConfirm={handleClearCartConfirm}
+          title={t('modal.clearCartTitle')}
+          message={t('modal.clearCartMessage')}
+          confirmText={t('modal.confirm')}
+          cancelText={t('modal.cancel')}
         />
-      )}
+
+        {/* Checkout Component */}
+        {showCheckout && (
+          <Checkout
+            cart={cart}
+            cartAmount={cartAmount}
+            handleUpdateQuantity={handleUpdateQuantity}
+            handleRemoveFromCart={handleRemoveFromCart}
+            clearCart={clearCart}
+            clearCartSilently={clearCartSilently}
+            onClose={handleCloseCheckout}
+          />
+        )}
+
+        {/* Orders Component */}
+        {showOrders && (
+          <Orders
+            onClose={handleCloseOrders}
+          />
+        )}
+      </CurrencyProvider>
     </AnimatePresence>
   );
 }

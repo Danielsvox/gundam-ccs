@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import authService from '../../services/authService';
 import styles from './Auth.module.css';
 
-const Register = () => {
+const Register = ({ onLoginSuccess }) => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -139,6 +139,11 @@ const Register = () => {
 
             await authService.register(userData);
             setSuccessMessage('Account created successfully! Please check your email for verification.');
+
+            // Call the success callback if provided
+            if (onLoginSuccess) {
+                onLoginSuccess();
+            }
 
             // Redirect after a short delay to show the success message
             setTimeout(() => {

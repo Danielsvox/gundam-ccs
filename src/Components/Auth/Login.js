@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import authService from '../../services/authService';
 import styles from './Auth.module.css';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -71,6 +71,11 @@ const Login = () => {
 
         try {
             await authService.login(formData);
+
+            // Call the success callback if provided
+            if (onLoginSuccess) {
+                onLoginSuccess();
+            }
 
             // Check if there's a redirect URL saved
             const redirectUrl = localStorage.getItem('redirectAfterLogin');

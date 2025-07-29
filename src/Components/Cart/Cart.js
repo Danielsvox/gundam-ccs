@@ -1,14 +1,16 @@
 import styles from './Cart.module.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReactComponent as Right } from "../../Resources/image/arrowRight.svg";
 import { ReactComponent as Cross } from "../../Resources/image/cross.svg";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedCart from '../../Containers/AnimatedPage/AnimatedCart';
 import AnimatedCard from '../../Containers/AnimatedPage/AnimatedCard';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../contexts/CurrencyContext';
 
 const Cart = props => {
     const { t } = useTranslation();
+    const { currency, convertAmount, formatPrice } = useCurrency();
 
     const {
         cartAmount,
@@ -34,9 +36,10 @@ const Cart = props => {
     console.log('Cart component - cart items length:', cart?.length);
 
     const [total, setTotal] = useState(0);
+    const [convertedTotal, setConvertedTotal] = useState(0);
 
     // Calculate total from cart items
-    React.useEffect(() => {
+    useEffect(() => {
         let newTotal = 0;
         cart.forEach((item) => {
             // Use total_price from the cart item (includes quantity)
@@ -45,6 +48,22 @@ const Cart = props => {
         });
         setTotal(newTotal.toFixed(2));
     }, [cart]);
+
+    // Convert total when currency changes
+    useEffect(() => {
+        const convertTotal = async () => {
+            if (currency === 'VES') {
+                const converted = await convertAmount(total, 'USD', 'VES');
+                setConvertedTotal(converted);
+            } else {
+                setConvertedTotal(parseFloat(total));
+            }
+        };
+
+        if (total > 0) {
+            convertTotal();
+        }
+    }, [currency, total, convertAmount]);
 
     const variants = {
         initial: { x: 100 },
@@ -126,7 +145,7 @@ const Cart = props => {
                                             </button>
                                         </div>
                                         <div className={styles.itemPrice}>
-                                            ${item.total_price}
+                                            {formatPrice(parseFloat(item.total_price))}
                                         </div>
                                     </div>
                                 </motion.div>
@@ -138,7 +157,7 @@ const Cart = props => {
                         className={styles.bottom}
                         style={{ width: "87.5%", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                     >
-                        <h3>{t('cart.total')} ${total}</h3>
+                        <h3>{t('cart.total')} {formatPrice(convertedTotal)}</h3>
                         <button
                             id="24"
                             onMouseEnter={handleHover}

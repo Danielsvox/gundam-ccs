@@ -43,7 +43,7 @@ const Grid = props => {
             </div>
             <div className={styles.gridContainer} style={{ display: reviewDisplay ? "none" : "grid" }} id="gridContainer">
                 {loading ? (
-                    <LoadingSpinner message="Loading products..." />
+                    <LoadingSpinner translationKey="ui.loading.products" />
                 ) : error ? (
                     <ErrorMessage message={error} onRetry={onRetry} />
                 ) : searching === false ? cartDisplayed ? shownGundams.map((gundam, i) => {

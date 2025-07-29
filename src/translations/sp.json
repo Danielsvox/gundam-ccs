@@ -125,8 +125,8 @@
         },
         "payment": {
             "title": "Método de Pago",
-            "description": "Elige tu método de pago preferido.",
-            "selectMethod": "Seleccionar Método de Pago",
+            "description": "Selecciona tu método de pago preferido para completar tu orden.",
+            "selectMethod": "Elegir Método de Pago",
             "orderSummary": "Resumen del Pedido",
             "subtotal": "Subtotal",
             "shipping": "Envío",
@@ -143,8 +143,11 @@
             },
             "manual": {
                 "title": "Pago Manual",
-                "description": "Paga por teléfono o transferencia bancaria",
-                "info": "Serás contactado para arreglar el pago después de la confirmación del pedido."
+                "description": "Paga contactando directamente nuestra tienda",
+                "info": "Después de realizar tu pedido, recibirás información de contacto para completar tu pago manualmente."
+            },
+            "pagoMovil": {
+                "info": "Pago móvil rápido y seguro usando el sistema bancario de Venezuela."
             }
         },
         "shippingMethod": {
@@ -154,6 +157,7 @@
             "loading": "Cargando métodos de envío...",
             "estimatedDays": "Entrega estimada: {{days}} días hábiles",
             "free": "Gratis",
+            "freeShippingMinimum": "Envío gratis en pedidos superiores a {{minimum}}",
             "noMethodsAvailable": "No hay métodos de envío disponibles en este momento.",
             "back": "Volver a Información de Envío",
             "continue": "Continuar al Pago",
@@ -174,6 +178,7 @@
             "paymentMethod": "Método de Pago",
             "status": "Estado",
             "shippingAddress": "Dirección de Envío",
+            "addressNotAvailable": "Información de dirección no disponible",
             "items": "Artículos del Pedido",
             "subtotal": "Subtotal",
             "discount": "Descuento",
@@ -192,12 +197,150 @@
                 "paymentInstructions": "Instrucciones de Pago",
                 "instruction1": "Contáctanos por teléfono o WhatsApp para arreglar el pago",
                 "instruction2": "Aceptamos transferencias bancarias, efectivo contra entrega y otros métodos de pago",
-                "instruction3": "Tu pedido será procesado una vez confirmado el pago"
+                "instruction3": "Tu pedido será procesado una vez confirmado el pago",
+                "contactInfoTitle": "Información de Contacto",
+                "phone": "📞 Teléfono",
+                "email": "📧 Correo Electrónico",
+                "website": "🌐 Sitio Web",
+                "hours": "⏰ Horario de Atención",
+                "hoursText": "Lun-Vie 9AM-6PM EST",
+                "howWeCanHelpTitle": "Cómo Podemos Ayudarte",
+                "help1": "Preguntas sobre el estado de tu pedido o seguimiento",
+                "help2": "Asistencia con pagos y opciones de métodos de pago",
+                "help3": "Información de envío y actualizaciones de entrega",
+                "help4": "Información de productos y disponibilidad",
+                "help5": "Devoluciones, cambios y atención al cliente"
             },
             "whatsapp": {
                 "title": "Notificación de WhatsApp",
                 "message": "Recibirás una notificación de WhatsApp con los detalles de tu pedido pronto."
             }
+        },
+        "orders": {
+            "title": "Mis Pedidos",
+            "loading": "Cargando pedidos...",
+            "retry": "Reintentar",
+            "noOrders": "Aún no has realizado ningún pedido.",
+            "startShopping": "Comenzar a Comprar",
+            "backToOrders": "Volver a Pedidos",
+            "orderDetails": "Detalles del Pedido",
+            "viewDetails": "Ver Detalles",
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "page": "Página",
+            "of": "de",
+            "shippingAddress": "Dirección de Envío",
+            "items": "Artículos",
+            "quantity": "Cantidad",
+            "price": "Precio",
+            "summary": "Resumen del Pedido",
+            "subtotal": "Subtotal",
+            "discount": "Descuento",
+            "shipping": "Envío",
+            "tax": "Impuesto",
+            "total": "Total",
+            "tracking": "Información de Seguimiento",
+            "trackingNumber": "Número de Seguimiento",
+            "trackPackage": "Rastrear Paquete",
+            "contactStore": "Contactar Tienda",
+            "contactStoreMessage": "¿Necesitas ayuda con tu pedido? Contáctanos para asistencia con el pago, envío, o cualquier pregunta.",
+            "status": {
+                "pending": "Pendiente",
+                "processing": "Procesando",
+                "shipped": "Enviado",
+                "delivered": "Entregado",
+                "cancelled": "Cancelado"
+            },
+            "filters": {
+                "all": "Todos los Pedidos",
+                "pending": "Pendiente",
+                "processing": "Procesando",
+                "shipped": "Enviado",
+                "delivered": "Entregado",
+                "cancelled": "Cancelado"
+            }
+        },
+        "pagoMovil": {
+            "title": "Pago Móvil",
+            "description": "Completa tu pago usando el sistema bancario móvil Pago Móvil de Venezuela.",
+            "loading": "Cargando información de pago...",
+            "error": "Error",
+            "retry": "Intentar de Nuevo",
+            "exchangeRate": "Tasa de Cambio",
+            "recipientInfo": "Destinatario del Pago",
+            "recipientId": "Cédula",
+            "phone": "Teléfono",
+            "bank": "Banco",
+            "instructions": "Instrucciones de Pago",
+            "currentStatus": "Estado del Pago",
+            "amount": "Monto",
+            "back": "Atrás",
+            "submitVerification": "Ya Hice la Transferencia",
+            "checkStatus": "Verificar Estado",
+            "checking": "Verificando...",
+            "verificationForm": "Verificación de Pago",
+            "status": {
+                "approved": "✅ Pago Aprobado",
+                "rejected": "❌ Pago Rechazado",
+                "pending": "⏳ Verificación Pendiente"
+            },
+            "form": {
+                "senderId": "Tu Cédula (V-12345678)",
+                "senderPhone": "Tu Teléfono (04121234567)",
+                "bank": "Tu Banco",
+                "recipient": "Destinatario",
+                "amountVes": "Monto en VES (Bs.)",
+                "selectBank": "Selecciona tu banco",
+                "selectRecipient": "Selecciona destinatario",
+                "cancel": "Cancelar",
+                "submit": "Enviar Verificación",
+                "submitting": "Enviando..."
+            },
+            "errors": {
+                "loadInfoFailed": "Error al cargar información de pago",
+                "submitFailed": "Error al enviar verificación"
+            }
+        }
+    },
+    "ui": {
+        "loading": {
+            "products": "Cargando productos...",
+            "default": "Cargando...",
+            "orders": "Cargando pedidos...",
+            "processing": "Procesando..."
+        },
+        "error": {
+            "title": "¡Ups!",
+            "default": "Algo salió mal",
+            "loadFailed": "Error al cargar datos",
+            "tryAgain": "Intentar de Nuevo",
+            "retry": "Reintentar",
+            "networkError": "Error de red. Por favor, verifica tu conexión.",
+            "loadOrdersFailed": "Error al cargar pedidos",
+            "loadOrderDetailsFailed": "Error al cargar detalles del pedido"
+        }
+    },
+    "contact": {
+        "title": "Contactar Tienda",
+        "description": "¿Necesitas ayuda con tu pedido? Contáctanos para asistencia con el pago, envío, o cualquier pregunta.",
+        "whatsapp": "Contactar por WhatsApp",
+        "contactInfo": "Ver Información de Contacto",
+        "contactInformation": "Información de Contacto",
+        "phone": "Teléfono",
+        "email": "Correo Electrónico",
+        "website": "Sitio Web",
+        "businessHours": "Horario de Atención",
+        "howWeCanHelp": "Cómo Podemos Ayudarte",
+        "helpServices": {
+            "orderStatus": "Preguntas sobre el estado de tu pedido o seguimiento",
+            "paymentAssistance": "Asistencia con pagos y opciones de métodos de pago",
+            "shippingInfo": "Información de envío y actualizaciones de entrega",
+            "productInfo": "Información de productos y disponibilidad",
+            "customerSupport": "Devoluciones, cambios y atención al cliente"
+        },
+        "messages": {
+            "orderInquiry": "¡Hola! Tengo una pregunta sobre mi pedido (#{{orderNumber}}) por {{total}}. ¿Puedes ayudarme?",
+            "newOrderPayment": "¡Hola! Acabo de hacer un pedido (#{{orderNumber}}) por {{total}}. Me gustaría coordinar el pago."
         }
     },
     "card": {
@@ -260,5 +403,13 @@
     "language": {
         "en": "EN",
         "sp": "SP"
+    },
+    "currency": {
+        "switchToUSD": "Cambiar a USD",
+        "switchToVES": "Cambiar a VES",
+        "rateUnavailable": "Tasa de cambio no disponible",
+        "rateTooltip": "Convertido usando tasa 1 USD = {rate} VES",
+        "usd": "USD",
+        "ves": "VES"
     }
 }

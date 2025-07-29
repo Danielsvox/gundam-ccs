@@ -1,18 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../contexts/CurrencyContext';
 import styles from './ShippingMethod.module.css';
 import { shippingAPI } from '../../services/api';
 
-const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loading }) => {
+const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loading, cartTotal }) => {
     const { t } = useTranslation();
+    const { currency, convertAmount, formatPrice } = useCurrency();
     const [shippingMethods, setShippingMethods] = useState([]);
     const [loadingMethods, setLoadingMethods] = useState(true);
     const [error, setError] = useState(null);
+    const [convertedMethods, setConvertedMethods] = useState([]);
+
+    // Free shipping minimum threshold (in USD)
+    const FREE_SHIPPING_MINIMUM = 50;
 
     useEffect(() => {
         loadShippingMethods();
     }, []);
 
+    // Convert shipping method prices when currency changes
+    useEffect(() => {
+        const convertShippingMethods = async () => {
+            if (shippingMethods.length === 0) return;
+
+            const converted = await Promise.all(
+                shippingMethods.map(async (method) => {
+                    if (currency === 'VES' && method.price) {
+                        const convertedPrice = await convertAmount(parseFloat(method.price), 'USD', 'VES');
+                        return { ...method, convertedPrice };
+                    } else {
+                        return { ...method, convertedPrice: parseFloat(method.price || 0) };
+                    }
+                })
+            );
+
+            setConvertedMethods(converted);
+        };
+
+        convertShippingMethods();
+    }, [currency, shippingMethods, convertAmount]);
 
 
     const loadShippingMethods = async () => {
@@ -55,7 +82,23 @@ const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loadin
         }
     };
 
+    const isMethodDisabled = (method) => {
+        // Check if this is a free shipping method and cart total is below minimum
+        const isFreeShipping = method.price === 0 || method.price === null || method.price === '0.00';
+        return isFreeShipping && cartTotal < FREE_SHIPPING_MINIMUM;
+    };
+
     const handleMethodSelect = (method) => {
+        // Don't allow selection of disabled methods
+        if (isMethodDisabled(method)) {
+            return;
+        }
+
+        // Debug: Log the selected method details
+        console.log('ShippingMethod - Method selected:', method);
+        console.log('ShippingMethod - Method price:', method.price);
+        console.log('ShippingMethod - Method converted price:', method.convertedPrice);
+
         onMethodSelect(method);
     };
 
@@ -109,40 +152,53 @@ const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loadin
                                 <p>{t('checkout.shippingMethod.noMethodsAvailable')}</p>
                             </div>
                         ) : (
-                            shippingMethods.map((method) => (
-                                <div
-                                    key={method.id}
-                                    className={`${styles.methodOption} ${selectedMethod?.id === method.id ? styles.selected : ''}`}
-                                    onClick={() => handleMethodSelect(method)}
-                                >
-                                    <div className={styles.optionHeader}>
-                                        <input
-                                            type="radio"
-                                            name="shippingMethod"
-                                            value={method.id}
-                                            checked={selectedMethod?.id === method.id}
-                                            onChange={() => handleMethodSelect(method)}
-                                            className={styles.radio}
-                                        />
-                                        <div className={styles.optionInfo}>
-                                            <h4>{method.name}</h4>
-                                            <p>{method.description}</p>
-                                            {method.estimated_days && (
-                                                <span className={styles.estimatedDays}>
-                                                    {t('checkout.shippingMethod.estimatedDays', { days: method.estimated_days })}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className={styles.optionCost}>
-                                            {method.price === 0 || method.price === null ? (
-                                                <span className={styles.free}>{t('checkout.shippingMethod.free')}</span>
-                                            ) : (
-                                                <span className={styles.cost}>${parseFloat(method.price).toFixed(2)}</span>
-                                            )}
+                            convertedMethods.map((method) => {
+                                const isDisabled = isMethodDisabled(method);
+                                const isFreeShipping = method.price === 0 || method.price === null || method.price === '0.00';
+
+                                return (
+                                    <div
+                                        key={method.id}
+                                        className={`${styles.methodOption} ${selectedMethod?.id === method.id ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
+                                        onClick={() => handleMethodSelect(method)}
+                                    >
+                                        <div className={styles.optionHeader}>
+                                            <input
+                                                type="radio"
+                                                name="shippingMethod"
+                                                value={method.id}
+                                                checked={selectedMethod?.id === method.id}
+                                                onChange={() => handleMethodSelect(method)}
+                                                className={styles.radio}
+                                                disabled={isDisabled}
+                                            />
+                                            <div className={styles.optionInfo}>
+                                                <h4>{method.name}</h4>
+                                                <p>{method.description}</p>
+                                                {isDisabled && isFreeShipping && (
+                                                    <span className={styles.eligibilityWarning}>
+                                                        {t('checkout.shippingMethod.freeShippingMinimum', { minimum: formatPrice(FREE_SHIPPING_MINIMUM, 'USD') })}
+                                                    </span>
+                                                )}
+                                                {method.estimated_days && (
+                                                    <span className={styles.estimatedDays}>
+                                                        {t('checkout.shippingMethod.estimatedDays', { days: method.estimated_days })}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className={styles.optionCost}>
+                                                {method.price === 0 || method.price === null ? (
+                                                    <span className={`${styles.free} ${isDisabled ? styles.disabledText : ''}`}>
+                                                        {t('checkout.shippingMethod.free')}
+                                                    </span>
+                                                ) : (
+                                                    <span className={styles.cost}>{formatPrice(method.convertedPrice)}</span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
                 </div>

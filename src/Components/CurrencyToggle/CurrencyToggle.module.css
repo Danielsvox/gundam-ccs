@@ -1,0 +1,66 @@
+.currencyToggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-left: 12px;
+}
+
+.currencyButton {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 18px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'GTWalsheimPro-Medium', sans-serif;
+    min-width: 40px;
+    text-align: center;
+}
+
+.currencyButton:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.currencyButton.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    transform: scale(1.05);
+}
+
+.currencyButton.active:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .currencyToggle {
+        margin-left: 8px;
+    }
+
+    .currencyButton {
+        padding: 4px 8px;
+        font-size: 11px;
+        min-width: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .currencyToggle {
+        margin-left: 4px;
+    }
+
+    .currencyButton {
+        padding: 3px 6px;
+        font-size: 10px;
+        min-width: 30px;
+    }
+}
