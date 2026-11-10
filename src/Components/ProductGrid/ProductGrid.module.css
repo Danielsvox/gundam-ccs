@@ -1,0 +1,33 @@
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3);
+}
+
+.item { min-width: 0; display: flex; }
+.item > * { flex: 1; }
+
+@media (min-width: 640px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-4); }
+}
+
+.skeleton {
+  display: grid;
+  gap: var(--s-2);
+  padding-bottom: var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.skelPlate { aspect-ratio: 1 / 1; background: var(--surface-2); }
+.skelLine { height: 14px; margin: 0 var(--s-3); background: var(--surface-2); border-radius: var(--r-1); }
+.short { width: 45%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .skelPlate, .skelLine { animation: pulse 1.4s ease-in-out infinite; }
+}
+@keyframes pulse { 50% { opacity: 0.55; } }

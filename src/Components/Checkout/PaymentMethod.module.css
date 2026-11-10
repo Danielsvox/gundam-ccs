@@ -67,7 +67,7 @@
 }
 
 .paymentOption.selected {
-    border-color: #667eea;
+    border-color: var(--accent);
     background: rgba(102, 126, 234, 0.1);
     box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.3);
 }
@@ -90,8 +90,8 @@
 }
 
 .radio:checked {
-    border-color: #667eea;
-    background: #667eea;
+    border-color: var(--accent);
+    background: var(--accent);
 }
 
 .radio:checked::after {
@@ -213,13 +213,13 @@
 
 .errorSection {
     background-color: #1A1A1A;
-    border: 1px solid #ff4444;
+    border: 1px solid #e0518f;
     border-radius: 8px;
     padding: 16px;
 }
 
 .error {
-    color: #ff4444;
+    color: #e0518f;
     font-size: 14px;
     font-family: "GT Regular";
     margin: 0;
@@ -251,7 +251,7 @@
 }
 
 .submitBtn {
-    background-color: #ff4444;
+    background-color: #e0518f;
     border: none;
     color: white;
     padding: 12px 24px;
@@ -263,7 +263,7 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-    background-color: #ff6666;
+    background-color: #ee74a8;
 }
 
 .submitBtn:disabled {

@@ -1,47 +1,29 @@
-.languageSwitcher {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: 20px;
+.switcher {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  overflow: hidden;
 }
 
-.langButton {
-    background: transparent;
-    border: none;
-    color: #cccccc;
-    font-family: "GT Medium";
-    font-size: 14px;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+.option {
+  min-width: var(--tap);
+  min-height: 36px;
+  padding: 0 var(--s-2);
+  background: transparent;
+  border: 0;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
 }
 
-.langButton:hover {
-    color: white;
-    background-color: rgba(255, 255, 255, 0.1);
-}
+.option + .option { border-left: 1px solid var(--line-strong); }
+.option:hover { color: var(--text); background: var(--surface-2); }
 
-.langButton.active {
-    color: white;
-    background-color: rgba(69, 193, 188, 0.3);
-    font-weight: bold;
+.active {
+  background: var(--text);
+  color: var(--bg);
 }
+.active:hover { background: var(--text); color: var(--bg); }
 
-.separator {
-    color: #666;
-    font-size: 12px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-@media screen and (max-width: 770px) {
-    .languageSwitcher {
-        margin-left: 10px;
-    }
-
-    .langButton {
-        font-size: 12px;
-        padding: 3px 6px;
-    }
-}
+.option:focus-visible { outline-offset: -3px; }

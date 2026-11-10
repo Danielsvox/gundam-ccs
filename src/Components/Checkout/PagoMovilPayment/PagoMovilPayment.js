@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCurrency } from '../../../contexts/CurrencyContext';
+import { usdToVesString } from '../../../lib/cartTotals';
+import { formatCents, toCents } from '../../../lib/money';
 import { pagoMovilAPI } from '../../../services/api';
 import styles from './PagoMovilPayment.module.css';
 
-const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
-    const { t } = useTranslation();
-    const { currency, convertAmount, formatPrice } = useCurrency();
+const PagoMovilPayment = ({ total, orderId, onPayLater, onSuccess }) => {
+    const { t, i18n } = useTranslation();
+    const lang = (i18n.resolvedLanguage || 'es').slice(0, 2);
 
     // State for payment info
     const [paymentInfo, setPaymentInfo] = useState(null);
@@ -14,8 +15,8 @@ const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
     const [error, setError] = useState(null);
 
     // State for amounts
-    const [usdAmount, setUsdAmount] = useState(total);
-    const [vesAmount, setVesAmount] = useState(0);
+    const usdAmount = total; // decimal string (USD) incl. tax, shipping and discount
+    const [vesAmount, setVesAmount] = useState(null); // decimal string
 
     // State for verification form
     const [showVerificationForm, setShowVerificationForm] = useState(false);
@@ -29,31 +30,21 @@ const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
     });
     const [verificationLoading, setVerificationLoading] = useState(false);
     const [verificationError, setVerificationError] = useState(null);
-    const [verificationStatus, setVerificationStatus] = useState(null);
-
-    // State for status checking
-    const [statusLoading, setStatusLoading] = useState(false);
-    const [currentStatus, setCurrentStatus] = useState(null);
-
-    // Load payment info on component mount
-    useEffect(() => {
-        loadPaymentInfo();
-    }, []);
-
+    
     // Convert USD to VES when payment info loads
     useEffect(() => {
         if (paymentInfo?.current_exchange_rate) {
-            const rate = parseFloat(paymentInfo.current_exchange_rate);
-            const convertedAmount = usdAmount * rate;
+            // Decimal-safe (no floats), using the rate the backend verifies against.
+            const convertedAmount = usdToVesString(usdAmount, paymentInfo.current_exchange_rate);
             setVesAmount(convertedAmount);
             setVerificationData(prev => ({
                 ...prev,
-                amount_ves: convertedAmount.toFixed(2)
+                amount_ves: convertedAmount || ''
             }));
         }
     }, [paymentInfo, usdAmount]);
 
-    const loadPaymentInfo = async () => {
+    const loadPaymentInfo = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -68,12 +59,15 @@ const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
                 }));
             }
         } catch (err) {
-            console.error('Error loading payment info:', err);
             setError(t('checkout.pagoMovil.errors.loadInfoFailed'));
         } finally {
             setLoading(false);
         }
-    };
+    }, [t]);
+
+    useEffect(() => {
+        loadPaymentInfo();
+    }, [loadPaymentInfo]);
 
     const handleVerificationSubmit = async (e) => {
         e.preventDefault();
@@ -90,17 +84,16 @@ const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
                 sender_phone: verificationData.sender_phone,
                 bank_code: parseInt(verificationData.bank_code),
                 recipient: parseInt(verificationData.recipient),
-                amount_ves: parseFloat(verificationData.amount_ves).toFixed(2)
+                amount_ves: verificationData.amount_ves,
+                order: orderId
             };
 
-            const response = await pagoMovilAPI.submitVerification(submitData);
-            setVerificationStatus(response);
+            await pagoMovilAPI.submitVerification(submitData);
             setShowVerificationForm(false);
 
-            // Start checking status
-            checkVerificationStatus();
+            // The order already exists; an admin approves the payment later (no instant approval).
+            onSuccess();
         } catch (err) {
-            console.error('Error submitting verification:', err);
             if (err.response?.data) {
                 setVerificationError(err.response.data);
             } else {
@@ -111,38 +104,12 @@ const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
         }
     };
 
-    const checkVerificationStatus = async () => {
-        try {
-            setStatusLoading(true);
-            const status = await pagoMovilAPI.checkStatus();
-            setCurrentStatus(status);
-
-            if (status.status === 'approved') {
-                onSuccess();
-            }
-        } catch (err) {
-            console.error('Error checking status:', err);
-        } finally {
-            setStatusLoading(false);
-        }
-    };
-
     const formatPhoneNumber = (phone) => {
         // Format phone number for display (0412-123-4567)
         if (phone.length === 11) {
             return `${phone.slice(0, 4)}-${phone.slice(4, 7)}-${phone.slice(7)}`;
         }
         return phone;
-    };
-
-    const getSelectedRecipient = () => {
-        if (!paymentInfo?.recipients || !verificationData.recipient) return null;
-        return paymentInfo.recipients.find(r => r.id.toString() === verificationData.recipient);
-    };
-
-    const getSelectedBank = () => {
-        if (!paymentInfo?.bank_codes || !verificationData.bank_code) return null;
-        return paymentInfo.bank_codes.find(b => b.id.toString() === verificationData.bank_code);
     };
 
     if (loading) {
@@ -181,9 +148,9 @@ const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
             <div className={styles.section}>
                 <div className={styles.amountDisplay}>
                     <div className={styles.conversion}>
-                        <span className={styles.usdAmount}>USD: {formatPrice(usdAmount, 'USD')}</span>
+                        <span className={styles.usdAmount}>USD: {formatCents(toCents(usdAmount), 'USD', lang)}</span>
                         <span className={styles.arrow}>→</span>
-                        <span className={styles.vesAmount}>VES: Bs. {vesAmount.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <span className={styles.vesAmount}>VES: {vesAmount ? formatCents(toCents(vesAmount), 'VES', lang) : '—'}</span>
                     </div>
                     <div className={styles.rate}>
                         {t('checkout.pagoMovil.exchangeRate')}: 1 USD = {paymentInfo?.current_exchange_rate} VES
@@ -220,52 +187,20 @@ const PagoMovilPayment = ({ total, onBack, onSuccess }) => {
                 </div>
             )}
 
-            {/* Current Status Display */}
-            {currentStatus && (
-                <div className={styles.section}>
-                    <h3>{t('checkout.pagoMovil.currentStatus')}</h3>
-                    <div className={`${styles.statusCard} ${styles[currentStatus.status]}`}>
-                        <div className={styles.statusIcon}>
-                            {currentStatus.status === 'approved' && '✅'}
-                            {currentStatus.status === 'rejected' && '❌'}
-                            {currentStatus.status === 'pending' && '⏳'}
-                        </div>
-                        <div className={styles.statusInfo}>
-                            <h4>{t(`checkout.pagoMovil.status.${currentStatus.status}`)}</h4>
-                            {currentStatus.notes && <p>{currentStatus.notes}</p>}
-                            {currentStatus.formatted_amount && (
-                                <p>{t('checkout.pagoMovil.amount')}: {currentStatus.formatted_amount}</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Action Buttons */}
             <div className={styles.actions}>
-                <button onClick={onBack} className={styles.backBtn}>
-                    {t('checkout.pagoMovil.back')}
+                <button onClick={onPayLater} className={styles.backBtn}>
+                    {t('checkout.pagoMovil.payLater')}
                 </button>
 
-                {!showVerificationForm && !currentStatus && (
+                {!showVerificationForm && (
                     <button
                         onClick={() => setShowVerificationForm(true)}
                         className={styles.verifyBtn}
                     >
                         {t('checkout.pagoMovil.submitVerification')}
                     </button>
-                )}
-
-                {currentStatus && currentStatus.status === 'pending' && (
-                    <button
-                        onClick={checkVerificationStatus}
-                        className={styles.checkStatusBtn}
-                        disabled={statusLoading}
-                    >
-                        {statusLoading ? t('checkout.pagoMovil.checking') : t('checkout.pagoMovil.checkStatus')}
-                    </button>
-                )}
-            </div>
+                )}            </div>
 
             {/* Verification Form Modal */}
             {showVerificationForm && (

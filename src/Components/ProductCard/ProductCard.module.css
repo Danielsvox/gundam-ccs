@@ -1,0 +1,133 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.card:hover, .card:focus-within { border-color: var(--line-strong); }
+
+/* Light "photo plate": manufacturer photos are shot on white, so give them a plate. */
+.plate {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  background: var(--plate);
+  border-bottom: 1px solid var(--plate-line);
+  overflow: hidden;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: var(--s-3);
+  transition: transform 0.25s ease-out;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card:hover .img { transform: scale(1.03); }
+}
+
+.soldOut .img { opacity: 0.45; filter: grayscale(0.6); }
+
+.noImage {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  padding: var(--s-4);
+  color: #5d6068; /* 5.6:1 on --plate */
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.badges {
+  position: absolute;
+  inset: var(--s-2) auto auto var(--s-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  max-width: calc(100% - var(--s-4));
+}
+
+.sale {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--s-2);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  border-radius: var(--r-1);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  flex: 1;
+  padding: var(--s-3);
+}
+
+.meta { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+
+.title {
+  font-family: var(--font-medium);
+  font-size: var(--fs-md);
+  line-height: 1.3;
+  letter-spacing: 0;
+  /* reserve two lines so prices line up across a row, clamp longer names */
+  min-height: calc(1.3em * 2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* Whole card is clickable through the title link; the button sits above the overlay. */
+.link { text-decoration: none; }
+.link::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.link:focus-visible { outline: none; }
+.link:focus-visible::after { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: var(--r-2); }
+
+.maker {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.foot {
+  margin-top: auto;
+  padding-top: var(--s-2);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.add { position: relative; z-index: 2; flex: 1 1 auto; min-width: 7rem; }
+
+.error { color: var(--danger); font-size: var(--fs-xs); position: relative; z-index: 2; }
+
+.noImageMark {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  opacity: 0.85;
+  background: #fafafa url('../../Resources/image/logo-gc.png') 51.4% 33.4% / 221% no-repeat;
+  box-shadow: 0 0 0 1px var(--plate-line);
+}

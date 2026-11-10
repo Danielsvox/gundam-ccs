@@ -1,0 +1,164 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: var(--header-h);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  text-decoration: none;
+  margin-inline-end: auto;
+}
+.brandMark {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 10px;
+  background: #fafafa url('../../Resources/image/logo-gc.png') 51.4% 33.4% / 221% no-repeat;
+}
+.brandText {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.nav { display: none; }
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: var(--font-medium);
+  font-size: var(--fs-sm);
+  border-bottom: 2px solid transparent;
+}
+.navLink:hover { color: var(--text); }
+.current { color: var(--text); border-bottom-color: var(--accent); }
+
+.search { display: flex; width: 100%; position: relative; }
+.searchInput {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 var(--tap) 0 var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  color: var(--text);
+  appearance: none;
+}
+.searchInput::placeholder { color: var(--text-faint); }
+.searchInput::-webkit-search-cancel-button { appearance: none; }
+.searchButton {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: var(--tap);
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--text-dim);
+}
+.searchButton:hover { color: var(--text); }
+
+.searchDesktop { display: none; flex: 1 1 280px; max-width: 420px; }
+.searchMobile { padding-bottom: var(--s-3); }
+
+.actions { display: flex; align-items: center; gap: var(--s-2); }
+.desktopOnly { display: none; }
+
+.iconButton, .cartButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 var(--s-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  color: var(--text);
+}
+.iconButton:hover, .cartButton:hover { border-color: var(--line-strong); background: var(--surface); }
+.iconLabel { font-size: var(--fs-sm); max-width: 12ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cartButton { position: relative; }
+.cartCount {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.dropdown { position: relative; }
+.dropdownPanel {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + var(--s-2));
+  min-width: 220px;
+  display: grid;
+  padding: var(--s-2);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  box-shadow: var(--shadow-pop);
+  z-index: 60;
+}
+
+.menu { display: grid; gap: var(--s-1); align-content: start; }
+.menuHeading {
+  margin-top: var(--s-4);
+  padding-bottom: var(--s-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-1);
+  color: var(--text);
+  text-align: start;
+  text-decoration: none;
+  width: 100%;
+}
+.menuItem:hover { background: var(--surface-2); }
+
+@media (min-width: 900px) {
+  .menuToggle { display: none; }
+  .brand { margin-inline-end: var(--s-4); }
+  .nav { display: flex; margin-inline-end: auto; }
+  .searchDesktop { display: block; }
+  .searchMobile { display: none; }
+  .desktopOnly { display: block; }
+}

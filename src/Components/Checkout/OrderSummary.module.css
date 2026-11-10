@@ -72,7 +72,7 @@
 }
 
 .orderNumber {
-    color: #ff4444;
+    color: #e0518f;
     font-weight: bold;
     font-family: "GT Bold";
 }
@@ -192,13 +192,13 @@
 
 .manualPaymentInfo {
     background-color: #1A1A1A;
-    border: 1px solid #ff4444;
+    border: 1px solid #e0518f;
     border-radius: 8px;
     padding: 16px;
 }
 
 .manualPaymentInfo h3 {
-    color: #ff4444;
+    color: #e0518f;
     font-size: 16px;
     font-family: "GT Medium";
     margin: 0 0 8px 0;
@@ -237,7 +237,7 @@
 }
 
 .contactInfoBtn {
-    background-color: #ff4444;
+    background-color: #e0518f;
     border: none;
     color: white;
     padding: 12px 20px;
@@ -252,7 +252,7 @@
 }
 
 .contactInfoBtn:hover {
-    background-color: #ff6666;
+    background-color: #ee74a8;
 }
 
 /* Modal Styles */
@@ -412,7 +412,7 @@
 }
 
 .continueBtn {
-    background-color: #ff4444;
+    background-color: #e0518f;
     border: none;
     color: white;
     padding: 14px 32px;
@@ -424,7 +424,7 @@
 }
 
 .continueBtn:hover {
-    background-color: #ff6666;
+    background-color: #ee74a8;
 }
 
 /* Responsive Design */

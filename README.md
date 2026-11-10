@@ -1,285 +1,46 @@
-# 🤖 Gundam Ccs Backend API
+# Gundam CCS — storefront (React)
 
-Backend API for the Gundam Ccs e-commerce platform, built with Node.js, Express, and Firebase.
+Customer-facing storefront for a Gunpla / model-kit retailer. React 18 (Create React App), react-router 6, i18next, axios.
+It talks to the Django REST backend in `gundam-ccs-backend` (API root `/api/v1`).
 
-## 🏗️ Architecture
-
-This backend provides a RESTful API for:
-- **User Authentication** - Registration, login, profile management
-- **Cart Management** - Persistent shopping cart with synchronization
-- **Product Catalog** - Gundam model kits with search and filtering
-- **Order Processing** - Complete order lifecycle management
-- **Payment Processing** - Secure payments with Stripe
-- **Wishlist Management** - User wishlists and favorites
-
-## 🛠 Built With
-
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web framework
-- **Firebase** - Authentication and database
-- **Stripe** - Payment processing
-- **JWT** - Token-based authentication
-- **Helmet** - Security middleware
-- **CORS** - Cross-origin resource sharing
-- **Rate Limiting** - API protection
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- Firebase project
-- Stripe account
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Danielsvox/gundam-ccs-backend.git
-   cd gundam-ccs-backend
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp env.example .env
-   ```
-   
-   Edit `.env` with your configuration:
-   - Firebase service account credentials
-   - JWT secret key
-   - Stripe API keys
-   - Database configuration
-
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-The API will be available at `http://localhost:5000`
-
-## 📋 API Endpoints
-
-### Authentication
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/register` | Register new user | No |
-| POST | `/api/auth/login` | Login user | No |
-| POST | `/api/auth/logout` | Logout user | Yes |
-| GET | `/api/auth/profile` | Get user profile | Yes |
-| PUT | `/api/auth/profile` | Update user profile | Yes |
-
-### Cart Management
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/cart` | Get user cart | Yes |
-| POST | `/api/cart/items` | Add item to cart | Yes |
-| PUT | `/api/cart/items/:id` | Update cart item | Yes |
-| DELETE | `/api/cart/items/:id` | Remove item from cart | Yes |
-| DELETE | `/api/cart` | Clear cart | Yes |
-
-### Products
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/products` | Get all products | No |
-| GET | `/api/products/:id` | Get product by ID | No |
-| GET | `/api/products/search` | Search products | No |
-| GET | `/api/products/categories` | Get categories | No |
-
-### Orders
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/orders` | Create new order | Yes |
-| GET | `/api/orders` | Get user orders | Yes |
-| GET | `/api/orders/:id` | Get order by ID | Yes |
-| PUT | `/api/orders/:id/cancel` | Cancel order | Yes |
-
-### Wishlist
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/wishlist` | Get user wishlist | Yes |
-| POST | `/api/wishlist` | Add item to wishlist | Yes |
-| DELETE | `/api/wishlist/:id` | Remove item from wishlist | Yes |
-
-### Payments
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/payments/create-intent` | Create payment intent | Yes |
-| POST | `/api/payments/confirm` | Confirm payment | Yes |
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-
-# JWT Configuration
-JWT_SECRET=your_jwt_secret_key_here
-
-# Frontend URL (for CORS)
-FRONTEND_URL=http://localhost:3000
-
-# Firebase Configuration
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_PRIVATE_KEY=your_private_key
-FIREBASE_CLIENT_EMAIL=your_service_account_email
-# ... other Firebase config
-
-# Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-```
-
-### Firebase Setup
-
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Authentication (Email/Password)
-3. Enable Firestore Database
-4. Create a service account and download the JSON file
-5. Add the service account credentials to your `.env` file
-
-### Stripe Setup
-
-1. Create a Stripe account at [Stripe Dashboard](https://dashboard.stripe.com/)
-2. Get your API keys from the dashboard
-3. Add the keys to your `.env` file
-
-## 🧪 Testing
+## Run it
 
 ```bash
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
+npm install
+cp .env.example .env     # point REACT_APP_API_BASE_URL at your backend
+npm start                # http://localhost:3000
+npm run build            # production build
 ```
 
-## 📦 Deployment
+| Variable | Default | Meaning |
+|---|---|---|
+| `REACT_APP_API_BASE_URL` | `http://localhost:8000/api/v1` | Backend API root (legacy alias: `REACT_APP_API_URL`) |
+| `REACT_APP_RATE_WARN_HOURS` | `6` | After this age the VES equivalent is shown as approximate (`≈`) |
+| `REACT_APP_RATE_HIDE_HOURS` | `48` | After this age the VES equivalent is hidden and only USD is shown |
 
-### Heroku
+## Tests
 
-1. Create a Heroku app
-2. Set environment variables in Heroku dashboard
-3. Deploy:
-   ```bash
-   git push heroku main
-   ```
-
-### Railway
-
-1. Connect your GitHub repository to Railway
-2. Set environment variables in Railway dashboard
-3. Deploy automatically on push
-
-### Vercel
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Deploy: `vercel`
-
-## 🔒 Security Features
-
-- **Helmet** - Security headers
-- **CORS** - Cross-origin protection
-- **Rate Limiting** - API abuse prevention
-- **JWT Authentication** - Secure token-based auth
-- **Input Validation** - Request data validation
-- **Error Handling** - Secure error responses
-
-## 📊 Database Schema
-
-### Users Collection
-```javascript
-{
-  uid: string,
-  email: string,
-  displayName: string,
-  phone: string,
-  address: object,
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
+```bash
+npm run test:unit        # Jest: money, exchange-rate policy, catalog URL/API mapping, cart maths, API errors, i18n, translation parity
+npm run e2e              # Playwright (starts the dev server on :3100; the API is fully mocked, no backend needed)
 ```
 
-### Carts Collection
-```javascript
-{
-  userId: string,
-  items: array,
-  total: number,
-  updatedAt: timestamp
-}
-```
+The first time: `npx playwright install chromium`. E2E screenshots (mobile 375 / tablet 768 / desktop 1280) are written to `e2e/screenshots/`.
+Backend tests: `cd ../gundam-ccs-backend/gundam-ccs-backend && python manage.py test products`.
 
-### Orders Collection
-```javascript
-{
-  orderId: string,
-  userId: string,
-  items: array,
-  total: number,
-  status: string,
-  paymentIntent: string,
-  shippingAddress: object,
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
-```
+## Design system
 
-### Products Collection
-```javascript
-{
-  productId: string,
-  name: string,
-  description: string,
-  price: number,
-  category: string,
-  images: array,
-  inStock: boolean,
-  rating: number,
-  reviews: array
-}
-```
+Tokens and base classes live in `src/index.css` (colour, type scale, spacing, focus ring, buttons, fields, tags).
+Breakpoints: 640 / 900 / 1200 px. Shared components: `Price`, `Dialog` (native `<dialog>` drawer/sheet/modal), `StateMessage`, `StockBadge`, `ProductCard`, `ProductGrid`, `FilterPanel`, `Pagination`.
 
-## 🤝 Contributing
+## Money and currency rules
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -m 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit a pull request
+- **USD is authoritative.** Catalog, cart and order totals are USD. VES is only a display equivalent.
+- All money maths is integer-cents (`src/lib/money.js`), VES = USD × rate rounded half-even to 2 decimals (same as the backend's `convert` endpoint).
+- The rate comes from `GET /payments/exchange-rate/` and is classified by `src/lib/exchangeRate.js`: fresh → shown; stale → shown with `≈`; expired / `source: "fallback"` / unavailable → VES hidden, USD only. No rate is hard-coded in the UI.
+- Cart/checkout totals mirror the backend order: `subtotal + tax + shipping − discount`, where tax is derived from the cart response (never hard-coded in the client).
 
-## 📝 License
+## Language
 
-This project is licensed under the MIT License.
-
-## 👨‍💻 Developer
-
-**Carlos Daniel** - Full Stack Developer
-
-- **LinkedIn**: [Carlos Daniel](https://www.linkedin.com/in/carlos-daniel-441685161/)
-- **GitHub**: [@Danielsvox](https://github.com/Danielsvox)
-
-## 🔗 Related Repositories
-
-- **Frontend**: [gundam-ccs-frontend](https://github.com/Danielsvox/gundam-ccs-frontend)
-- **Database**: Firebase project
-
----
-
-*Gundam Ccs Backend API - Powering the ultimate Gundam model kit e-commerce experience.*
+Spanish (default) and English. Catalogs: `src/translations/{es,en}.json` (parity is enforced by a test). The choice persists in `localStorage` (`i18nextLng`).
+Product names are never translated. Product descriptions use `description_<lang>` if the API ever provides it, otherwise the stored text with a visible note.

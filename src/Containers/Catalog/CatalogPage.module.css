@@ -1,0 +1,51 @@
+.page { padding-block: var(--s-5) var(--s-8); }
+
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s-2) var(--s-4); margin-bottom: var(--s-4); }
+.title { font-size: var(--fs-2xl); overflow-wrap: anywhere; }
+.title:focus { outline: none; }
+.count { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text-dim); }
+
+.layout { display: grid; gap: var(--s-4); }
+.sidebar { display: none; }
+.results { min-width: 0; }
+
+.toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-3); }
+.filterButton { gap: var(--s-2); }
+.badge {
+  min-width: 20px; height: 20px; padding: 0 5px; display: inline-grid; place-items: center;
+  background: var(--accent); color: var(--on-accent); border-radius: 10px;
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+}
+.sort { display: flex; align-items: center; gap: var(--s-2); }
+.sort label { font-size: var(--fs-sm); color: var(--text-dim); white-space: nowrap; }
+.sort select { min-width: 11rem; }
+
+.chips { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  min-height: 36px; padding: 0 var(--s-3);
+  background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--r-2);
+  color: var(--text); font-size: var(--fs-sm);
+}
+.chip:hover { border-color: var(--text-dim); }
+.clearAll { min-height: 36px; padding: 0 var(--s-2); background: none; border: 0; color: var(--text-dim); text-decoration: underline; text-underline-offset: 3px; }
+.clearAll:hover { color: var(--text); }
+
+.dim { opacity: 0.6; transition: opacity 0.15s; pointer-events: none; }
+
+.sheetFooter { display: flex; gap: var(--s-3); justify-content: flex-end; flex-wrap: wrap; }
+.sheetFooter > :last-child { flex: 1 1 auto; }
+
+.altLink { margin-top: var(--s-4); text-align: center; }
+
+@media (max-width: 479px) {
+  .sort label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .sort select { min-width: 0; }
+}
+
+@media (min-width: 900px) {
+  .layout { grid-template-columns: 260px minmax(0, 1fr); gap: var(--s-6); align-items: start; }
+  .sidebar { display: block; position: sticky; top: calc(var(--header-h) + var(--s-4)); max-height: calc(100vh - var(--header-h) - var(--s-6)); overflow-y: auto; padding-inline-end: var(--s-3); }
+  .filterButton { display: none; }
+  .toolbar { justify-content: flex-end; }
+}
