@@ -1,43 +1,269 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* ==========================================================================
+   Gundam CCS design system
+   Direction: a dark "workshop" chrome (ink surfaces, warm off-white text) with
+   light photo plates behind product images, so manufacturer photos on white
+   backgrounds look intentional. One accent (brand pink) used sparingly for
+   sale/status; focus uses a distinct yellow ring. Square-ish corners, hairline
+   borders, mono labels for model data (grade, scale, SKU) like a kit-box side panel.
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+   Breakpoints (media queries cannot use variables, keep these numbers in sync):
+     sm 640px · md 900px · lg 1200px
+   ========================================================================== */
 
 @font-face {
   font-family: "GT Medium";
-  src: local("GT Medium"),
-    url('./Resources/fonts/walsheim/GTWalsheimPro-Medium.ttf') format("truetype");
+  font-display: swap;
+  src: local("GT Medium"), url('./Resources/fonts/walsheim/GTWalsheimPro-Medium.ttf') format("truetype");
 }
-
 @font-face {
   font-family: "GT Regular";
-  src: local("GT Regular"),
-    url('./Resources/fonts/walsheim/GTWalsheimPro-Regular.ttf') format("truetype");
+  font-display: swap;
+  src: local("GT Regular"), url('./Resources/fonts/walsheim/GTWalsheimPro-Regular.ttf') format("truetype");
 }
-
 @font-face {
   font-family: "GT Light";
-  src: local("GT Light"),
-    url('./Resources/fonts/walsheim/GTWalsheimPro-Light.ttf') format("truetype");
+  font-display: swap;
+  src: local("GT Light"), url('./Resources/fonts/walsheim/GTWalsheimPro-Light.ttf') format("truetype");
 }
-
 @font-face {
   font-family: "GT Bold";
-  src: local("GT Bold"),
-    url('./Resources/fonts/walsheim/GTWalsheimPro-Bold.ttf') format("truetype");
+  font-display: swap;
+  src: local("GT Bold"), url('./Resources/fonts/walsheim/GTWalsheimPro-Bold.ttf') format("truetype");
 }
-
 @font-face {
   font-family: "GT Ultrabold";
-  src: local("GT Ultrabold"),
-    url('./Resources/fonts/walsheim/GTWalsheimPro-UltraBold.ttf') format("truetype");
+  font-display: swap;
+  src: local("GT Ultrabold"), url('./Resources/fonts/walsheim/GTWalsheimPro-UltraBold.ttf') format("truetype");
+}
+
+:root {
+  /* Surfaces */
+  --bg: #121316;
+  --surface: #1a1c20;
+  --surface-2: #22252a;
+  --surface-3: #2b2f35;
+  --line: #2f333a;
+  --line-strong: #444a53;
+  --plate: #f2f1ed;
+  --plate-line: #dddbd4;
+
+  /* Text (contrast on --bg: text 15:1, dim 7.4:1, faint 4.9:1) */
+  --text: #efede8;
+  --text-dim: #a8aeb8;
+  --text-faint: #8d939e;
+  --text-on-plate: #1b1d21;
+
+  /* Accent + status */
+  --accent: #e0518f; /* brand pink from the logo */
+  --accent-strong: #ee74a8;
+  --on-accent: #16080f;
+  --brand-teal: #2f8a92;
+  --focus: #ffc83d;
+  --ok: #67c987;
+  --warn: #f2b23c;
+  --danger: #ff7266;
+  --info: #7fb2ff;
+
+  /* Type */
+  --font-body: "GT Regular", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-medium: "GT Medium", "GT Regular", system-ui, sans-serif;
+  --font-display: "GT Bold", "GT Medium", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+  --fs-3xl: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+
+  /* Space (4px base) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4.5rem;
+
+  --r-1: 2px;
+  --r-2: 4px;
+  --shadow-pop: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  --container: 1280px;
+  --gutter: clamp(1rem, 3vw, 2rem);
+  --header-h: 64px;
+  --tap: 44px; /* minimum touch target */
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + var(--s-4));
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+body.scroll-locked {
+  overflow: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 400; /* the display face is already bold; avoid faux bold */
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0; }
+img, svg { max-width: 100%; }
+img { display: block; }
+a { color: inherit; text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+a:hover { text-decoration-color: currentColor; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+
+/* Focus: always visible, never colour-only (WCAG 2.4.7 / 2.4.11) */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: var(--s-2);
+  left: var(--s-2);
+  z-index: 1000;
+  padding: var(--s-3) var(--s-4);
+  background: var(--text);
+  color: var(--bg);
+  transform: translateY(-200%);
+  text-decoration: none;
+  border-radius: var(--r-1);
+}
+.skip-link:focus { transform: none; }
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---------- Shared primitives ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  padding: 0 var(--s-5);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-medium);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn:hover:not(:disabled):not([aria-disabled="true"]) { border-color: var(--text); background: var(--surface-2); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; }
+
+.btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn-primary:hover:not(:disabled):not([aria-disabled="true"]) { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+.btn-danger { color: var(--danger); border-color: var(--danger); }
+
+.btn-sm { min-height: 36px; padding: 0 var(--s-3); }
+.btn-block { width: 100%; }
+
+.field { display: grid; gap: var(--s-2); }
+.field > label, .field-label { font-size: var(--fs-sm); color: var(--text-dim); }
+
+.input {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  color: var(--text);
+}
+.input::placeholder { color: var(--text-faint); }
+.input:hover { border-color: var(--text-faint); }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+
+.field-error { color: var(--danger); font-size: var(--fs-sm); }
+
+/* Kit-box style data tag: GRADE / SCALE / SKU */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--s-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.tag-grade { color: var(--text); border-color: var(--text-faint); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Forced colours (Windows high contrast) ---------- */
+@media (forced-colors: active) {
+  .btn, .input, .tag { border-color: ButtonText; }
+  :focus-visible { outline-color: Highlight; }
 }

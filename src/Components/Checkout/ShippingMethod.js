@@ -1,48 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import Price from '../Price/Price';
 import styles from './ShippingMethod.module.css';
 import { shippingAPI } from '../../services/api';
 
 const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loading, cartTotal }) => {
     const { t } = useTranslation();
-    const { currency, convertAmount, formatPrice } = useCurrency();
+    const { formatUsd } = useCurrency();
     const [shippingMethods, setShippingMethods] = useState([]);
     const [loadingMethods, setLoadingMethods] = useState(true);
     const [error, setError] = useState(null);
-    const [convertedMethods, setConvertedMethods] = useState([]);
 
     // Free shipping minimum threshold (in USD)
     const FREE_SHIPPING_MINIMUM = 50;
 
-    useEffect(() => {
-        loadShippingMethods();
-    }, []);
 
-    // Convert shipping method prices when currency changes
-    useEffect(() => {
-        const convertShippingMethods = async () => {
-            if (shippingMethods.length === 0) return;
-
-            const converted = await Promise.all(
-                shippingMethods.map(async (method) => {
-                    if (currency === 'VES' && method.price) {
-                        const convertedPrice = await convertAmount(parseFloat(method.price), 'USD', 'VES');
-                        return { ...method, convertedPrice };
-                    } else {
-                        return { ...method, convertedPrice: parseFloat(method.price || 0) };
-                    }
-                })
-            );
-
-            setConvertedMethods(converted);
-        };
-
-        convertShippingMethods();
-    }, [currency, shippingMethods, convertAmount]);
-
-
-    const loadShippingMethods = async () => {
+    const loadShippingMethods = useCallback(async () => {
         try {
             setLoadingMethods(true);
             setError(null);
@@ -64,23 +38,16 @@ const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loadin
                 setError(null);
             }
         } catch (err) {
-            console.error('Failed to load shipping methods:', err);
             setError(t('checkout.shippingMethod.errors.loadFailed'));
-            // Provide a default free shipping method when API fails
-            setShippingMethods([
-                {
-                    id: 1,
-                    name: 'Standard Shipping',
-                    description: '5-7 business days',
-                    price: '0.00',
-                    estimated_days: '5-7',
-                    is_active: true
-                }
-            ]);
+            setShippingMethods([]);
         } finally {
             setLoadingMethods(false);
         }
-    };
+    }, [t]);
+
+    useEffect(() => {
+        loadShippingMethods();
+    }, [loadShippingMethods]);
 
     const isMethodDisabled = (method) => {
         // Check if this is a free shipping method and cart total is below minimum
@@ -94,10 +61,6 @@ const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loadin
             return;
         }
 
-        // Debug: Log the selected method details
-        console.log('ShippingMethod - Method selected:', method);
-        console.log('ShippingMethod - Method price:', method.price);
-        console.log('ShippingMethod - Method converted price:', method.convertedPrice);
 
         onMethodSelect(method);
     };
@@ -152,7 +115,7 @@ const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loadin
                                 <p>{t('checkout.shippingMethod.noMethodsAvailable')}</p>
                             </div>
                         ) : (
-                            convertedMethods.map((method) => {
+                            shippingMethods.map((method) => {
                                 const isDisabled = isMethodDisabled(method);
                                 const isFreeShipping = method.price === 0 || method.price === null || method.price === '0.00';
 
@@ -177,7 +140,7 @@ const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loadin
                                                 <p>{method.description}</p>
                                                 {isDisabled && isFreeShipping && (
                                                     <span className={styles.eligibilityWarning}>
-                                                        {t('checkout.shippingMethod.freeShippingMinimum', { minimum: formatPrice(FREE_SHIPPING_MINIMUM, 'USD') })}
+                                                        {t('checkout.shippingMethod.freeShippingMinimum', { minimum: formatUsd(FREE_SHIPPING_MINIMUM) })}
                                                     </span>
                                                 )}
                                                 {method.estimated_days && (
@@ -192,7 +155,7 @@ const ShippingMethod = ({ selectedMethod, onMethodSelect, onBack, onNext, loadin
                                                         {t('checkout.shippingMethod.free')}
                                                     </span>
                                                 ) : (
-                                                    <span className={styles.cost}>{formatPrice(method.convertedPrice)}</span>
+                                                    <span className={styles.cost}><Price usd={method.price} size="sm" align="end" /></span>
                                                 )}
                                             </div>
                                         </div>

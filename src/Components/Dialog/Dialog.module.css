@@ -1,0 +1,98 @@
+.dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  max-width: none;
+  max-height: none;
+}
+
+.dialog::backdrop {
+  background: rgba(8, 9, 11, 0.72);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-pop);
+  height: 100%;
+  min-height: 0;
+}
+
+.right {
+  margin: 0 0 0 auto;
+  width: min(440px, 100vw);
+  height: 100dvh;
+}
+.right .panel { border-width: 0 0 0 1px; }
+
+.bottom {
+  margin: auto 0 0 0;
+  width: 100vw;
+  height: min(88dvh, 720px);
+}
+.bottom .panel { border-width: 1px 0 0 0; border-radius: var(--r-2) var(--r-2) 0 0; }
+
+.center {
+  margin: auto;
+  width: min(480px, calc(100vw - 2rem));
+  height: auto;
+  max-height: calc(100dvh - 2rem);
+}
+.center .panel { border-radius: var(--r-2); }
+
+.full {
+  margin: 0;
+  width: 100vw;
+  height: 100dvh;
+}
+.full .panel { border-width: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .right[open] .panel { animation: slide-left 0.2s ease-out; }
+  .bottom[open] .panel { animation: slide-up 0.2s ease-out; }
+  .center[open] .panel { animation: fade-in 0.15s ease-out; }
+}
+
+@keyframes slide-left { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes slide-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-4) var(--s-4) var(--s-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.title { font-size: var(--fs-xl); }
+
+.close {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  color: var(--text-dim);
+}
+.close:hover { color: var(--text); border-color: var(--line-strong); }
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--s-4) var(--s-5);
+}
+
+.footer {
+  padding: var(--s-4) var(--s-5);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}

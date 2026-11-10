@@ -1,0 +1,43 @@
+.page { padding-block: var(--s-6) var(--s-8); }
+.head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--s-4); }
+.head h1 { font-size: var(--fs-2xl); }
+.hint { color: var(--text-dim); font-size: var(--fs-sm); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-block: var(--s-5) var(--s-4); }
+.toolbar .field { flex: 1 1 14rem; max-width: 24rem; }
+.views { display: flex; gap: var(--s-1); }
+.summary { color: var(--text-dim); font-size: var(--fs-sm); margin-inline-start: auto; }
+.warn { color: var(--warn); }
+
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { text-align: start; padding: var(--s-3); border-bottom: 1px solid var(--line); vertical-align: middle; }
+.table thead th { font-size: var(--fs-xs); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+.table tbody th { font-weight: inherit; }
+.archived { opacity: 0.6; }
+.thumb { display: block; width: 48px; height: 48px; object-fit: contain; background: var(--plate); border-radius: var(--r-2); }
+.pname { display: block; font-family: var(--font-medium); margin-bottom: var(--s-1); }
+.sku { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--text-faint); }
+.stock { display: inline-flex; align-items: center; gap: var(--s-2); }
+.qty { min-width: 2ch; text-align: center; font-family: var(--font-mono); font-size: var(--fs-md); }
+.out { color: var(--danger); }
+
+.form { display: grid; gap: var(--s-4); min-width: min(36rem, 86vw); }
+.grid2 { display: grid; gap: var(--s-3); grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+.photoRow { display: flex; gap: var(--s-4); align-items: center; }
+.photo { width: 96px; height: 96px; flex: none; display: grid; place-items: center; background: var(--plate); color: #5d6068; font-size: var(--fs-xs); text-align: center; border-radius: var(--r-2); overflow: hidden; }
+.photo img { width: 100%; height: 100%; object-fit: contain; }
+.private { border: 1px dashed var(--accent); border-radius: var(--r-2); padding: var(--s-3) var(--s-4); display: grid; gap: var(--s-3); }
+.private legend { color: var(--accent-strong); padding-inline: var(--s-2); font-size: var(--fs-sm); }
+.check { display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap); }
+.formActions { display: flex; justify-content: flex-end; gap: var(--s-3); }
+.history { margin: var(--s-3) 0 0; padding-inline-start: var(--s-4); font-size: var(--fs-sm); color: var(--text-dim); display: grid; gap: var(--s-1); max-height: 12rem; overflow: auto; }
+
+/* Phones: each row becomes a card with labelled lines. */
+@media (max-width: 760px) {
+  .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .table, .table tbody, .table tr, .table td, .table th { display: block; }
+  .table tr { border: 1px solid var(--line); border-radius: var(--r-2); background: var(--surface); margin-bottom: var(--s-3); padding: var(--s-2); }
+  .table td, .table th { border: 0; padding: var(--s-2); display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); }
+  .table td[data-label]::before { content: attr(data-label); color: var(--text-dim); font-size: var(--fs-xs); }
+  .table tbody th { display: block; }
+}

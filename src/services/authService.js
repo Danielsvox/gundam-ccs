@@ -7,12 +7,34 @@ class AuthService {
         this.loading = false;
         this.error = null;
 
-        console.log('AuthService constructor called');
 
         // Load user from localStorage on initialization
         this.loadUserFromStorage();
 
-        console.log('AuthService constructor completed - state:', this.getAuthState());
+        // The API layer clears the stored session on a 401 for an authenticated request and
+        // announces it; keep this service's in-memory state in sync.
+        if (typeof window !== 'undefined') {
+            window.addEventListener('auth:expired', () => {
+                this.user = null;
+                this.isAuthenticated = false;
+                this.emitChange();
+            });
+            // Other tabs signing in/out
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'accessToken' || event.key === 'user' || event.key === null) {
+                    this.user = null;
+                    this.isAuthenticated = false;
+                    this.loadUserFromStorage();
+                    this.emitChange();
+                }
+            });
+        }
+    }
+
+    emitChange() {
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('auth:changed'));
+        }
     }
 
     // Load user data from localStorage
@@ -21,17 +43,11 @@ class AuthService {
             const userData = localStorage.getItem('user');
             const accessToken = localStorage.getItem('accessToken');
 
-            console.log('Loading user from storage:', {
-                userData: userData ? 'Present' : 'Missing',
-                accessToken: accessToken ? 'Present' : 'Missing'
-            });
 
             if (userData && accessToken) {
                 this.user = JSON.parse(userData);
                 this.isAuthenticated = true;
-                console.log('User loaded successfully:', this.user);
             } else {
-                console.log('No user data or token found in storage');
             }
         } catch (error) {
             console.error('Error loading user from storage:', error);
@@ -42,21 +58,13 @@ class AuthService {
     // Save user data to localStorage
     saveUserToStorage(user, accessToken, refreshToken) {
         try {
-            console.log('Saving user to storage:', {
-                user: user,
-                accessToken: accessToken ? `Present (${accessToken.substring(0, 20)}...)` : 'Missing',
-                refreshToken: refreshToken ? `Present (${refreshToken.substring(0, 20)}...)` : 'Missing'
-            });
 
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('accessToken', accessToken);
             if (refreshToken) {
                 localStorage.setItem('refreshToken', refreshToken);
             }
-
-            console.log('User saved to storage successfully');
-            console.log('Verification - localStorage accessToken:', localStorage.getItem('accessToken') ? 'Present' : 'Missing');
-            console.log('Verification - localStorage refreshToken:', localStorage.getItem('refreshToken') ? 'Present' : 'Missing');
+            this.emitChange();
         } catch (error) {
             console.error('Error saving user to storage:', error);
         }
@@ -72,6 +80,7 @@ class AuthService {
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        this.emitChange();
     }
 
     // Clear all local storage and session storage
@@ -117,21 +126,17 @@ class AuthService {
         this.loading = true;
         this.error = null;
 
-        console.log('AuthService: Login attempt with credentials:', credentials);
 
         try {
             const response = await authAPI.login(credentials);
             const { user, tokens } = response.data;
             const { access, refresh } = tokens;
 
-            console.log('AuthService: Login successful, response:', response.data);
-            console.log('AuthService: Extracted tokens:', { access, refresh });
 
             this.user = user;
             this.isAuthenticated = true;
             this.saveUserToStorage(user, access, refresh);
 
-            console.log('AuthService: Login completed, auth state:', this.getAuthState());
 
             return { success: true, user };
         } catch (error) {
@@ -319,7 +324,5 @@ class AuthService {
 const authService = new AuthService();
 
 // Debug: Log when auth service is created
-console.log('AuthService instance created:', authService);
-console.log('Initial auth state:', authService.getAuthState());
 
 export default authService; 

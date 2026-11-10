@@ -1,53 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCurrency } from '../../contexts/CurrencyContext';
+import Price from '../Price/Price';
 import styles from './PaymentMethod.module.css';
 
-const PaymentMethod = ({ total, shippingData, selectedShippingMethod, onSubmit, onBack, loading, error }) => {
+const PaymentMethod = ({ totals, shippingData, selectedShippingMethod, onSubmit, onBack, loading, error }) => {
     const { t } = useTranslation();
-    const { currency, convertAmount, formatPrice } = useCurrency();
-    const [convertedTotal, setConvertedTotal] = useState(total);
-    const [convertedShippingCost, setConvertedShippingCost] = useState(0);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('manual');
-
-    // Debug: Log the selected shipping method
-    console.log('PaymentMethod received selectedShippingMethod:', selectedShippingMethod);
-    console.log('PaymentMethod received selectedShippingMethod ID:', selectedShippingMethod?.id);
-
-    // Use the selected shipping method or fallback to a default
-    const effectiveShippingMethod = selectedShippingMethod || {
-        id: 1,
-        name: 'Standard Shipping',
-        description: '5-7 business days',
-        price: '0.00'
-    };
-
-    console.log('Effective shipping method:', effectiveShippingMethod);
-
-    // Convert amounts when currency changes
-    useEffect(() => {
-        const convertAmounts = async () => {
-            // Debug: Log the actual shipping method being used
-            console.log('PaymentMethod - Effective shipping method:', effectiveShippingMethod);
-            console.log('PaymentMethod - Shipping method price:', effectiveShippingMethod.price);
-
-            const shippingCost = parseFloat(effectiveShippingMethod.price || 0);
-            console.log('PaymentMethod - Calculated shipping cost:', shippingCost);
-
-            if (currency === 'VES') {
-                const convertedTotalAmount = await convertAmount(total, 'USD', 'VES');
-                const convertedShipping = await convertAmount(shippingCost, 'USD', 'VES');
-
-                setConvertedTotal(convertedTotalAmount);
-                setConvertedShippingCost(convertedShipping);
-            } else {
-                setConvertedTotal(total);
-                setConvertedShippingCost(shippingCost);
-            }
-        };
-
-        convertAmounts();
-    }, [currency, total, effectiveShippingMethod, convertAmount]);
+    const shippingMethod = selectedShippingMethod; // always chosen in the previous step (no fabricated default)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -130,23 +89,31 @@ const PaymentMethod = ({ total, shippingData, selectedShippingMethod, onSubmit, 
                     <div className={styles.summary}>
                         <div className={styles.summaryRow}>
                             <span>{t('checkout.payment.subtotal')}</span>
-                            <span>{formatPrice(convertedTotal)}</span>
+                            <Price usd={totals.subtotal} size="sm" align="end" />
                         </div>
+                        {totals.hasDiscount && (
+                            <div className={styles.summaryRow}>
+                                <span>{t('cart.discount')}</span>
+                                <Price usd={totals.discount} size="sm" align="end" negative />
+                            </div>
+                        )}
+                        {totals.hasTax && (
+                            <div className={styles.summaryRow}>
+                                <span>{t('cart.tax')}</span>
+                                <Price usd={totals.tax} size="sm" align="end" />
+                            </div>
+                        )}
                         <div className={styles.summaryRow}>
                             <span>{t('checkout.payment.shipping')}</span>
-                            <span>
-                                {effectiveShippingMethod.price === 0 || effectiveShippingMethod.price === null ? (
-                                    t('checkout.payment.free')
-                                ) : (
-                                    formatPrice(convertedShippingCost)
-                                )}
-                            </span>
+                            {Number(totals.shipping) === 0 ? (
+                                <span>{t('checkout.payment.free')}</span>
+                            ) : (
+                                <Price usd={totals.shipping} size="sm" align="end" />
+                            )}
                         </div>
                         <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                             <span>{t('checkout.payment.total')}</span>
-                            <span>
-                                {formatPrice(convertedTotal + convertedShippingCost)}
-                            </span>
+                            <Price usd={totals.total} size="md" align="end" />
                         </div>
                     </div>
 
@@ -161,7 +128,7 @@ const PaymentMethod = ({ total, shippingData, selectedShippingMethod, onSubmit, 
                         <div className={styles.shippingMethodInfo}>
                             <h5>{t('checkout.payment.shippingMethod')}</h5>
                             <p>
-                                {effectiveShippingMethod.name} - {effectiveShippingMethod.description}
+                                {shippingMethod.name} - {shippingMethod.description}
                             </p>
                         </div>
                     </div>
