@@ -1,7 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { exchangeRateAPI } from '../services/api';
+import { evaluateRate, readThresholds } from '../lib/exchangeRate';
+import { dualPrice, formatCents, toCents } from '../lib/money';
 
-const CurrencyContext = createContext();
+const CurrencyContext = createContext(null);
+
+const REFRESH_MS = 15 * 60 * 1000; // matches backend freshness window (it re-fetches after 1h)
+const CLOCK_MS = 60 * 1000; // re-evaluate staleness without refetching
+const THRESHOLDS = readThresholds();
 
 export const useCurrency = () => {
     const context = useContext(CurrencyContext);
@@ -11,117 +18,74 @@ export const useCurrency = () => {
     return context;
 };
 
+/**
+ * Single source of truth for currency presentation.
+ * USD is authoritative; VES is derived from the backend rate and only exposed when
+ * the rate is trustworthy (see lib/exchangeRate.js).
+ */
 export const CurrencyProvider = ({ children }) => {
-    const [currency, setCurrency] = useState(() => {
-        const saved = localStorage.getItem('preferredCurrency');
-        return saved || 'USD';
-    });
+    const { i18n } = useTranslation();
+    const lang = (i18n.resolvedLanguage || i18n.language || 'es').slice(0, 2);
 
-    const [exchangeRate, setExchangeRate] = useState(null);
-    const [rateLoading, setRateLoading] = useState(false);
-    const [rateError, setRateError] = useState(null);
-    const [lastRateUpdate, setLastRateUpdate] = useState(null);
+    const [payload, setPayload] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [failed, setFailed] = useState(false);
+    const [now, setNow] = useState(() => Date.now());
+    const lastFetch = useRef(0);
 
-    // Fetch exchange rate
-    const fetchExchangeRate = useCallback(async () => {
+    const load = useCallback(async (signal) => {
         try {
-            setRateLoading(true);
-            setRateError(null);
-            const data = await exchangeRateAPI.getCurrentRate();
-
-            // Use the correct field name from the API response
-            const rate = data.usd_to_ves;
-
-            if (rate) {
-                setExchangeRate(rate);
-                setLastRateUpdate(new Date());
-            } else {
-                console.error('No rate found in response:', data);
-                setRateError('Invalid exchange rate response');
-            }
+            const data = await exchangeRateAPI.getCurrentRate(signal);
+            setPayload(data);
+            setFailed(false);
+            lastFetch.current = Date.now();
         } catch (error) {
-            console.error('Error fetching exchange rate:', error);
-            setRateError('Failed to fetch exchange rate');
+            if (error?.code === 'ERR_CANCELED' || signal?.aborted) return;
+            // Keep the last good payload: staleness rules decide whether it is still usable.
+            setFailed(true);
         } finally {
-            setRateLoading(false);
+            if (!signal?.aborted) {
+                setLoading(false);
+                setNow(Date.now());
+            }
         }
     }, []);
 
-    // Convert amount between currencies
-    const convertAmount = useCallback(async (amount, fromCurrency = 'USD', toCurrency = currency) => {
-        if (fromCurrency === toCurrency) {
-            return amount;
-        }
-
-        if (fromCurrency === 'USD' && toCurrency === 'VES' && exchangeRate) {
-            return amount * exchangeRate;
-        }
-
-        if (fromCurrency === 'VES' && toCurrency === 'USD' && exchangeRate) {
-            return amount / exchangeRate;
-        }
-
-        // Fallback to API conversion if rate not available
-        try {
-            const response = await exchangeRateAPI.convertAmount(amount, fromCurrency, toCurrency);
-            return response.converted_amount || response.amount;
-        } catch (error) {
-            console.error('Error converting amount:', error);
-            return amount; // Return original amount as fallback
-        }
-    }, [currency, exchangeRate]);
-
-    // Format price based on currency
-    const formatPrice = useCallback((amount, targetCurrency = currency) => {
-        if (targetCurrency === 'VES') {
-            return `Bs. ${amount.toLocaleString('es-VE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })}`;
-        } else {
-            return `$${amount.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })}`;
-        }
-    }, [currency]);
-
-    // Update currency preference
-    const updateCurrency = useCallback((newCurrency) => {
-        setCurrency(newCurrency);
-        localStorage.setItem('preferredCurrency', newCurrency);
-    }, []);
-
-    // Auto-refresh exchange rate every 30 minutes
     useEffect(() => {
-        const fetchRate = () => {
-            fetchExchangeRate();
+        const controller = new AbortController();
+        load(controller.signal);
+        const refresh = setInterval(() => load(controller.signal), REFRESH_MS);
+        const clock = setInterval(() => setNow(Date.now()), CLOCK_MS);
+        const onVisible = () => {
+            if (document.visibilityState === 'visible' && Date.now() - lastFetch.current > REFRESH_MS / 3) {
+                load(controller.signal);
+            }
         };
+        document.addEventListener('visibilitychange', onVisible);
+        return () => {
+            controller.abort();
+            clearInterval(refresh);
+            clearInterval(clock);
+            document.removeEventListener('visibilitychange', onVisible);
+        };
+    }, [load]);
 
-        // Initial fetch
-        fetchRate();
+    const rate = useMemo(() => evaluateRate(payload, now, THRESHOLDS), [payload, now]);
 
-        // Set up interval for auto-refresh (30 minutes)
-        const interval = setInterval(fetchRate, 30 * 60 * 1000);
-
-        return () => clearInterval(interval);
-    }, [fetchExchangeRate]);
-
-    const value = {
-        currency,
-        exchangeRate,
-        rateLoading,
-        rateError,
-        lastRateUpdate,
-        convertAmount,
-        formatPrice,
-        updateCurrency,
-        fetchExchangeRate
-    };
-
-    return (
-        <CurrencyContext.Provider value={value}>
-            {children}
-        </CurrencyContext.Provider>
+    const dual = useCallback(
+        (usd) => dualPrice(usd, rate.canShowVes ? rate.scaledRate : null, lang),
+        [rate, lang]
     );
-}; 
+
+    const formatUsd = useCallback((usd) => {
+        const cents = toCents(usd);
+        return cents === null ? '' : formatCents(cents, 'USD', lang);
+    }, [lang]);
+
+    const value = useMemo(
+        () => ({ lang, rate, loading, failed, dual, formatUsd }),
+        [lang, rate, loading, failed, dual, formatUsd]
+    );
+
+    return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
+};

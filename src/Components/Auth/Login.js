@@ -1,235 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import authService from '../../services/authService';
+import { useAuth } from '../../contexts/AuthContext';
+import { useDocumentTitle } from '../../hooks/hooks';
+import { EMAIL_RE, Field, PasswordField, firstMessage } from './authForm';
 import styles from './Auth.module.css';
 
-const Login = ({ onLoginSuccess }) => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();
+const Login = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const alertRef = useRef(null);
+  useDocumentTitle(t('auth.login.title'));
 
-    // Get the back URL from localStorage or default to home
-    const backUrl = localStorage.getItem('redirectAfterLogin') || '/';
+  const goBack = () => {
+    const target = localStorage.getItem('redirectAfterLogin');
+    localStorage.removeItem('redirectAfterLogin');
+    // Only follow in-app paths (guards against a tampered value).
+    navigate(target && target.startsWith('/') && !target.startsWith('//') ? target : '/', { replace: true });
+  };
 
-    // Redirect if already authenticated
-    useEffect(() => {
-        if (authService.isUserAuthenticated()) {
-            navigate('/');
-        }
-    }, [navigate]);
+  useEffect(() => { if (isAuthenticated) goBack(); }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+  const change = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+    if (errors[name] || errors.general) setErrors((er) => ({ ...er, [name]: '', general: '' }));
+  };
 
-        // Clear error when user starts typing
-        if (errors[name]) {
-            setErrors(prev => ({
-                ...prev,
-                [name]: ''
-            }));
-        }
-    };
+  const submit = async (e) => {
+    e.preventDefault();
+    const next = {};
+    if (!form.email) next.email = t('auth.errors.emailRequired');
+    else if (!EMAIL_RE.test(form.email)) next.email = t('auth.errors.emailInvalid');
+    if (!form.password) next.password = t('auth.errors.passwordRequired');
+    setErrors(next);
+    if (Object.keys(next).length) return;
 
-    const validateForm = () => {
-        const newErrors = {};
+    setLoading(true);
+    try {
+      await authService.login({ email: form.email.trim(), password: form.password });
+      // AuthContext flips to authenticated; the effect above performs the redirect exactly once.
+    } catch (err) {
+      const data = err.response?.data;
+      if (!err.response) setErrors({ general: t('errors.network') });
+      else if (err.response.status >= 500) setErrors({ general: t('errors.server') });
+      else if (err.response.status === 401 || data?.non_field_errors) setErrors({ general: t('auth.errors.invalidCredentials') });
+      else setErrors({ email: firstMessage(data?.email), password: firstMessage(data?.password), general: firstMessage(data?.message) || (!data?.email && !data?.password ? t('auth.errors.generic') : '') });
+      setTimeout(() => alertRef.current?.focus(), 0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        if (!formData.email) {
-            newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email is invalid';
-        }
-
-        if (!formData.password) {
-            newErrors.password = 'Password is required';
-        } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
-        setLoading(true);
-        setErrors({});
-
-        try {
-            await authService.login(formData);
-
-            // Call the success callback if provided
-            if (onLoginSuccess) {
-                onLoginSuccess();
-            }
-
-            // Check if there's a redirect URL saved
-            const redirectUrl = localStorage.getItem('redirectAfterLogin');
-            if (redirectUrl) {
-                localStorage.removeItem('redirectAfterLogin');
-                navigate(redirectUrl);
-            } else {
-                navigate('/');
-            }
-        } catch (error) {
-            if (error.response?.data) {
-                const serverErrors = error.response.data;
-
-                // Handle different error formats from Django backend
-                if (serverErrors.email) {
-                    setErrors({ email: serverErrors.email[0] });
-                } else if (serverErrors.password) {
-                    setErrors({ password: serverErrors.password[0] });
-                } else if (serverErrors.non_field_errors) {
-                    setErrors({ general: serverErrors.non_field_errors[0] });
-                } else if (serverErrors.message) {
-                    setErrors({ general: serverErrors.message });
-                } else {
-                    setErrors({ general: 'Login failed. Please try again.' });
-                }
-            } else {
-                setErrors({ general: 'Network error. Please check your connection.' });
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
-    const handleBackClick = () => {
-        // Remove the redirect URL from localStorage
-        localStorage.removeItem('redirectAfterLogin');
-        // Navigate back to the previous page
-        navigate(backUrl);
-    };
-
-    return (
-        <div className={styles.authContainer}>
-            <motion.div
-                className={styles.authCard}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-            >
-                <div className={styles.authHeader}>
-                    <div className={styles.authHeaderTop}>
-                        <motion.button
-                            className={styles.backButton}
-                            onClick={handleBackClick}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            aria-label="Go back"
-                        >
-                            ← Back
-                        </motion.button>
-                    </div>
-                    <h2>Welcome Back</h2>
-                    <p>Sign in to your Gundam CCS account</p>
-                </div>
-
-                {errors.general && (
-                    <motion.div
-                        className={styles.errorMessage}
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                    >
-                        {errors.general}
-                    </motion.div>
-                )}
-
-                <form onSubmit={handleSubmit} className={styles.authForm}>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="email">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className={errors.email ? styles.error : ''}
-                            placeholder="Enter your email"
-                            disabled={loading}
-                        />
-                        {errors.email && <span className={styles.errorText}>{errors.email}</span>}
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label htmlFor="password">Password</label>
-                        <div className={styles.passwordInput}>
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className={errors.password ? styles.error : ''}
-                                placeholder="Enter your password"
-                                disabled={loading}
-                            />
-                            <button
-                                type="button"
-                                className={styles.passwordToggle}
-                                onClick={togglePasswordVisibility}
-                                disabled={loading}
-                            >
-                                {showPassword ? '👁️' : '👁️‍🗨️'}
-                            </button>
-                        </div>
-                        {errors.password && <span className={styles.errorText}>{errors.password}</span>}
-                    </div>
-
-                    <div className={styles.formOptions}>
-                        <Link to="/forgot-password" className={styles.forgotPassword}>
-                            Forgot Password?
-                        </Link>
-                    </div>
-
-                    <motion.button
-                        type="submit"
-                        className={styles.submitButton}
-                        disabled={loading}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
-                        {loading ? (
-                            <div className={styles.loadingSpinner}>
-                                <div className={styles.spinner}></div>
-                                Signing In...
-                            </div>
-                        ) : (
-                            'Sign In'
-                        )}
-                    </motion.button>
-                </form>
-
-                <div className={styles.authFooter}>
-                    <p>
-                        Don't have an account?{' '}
-                        <Link to="/register" className={styles.authLink}>
-                            Sign up here
-                        </Link>
-                    </p>
-                </div>
-            </motion.div>
+  return (
+    <div className={styles.wrap}>
+      <div className={styles.card}>
+        <div className={styles.head}>
+          <h1>{t('auth.login.title')}</h1>
+          <p>{t('auth.login.subtitle')}</p>
         </div>
-    );
+
+        {errors.general && <p ref={alertRef} tabIndex={-1} className={styles.alert} role="alert">{errors.general}</p>}
+
+        <form className={styles.form} onSubmit={submit} noValidate>
+          <Field id="email" name="email" type="email" autoComplete="email" label={t('auth.login.email')} value={form.email} onChange={change} error={errors.email} disabled={loading} />
+          <PasswordField id="password" name="password" autoComplete="current-password" label={t('auth.login.password')} value={form.password} onChange={change} error={errors.password} disabled={loading} />
+          <Link to="/forgot-password">{t('auth.login.forgot')}</Link>
+          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+            {loading ? t('auth.login.submitting') : t('auth.login.submit')}
+          </button>
+        </form>
+
+        <p className={styles.foot}>
+          {t('auth.login.noAccount')} <Link to="/register">{t('auth.login.register')}</Link>
+        </p>
+      </div>
+    </div>
+  );
 };
 
-export default Login; 
+export default Login;

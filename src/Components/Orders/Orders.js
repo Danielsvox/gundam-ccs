@@ -1,511 +1,185 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import Dialog from '../Dialog/Dialog';
+import Price from '../Price/Price';
 import { orderAPI } from '../../services/api';
-import authService from '../../services/authService';
+import { useAuth } from '../../contexts/AuthContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { describeApiError } from '../../lib/apiError';
+import { localeFor } from '../../lib/money';
 import styles from './Orders.module.css';
 
+const PAGE_SIZE = 10;
+const STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+
 const Orders = ({ onClose }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const lang = (i18n.resolvedLanguage || 'es').slice(0, 2);
     const navigate = useNavigate();
-    const { currency, convertAmount, formatPrice } = useCurrency();
+    const { isAuthenticated } = useAuth();
+    const { formatUsd } = useCurrency();
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [error, setError] = useState('');
+    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    const [showOrderDetail, setShowOrderDetail] = useState(false);
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [showContactModal, setShowContactModal] = useState(false);
-    const [convertedAmounts, setConvertedAmounts] = useState({});
+    const [selected, setSelected] = useState(null);
 
-    // Convert order amounts when currency changes
-    useEffect(() => {
-        const convertOrderAmounts = async () => {
-            const newConvertedAmounts = {};
-
-            for (const order of orders) {
-                if (currency === 'VES') {
-                    const converted = await convertAmount(order.total_amount, 'USD', 'VES');
-                    newConvertedAmounts[order.id] = converted;
-                } else {
-                    newConvertedAmounts[order.id] = order.total_amount;
-                }
-            }
-
-            setConvertedAmounts(newConvertedAmounts);
-        };
-
-        if (orders.length > 0) {
-            convertOrderAmounts();
-        }
-    }, [currency, orders, convertAmount]);
-
-    useEffect(() => {
-        if (!authService.isUserAuthenticated()) {
-            navigate('/login');
-            return;
-        }
-        loadOrders();
-    }, [currentPage, statusFilter]);
-
-    const loadOrders = async () => {
+    const load = useCallback(async () => {
+        setLoading(true);
+        setError('');
         try {
-            setLoading(true);
-            setError(null);
-
-            const params = {
-                page: currentPage,
-                page_size: 10
-            };
-
-            if (statusFilter !== 'all') {
-                params.status = statusFilter;
-            }
-
-            const response = await orderAPI.getOrders(params);
-            setOrders(response.data.results || []);
-            setTotalPages(Math.ceil((response.data.count || 0) / 10));
+            const { data } = await orderAPI.getOrders({ page, page_size: PAGE_SIZE });
+            setOrders(data.results || []);
+            setTotalPages(Math.max(1, Math.ceil((data.count || 0) / PAGE_SIZE)));
         } catch (err) {
-            console.error('Failed to load orders:', err);
-            setError(err.response?.data?.message || t('ui.error.loadOrdersFailed'));
+            const info = describeApiError(err);
+            if (info.key) setError(t(info.key, info.params));
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, t]);
 
-    const handleOrderClick = async (orderId) => {
+    useEffect(() => {
+        if (!isAuthenticated) { onClose(); navigate('/login'); return; }
+        load();
+    }, [isAuthenticated, load, navigate, onClose]);
+
+    const openOrder = async (id) => {
+        setError('');
         try {
-            const response = await orderAPI.getOrderDetail(orderId);
-            setSelectedOrder(response.data);
-            setShowOrderDetail(true);
+            const { data } = await orderAPI.getOrderDetail(id);
+            setSelected(data);
         } catch (err) {
-            console.error('Failed to load order details:', err);
-            setError(t('ui.error.loadOrderDetailsFailed'));
+            const info = describeApiError(err);
+            setError(t(info.key || 'errors.unknown', info.params));
         }
     };
 
-    const handleBackToOrders = () => {
-        setShowOrderDetail(false);
-        setSelectedOrder(null);
+    const statusText = (status) => (STATUSES.includes(status) ? t(`checkout.orders.status.${status}`) : status);
+    const formatDate = (iso) => new Intl.DateTimeFormat(localeFor(lang), { dateStyle: 'long', timeStyle: 'short' }).format(new Date(iso));
+
+    const contactStore = (order) => {
+        const message = t('contact.messages.orderInquiry', { orderNumber: order.order_number, total: formatUsd(order.total_amount) });
+        window.open(`https://wa.me/584142693743?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'pending':
-                return styles.statusPending;
-            case 'processing':
-                return styles.statusProcessing;
-            case 'shipped':
-                return styles.statusShipped;
-            case 'delivered':
-                return styles.statusDelivered;
-            case 'cancelled':
-                return styles.statusCancelled;
-            default:
-                return styles.statusDefault;
-        }
-    };
+    const Row = ({ label, usd, negative }) => (
+        <div className={styles.row}><span>{label}</span><Price usd={String(usd)} size="sm" align="end" negative={negative} /></div>
+    );
 
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'pending':
-                return t('checkout.orders.status.pending');
-            case 'processing':
-                return t('checkout.orders.status.processing');
-            case 'shipped':
-                return t('checkout.orders.status.shipped');
-            case 'delivered':
-                return t('checkout.orders.status.delivered');
-            case 'cancelled':
-                return t('checkout.orders.status.cancelled');
-            default:
-                return status;
-        }
-    };
+    let content;
+    if (selected) {
+        const a = selected.shipping_address;
+        content = (
+            <div className={styles.detail}>
+                <button type="button" className="btn btn-sm" onClick={() => setSelected(null)}>← {t('checkout.orders.title')}</button>
+                <header className={styles.detailHead}>
+                    <h3>#{selected.order_number}</h3>
+                    <span className={styles.status}>{statusText(selected.status)}</span>
+                    <time dateTime={selected.created_at}>{formatDate(selected.created_at)}</time>
+                </header>
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+                {a && (
+                    <section>
+                        <h4>{t('checkout.orders.shippingAddress')}</h4>
+                        <p>{a.name}<br />{a.line1}{a.line2 && <><br />{a.line2}</>}<br />{a.city}, {a.state} {a.postal_code}<br />{a.country}</p>
+                    </section>
+                )}
 
-    const handleContactBusiness = (order) => {
-        // Create WhatsApp message with order details
-        const orderNumber = order.order_number;
-        const total = formatPrice(convertedAmounts[order.id] || order.total_amount);
-        const message = t('contact.messages.orderInquiry', {
-            orderNumber: orderNumber,
-            total: total
-        });
+                <section>
+                    <h4>{t('checkout.orders.items')}</h4>
+                    <ul className={styles.items}>
+                        {(selected.items || []).map((item) => (
+                            <li key={item.id} className={styles.item}>
+                                <div>
+                                    <p className={styles.itemName}>{item.product_name || item.product?.name}</p>
+                                    <p className={styles.muted}>{t('checkout.orders.quantity')}: {item.quantity} · {t('checkout.orders.price')}: {formatUsd(item.unit_price)}</p>
+                                </div>
+                                <Price usd={String(item.total_price)} size="sm" align="end" />
+                            </li>
+                        ))}
+                    </ul>
+                </section>
 
-        // Encode the message for WhatsApp URL
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/584142693743?text=${encodedMessage}`;
+                <section>
+                    <h4>{t('checkout.orders.summary')}</h4>
+                    <Row label={t('checkout.orders.subtotal')} usd={selected.subtotal || 0} />
+                    {Number(selected.discount_amount) > 0 && <Row label={t('checkout.orders.discount')} usd={selected.discount_amount} negative />}
+                    <Row label={t('checkout.orders.shipping')} usd={selected.shipping_amount || 0} />
+                    <Row label={t('checkout.orders.tax')} usd={selected.tax_amount || 0} />
+                    <div className={`${styles.row} ${styles.total}`}><span>{t('checkout.orders.total')}</span><Price usd={String(selected.total_amount || 0)} size="md" align="end" /></div>
+                </section>
 
-        // Open WhatsApp in new tab
-        window.open(whatsappUrl, '_blank');
-    };
+                {selected.tracking_number && (
+                    <section>
+                        <h4>{t('checkout.orders.tracking')}</h4>
+                        <p>{t('checkout.orders.trackingNumber')}: {selected.tracking_number}</p>
+                        {selected.tracking_url && /^https?:\/\//i.test(selected.tracking_url) && (
+                            <a href={selected.tracking_url} target="_blank" rel="noopener noreferrer">{t('checkout.orders.trackPackage')}</a>
+                        )}
+                    </section>
+                )}
 
-    const handleShowContactInfo = () => {
-        setShowContactModal(true);
-    };
-
-    const handleCloseContactModal = () => {
-        setShowContactModal(false);
-    };
-
-    if (!authService.isUserAuthenticated()) {
-        return null;
-    }
-
-    if (showOrderDetail && selectedOrder) {
-        return (
-            <motion.div
-                className={styles.ordersContainer}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-            >
-                <motion.div
-                    className={styles.ordersModal}
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className={styles.header}>
-                        <button onClick={handleBackToOrders} className={styles.backButton}>
-                            ← Back to Orders
-                        </button>
-                        <h2>{t('checkout.orders.orderDetails')}</h2>
-                        <button onClick={onClose} className={styles.closeButton}>
-                            ×
-                        </button>
-                    </div>
-
-                    <div className={styles.orderDetail}>
-                        <motion.div
-                            className={styles.orderHeader}
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.1 }}
-                        >
-                            <div className={styles.orderInfo}>
-                                <h3>#{selectedOrder.order_number}</h3>
-                                <span className={`${styles.status} ${getStatusColor(selectedOrder.status)}`}>
-                                    {getStatusText(selectedOrder.status)}
+                <section>
+                    <h4>{t('checkout.orders.contactStore')}</h4>
+                    <p>{t('checkout.orders.contactStoreMessage')}</p>
+                    <button type="button" className="btn btn-primary" onClick={() => contactStore(selected)}>{t('checkout.confirmation.contactBusiness.whatsapp')}</button>
+                </section>
+            </div>
+        );
+    } else if (loading) {
+        content = <p role="status" className={styles.muted}>{t('checkout.orders.loading')}</p>;
+    } else if (error) {
+        content = (
+            <div role="alert" className={styles.notice}>
+                <p>{error}</p>
+                <button type="button" className="btn" onClick={load}>{t('checkout.orders.retry')}</button>
+            </div>
+        );
+    } else if (orders.length === 0) {
+        content = (
+            <div className={styles.notice}>
+                <p>{t('checkout.orders.noOrders')}</p>
+                <button type="button" className="btn btn-primary" onClick={() => { onClose(); navigate('/browse'); }}>{t('checkout.orders.startShopping')}</button>
+            </div>
+        );
+    } else {
+        content = (
+            <>
+                <ul className={styles.list}>
+                    {orders.map((order) => (
+                        <li key={order.id}>
+                            <button type="button" className={styles.card} onClick={() => openOrder(order.id)}>
+                                <span className={styles.cardTop}>
+                                    <strong>#{order.order_number}</strong>
+                                    <span className={styles.status}>{statusText(order.status)}</span>
                                 </span>
-                            </div>
-                            <div className={styles.orderDate}>
-                                {formatDate(selectedOrder.created_at)}
-                            </div>
-                        </motion.div>
-
-                        <motion.div
-                            className={styles.orderSections}
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            <div className={styles.section}>
-                                <h4>{t('checkout.orders.shippingAddress')}</h4>
-                                {selectedOrder.shipping_address && (
-                                    <div className={styles.address}>
-                                        <p>{selectedOrder.shipping_address.name}</p>
-                                        <p>{selectedOrder.shipping_address.line1}</p>
-                                        {selectedOrder.shipping_address.line2 && (
-                                            <p>{selectedOrder.shipping_address.line2}</p>
-                                        )}
-                                        <p>
-                                            {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.postal_code}
-                                        </p>
-                                        <p>{selectedOrder.shipping_address.country}</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className={styles.section}>
-                                <h4>{t('checkout.orders.items')}</h4>
-                                <div className={styles.itemsList}>
-                                    {selectedOrder.items?.map((item, index) => (
-                                        <motion.div
-                                            key={index}
-                                            className={styles.orderItem}
-                                            initial={{ x: -20, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            transition={{ delay: 0.1 * index }}
-                                        >
-                                            <div className={styles.itemImage}>
-                                                <img
-                                                    src={item.product?.image_url || '/placeholder-image.jpg'}
-                                                    alt={item.product?.name || 'Product'}
-                                                />
-                                            </div>
-                                            <div className={styles.itemDetails}>
-                                                <h5>{item.product?.name || 'Product'}</h5>
-                                                <p>{t('checkout.orders.quantity')}: {item.quantity}</p>
-                                                <p>{t('checkout.orders.price')}: {formatPrice(item.product?.price || 0)}</p>
-                                            </div>
-                                            <div className={styles.itemTotal}>
-                                                {formatPrice((item.product?.price || 0) * item.quantity)}
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className={styles.section}>
-                                <h4>{t('checkout.orders.summary')}</h4>
-                                <div className={styles.summary}>
-                                    <div className={styles.summaryRow}>
-                                        <span>{t('checkout.orders.subtotal')}</span>
-                                        <span>{formatPrice(selectedOrder.subtotal || 0)}</span>
-                                    </div>
-                                    {selectedOrder.discount_amount > 0 && (
-                                        <div className={styles.summaryRow}>
-                                            <span>{t('checkout.orders.discount')}</span>
-                                            <span>-{formatPrice(selectedOrder.discount_amount)}</span>
-                                        </div>
-                                    )}
-                                    <div className={styles.summaryRow}>
-                                        <span>{t('checkout.orders.shipping')}</span>
-                                        <span>{formatPrice(selectedOrder.shipping_amount || 0)}</span>
-                                    </div>
-                                    <div className={styles.summaryRow}>
-                                        <span>{t('checkout.orders.tax')}</span>
-                                        <span>{formatPrice(selectedOrder.tax_amount || 0)}</span>
-                                    </div>
-                                    <div className={`${styles.summaryRow} ${styles.totalRow}`}>
-                                        <span>{t('checkout.orders.total')}</span>
-                                        <span>{formatPrice(selectedOrder.total_amount || 0)}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {selectedOrder.tracking_number && (
-                                <div className={styles.section}>
-                                    <h4>{t('checkout.orders.tracking')}</h4>
-                                    <div className={styles.tracking}>
-                                        <p><strong>{t('checkout.orders.trackingNumber')}:</strong> {selectedOrder.tracking_number}</p>
-                                        {selectedOrder.tracking_url && (
-                                            <a
-                                                href={selectedOrder.tracking_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className={styles.trackingLink}
-                                            >
-                                                {t('checkout.orders.trackPackage')}
-                                            </a>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className={styles.section}>
-                                <h4>{t('checkout.orders.contactStore')}</h4>
-                                <p>{t('checkout.orders.contactStoreMessage')}</p>
-
-                                <div className={styles.contactButtons}>
-                                    <button
-                                        onClick={() => handleContactBusiness(selectedOrder)}
-                                        className={styles.whatsappBtn}
-                                    >
-                                        📱 {t('checkout.confirmation.contactBusiness.whatsapp')}
-                                    </button>
-                                    <button
-                                        onClick={handleShowContactInfo}
-                                        className={styles.contactInfoBtn}
-                                    >
-                                        📞 {t('checkout.confirmation.contactBusiness.contactInfo')}
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
+                                <span className={styles.muted}>{formatDate(order.created_at)} · {t('checkout.orders.items')}: {order.total_items || 0}</span>
+                                <span className={styles.cardTotal}><Price usd={String(order.total_amount || 0)} size="sm" /></span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+                {totalPages > 1 && (
+                    <div className={styles.pager}>
+                        <button type="button" className="btn btn-sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>{t('checkout.orders.previous')}</button>
+                        <span>{t('checkout.orders.page')} {page} {t('checkout.orders.of')} {totalPages}</span>
+                        <button type="button" className="btn btn-sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>{t('checkout.orders.next')}</button>
                     </div>
-                </motion.div>
-            </motion.div>
+                )}
+            </>
         );
     }
 
     return (
-        <motion.div
-            className={styles.ordersContainer}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-        >
-            <motion.div
-                className={styles.ordersModal}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className={styles.header}>
-                    <div className={styles.headerSpacer}></div>
-                    <h2>{t('checkout.orders.title')}</h2>
-                    <button onClick={onClose} className={styles.closeButton}>
-                        ×
-                    </button>
-                </div>
-
-                {loading ? (
-                    <motion.div
-                        className={styles.loading}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                    >
-                        <div className={styles.loadingSpinner}>
-                            <div className={styles.spinner}></div>
-                        </div>
-                        <p>{t('checkout.orders.loading')}</p>
-                    </motion.div>
-                ) : error ? (
-                    <motion.div
-                        className={styles.error}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        <p>{error}</p>
-                        <button onClick={loadOrders} className={styles.retryButton}>
-                            {t('checkout.orders.retry')}
-                        </button>
-                    </motion.div>
-                ) : orders.length === 0 ? (
-                    <motion.div
-                        className={styles.empty}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        <div className={styles.emptyIcon}>📦</div>
-                        <p>{t('checkout.orders.noOrders')}</p>
-                        <button onClick={() => navigate('/browse')} className={styles.browseButton}>
-                            {t('checkout.orders.startShopping')}
-                        </button>
-                    </motion.div>
-                ) : (
-                    <>
-                        <div className={styles.ordersList}>
-                            <AnimatePresence>
-                                {orders.map((order, index) => (
-                                    <motion.div
-                                        key={order.id}
-                                        className={styles.orderCard}
-                                        onClick={() => handleOrderClick(order.id)}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{ delay: index * 0.1 }}
-                                        whileHover={{
-                                            scale: 1.02,
-                                            y: -4
-                                        }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        <div className={styles.orderHeader}>
-                                            <div className={styles.orderInfo}>
-                                                <h3>#{order.order_number}</h3>
-                                                <span className={`${styles.status} ${getStatusColor(order.status)}`}>
-                                                    {getStatusText(order.status)}
-                                                </span>
-                                            </div>
-                                            <div className={styles.orderDate}>
-                                                {formatDate(order.created_at)}
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.orderDetails}>
-                                            <div className={styles.orderSummary}>
-                                                <p>{t('checkout.orders.items')}: {order.total_items || 0}</p>
-                                                <p>{t('checkout.orders.total')}: {formatPrice(convertedAmounts[order.id] || order.total_amount || 0)}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.orderActions}>
-                                            <span className={styles.viewDetails}>{t('checkout.orders.viewDetails')}</span>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </div>
-
-                        {totalPages > 1 && (
-                            <motion.div
-                                className={styles.pagination}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                            >
-                                <button
-                                    onClick={() => setCurrentPage(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className={styles.paginationButton}
-                                >
-                                    {t('checkout.orders.previous')}
-                                </button>
-
-                                <span className={styles.pageInfo}>
-                                    {t('checkout.orders.page')} {currentPage} {t('checkout.orders.of')} {totalPages}
-                                </span>
-
-                                <button
-                                    onClick={() => setCurrentPage(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className={styles.paginationButton}
-                                >
-                                    {t('checkout.orders.next')}
-                                </button>
-                            </motion.div>
-                        )}
-                    </>
-                )}
-
-                {/* Contact Information Modal */}
-                {showContactModal && (
-                    <div className={styles.modalOverlay} onClick={handleCloseContactModal}>
-                        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                            <div className={styles.modalHeader}>
-                                <h3>{t('checkout.confirmation.contactBusiness.contactInfo')}</h3>
-                                <button onClick={handleCloseContactModal} className={styles.closeModalBtn}>×</button>
-                            </div>
-                            <div className={styles.modalBody}>
-                                <div className={styles.contactInfo}>
-                                    <p><strong>{t('checkout.confirmation.contactBusiness.contactInfoTitle')}</strong></p>
-                                    <p>{t('checkout.confirmation.contactBusiness.phone')}: +58 414 269 3743</p>
-                                    <p>{t('checkout.confirmation.contactBusiness.email')}: orders@gundamccs.com</p>
-                                    <p>{t('checkout.confirmation.contactBusiness.website')}: www.gundamccs.com</p>
-                                    <p>{t('checkout.confirmation.contactBusiness.hours')}: {t('checkout.confirmation.contactBusiness.hoursText')}</p>
-                                </div>
-                                <div className={styles.paymentInstructions}>
-                                    <h4>{t('checkout.confirmation.contactBusiness.howWeCanHelpTitle')}</h4>
-                                    <ul>
-                                        <li>{t('checkout.confirmation.contactBusiness.help1')}</li>
-                                        <li>{t('checkout.confirmation.contactBusiness.help2')}</li>
-                                        <li>{t('checkout.confirmation.contactBusiness.help3')}</li>
-                                        <li>{t('checkout.confirmation.contactBusiness.help4')}</li>
-                                        <li>{t('checkout.confirmation.contactBusiness.help5')}</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </motion.div>
-        </motion.div>
+        <Dialog open onClose={onClose} title={selected ? t('checkout.orders.orderDetails') : t('checkout.orders.title')} placement="right">
+            {error && selected && <p role="alert" className={styles.notice}>{error}</p>}
+            {content}
+        </Dialog>
     );
 };
 
-export default Orders; 
+export default Orders;

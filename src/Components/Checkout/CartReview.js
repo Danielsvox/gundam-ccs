@@ -1,169 +1,138 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCurrency } from '../../contexts/CurrencyContext';
+import Price from '../Price/Price';
+import { ProductImage } from '../ProductCard/ProductCard';
+import { useCart } from '../../contexts/CartContext';
+import { cartAPI, API_BASE_URL } from '../../services/api';
+import { normalizeProduct } from '../../lib/productMapper';
+import { describeApiError } from '../../lib/apiError';
 import styles from './CartReview.module.css';
 
-const CartReview = ({
-    cart,
-    subtotal,
-    discountCode,
-    setDiscountCode,
-    appliedDiscount,
-    onApplyDiscount,
-    onRemoveDiscount,
-    onUpdateQuantity,
-    onRemoveItem,
-    onNext,
-    loading,
-    error
-}) => {
+const Line = ({ item, busy, onQuantity, onRemove }) => {
     const { t } = useTranslation();
-    const { currency, convertAmount, formatPrice } = useCurrency();
-    const [convertedSubtotal, setConvertedSubtotal] = useState(subtotal);
-    const [convertedDiscountAmount, setConvertedDiscountAmount] = useState(0);
-    const [convertedTotal, setConvertedTotal] = useState(0);
+    const product = useMemo(() => normalizeProduct(item.product, API_BASE_URL), [item.product]);
+    return (
+        <div className={styles.cartItem}>
+            <div className={styles.itemImage}>
+                <ProductImage product={product} />
+            </div>
+            <div className={styles.itemDetails}>
+                <h3>{product.name}</h3>
+                <div className={styles.itemPrice}><Price usd={product.price} size="sm" /></div>
+            </div>
+            <div className={styles.itemQuantity}>
+                <button type="button" disabled={busy} onClick={() => onQuantity(item.id, item.quantity - 1)} className={styles.quantityBtn} aria-label={t('cart.decrease', { name: product.name })}>−</button>
+                <span>{item.quantity}</span>
+                <button type="button" disabled={busy} onClick={() => onQuantity(item.id, item.quantity + 1)} className={styles.quantityBtn} aria-label={t('cart.increase', { name: product.name })}>+</button>
+            </div>
+            <div className={styles.itemTotal}><Price usd={item.total_price} size="sm" align="end" /></div>
+            <button type="button" disabled={busy} onClick={() => onRemove(item.id)} className={styles.removeBtn} aria-label={t('cart.remove', { name: product.name })}>×</button>
+        </div>
+    );
+};
 
-    const discountAmount = appliedDiscount ? (subtotal * appliedDiscount.discount_value / 100) : 0;
-    const total = subtotal - discountAmount;
+const CartReview = ({ onNext }) => {
+    const { t } = useTranslation();
+    const { cart, items, totals, busy, setQuantity, removeItem, refresh } = useCart();
+    const [code, setCode] = useState('');
+    const [couponBusy, setCouponBusy] = useState(false);
+    const [error, setError] = useState('');
 
-    // Convert amounts when currency changes
-    useEffect(() => {
-        const convertAmounts = async () => {
-            if (currency === 'VES') {
-                const convertedSub = await convertAmount(subtotal, 'USD', 'VES');
-                const convertedDiscount = await convertAmount(discountAmount, 'USD', 'VES');
-                const convertedTotalAmount = await convertAmount(total, 'USD', 'VES');
+    const applied = cart?.applied_coupons?.[0] || null;
 
-                setConvertedSubtotal(convertedSub);
-                setConvertedDiscountAmount(convertedDiscount);
-                setConvertedTotal(convertedTotalAmount);
-            } else {
-                setConvertedSubtotal(subtotal);
-                setConvertedDiscountAmount(discountAmount);
-                setConvertedTotal(total);
-            }
-        };
-
-        convertAmounts();
-    }, [currency, subtotal, discountAmount, total, convertAmount]);
-
-    const handleApplyDiscount = (e) => {
+    const apply = async (e) => {
         e.preventDefault();
-        onApplyDiscount();
+        if (!code.trim()) return;
+        setCouponBusy(true);
+        setError('');
+        try {
+            await cartAPI.applyCoupon(code.trim());
+            await refresh();
+            setCode('');
+        } catch (err) {
+            const info = describeApiError(err);
+            setError(info.detail || t(info.key || 'errors.unknown', info.params));
+        } finally {
+            setCouponBusy(false);
+        }
     };
+
+    const remove = async () => {
+        setCouponBusy(true);
+        setError('');
+        try {
+            await cartAPI.removeCoupon(applied.id);
+            await refresh();
+        } catch (err) {
+            const info = describeApiError(err);
+            setError(info.detail || t(info.key || 'errors.unknown', info.params));
+        } finally {
+            setCouponBusy(false);
+        }
+    };
+
+    const couponLabel = applied
+        ? `${applied.coupon?.code}${applied.coupon?.coupon_type === 'PERCENTAGE' || applied.coupon?.coupon_type === 'percentage' ? ` - ${Number(applied.coupon.value)}%` : ''}`
+        : '';
 
     return (
         <div className={styles.cartReview}>
             <div className={styles.section}>
                 <h2>{t('checkout.cartReview.title')}</h2>
-
                 <div className={styles.cartItems}>
-                    {cart.map((item) => (
-                        <div key={item.id} className={styles.cartItem}>
-                            <div className={styles.itemImage}>
-                                <img
-                                    src={item.product.image_url || '/placeholder-image.jpg'}
-                                    alt={item.product.name}
-                                />
-                            </div>
-
-                            <div className={styles.itemDetails}>
-                                <h3>{item.product.name}</h3>
-                                <p className={styles.itemPrice}>{formatPrice(parseFloat(item.product.price))}</p>
-                            </div>
-
-                            <div className={styles.itemQuantity}>
-                                <button
-                                    onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                                    disabled={item.quantity <= 1}
-                                    className={styles.quantityBtn}
-                                >
-                                    −
-                                </button>
-                                <span>{item.quantity}</span>
-                                <button
-                                    onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                                    className={styles.quantityBtn}
-                                >
-                                    +
-                                </button>
-                            </div>
-
-                            <div className={styles.itemTotal}>
-                                {formatPrice(parseFloat(item.total_price))}
-                            </div>
-
-                            <button
-                                onClick={() => onRemoveItem(item.id)}
-                                className={styles.removeBtn}
-                                aria-label="Remove item"
-                            >
-                                ×
-                            </button>
-                        </div>
+                    {items.map((item) => (
+                        <Line key={item.id} item={item} busy={busy} onQuantity={setQuantity} onRemove={removeItem} />
                     ))}
                 </div>
             </div>
 
             <div className={styles.section}>
                 <h3>{t('checkout.cartReview.discount')}</h3>
-
-                {!appliedDiscount ? (
-                    <form onSubmit={handleApplyDiscount} className={styles.discountForm}>
-                        <input
-                            type="text"
-                            value={discountCode}
-                            onChange={(e) => setDiscountCode(e.target.value)}
-                            placeholder={t('checkout.cartReview.discountPlaceholder')}
-                            className={styles.discountInput}
-                        />
-                        <button
-                            type="submit"
-                            className={styles.applyBtn}
-                            disabled={loading || !discountCode.trim()}
-                        >
-                            {loading ? t('checkout.loading') : t('checkout.cartReview.apply')}
+                {!applied ? (
+                    <form onSubmit={apply} className={styles.discountForm}>
+                        <label htmlFor="coupon" className="sr-only">{t('checkout.cartReview.discount')}</label>
+                        <input id="coupon" type="text" value={code} onChange={(e) => setCode(e.target.value)} placeholder={t('checkout.cartReview.discountPlaceholder')} className={styles.discountInput} autoComplete="off" />
+                        <button type="submit" className={styles.applyBtn} disabled={couponBusy || !code.trim()}>
+                            {couponBusy ? t('checkout.loading') : t('checkout.cartReview.apply')}
                         </button>
                     </form>
                 ) : (
                     <div className={styles.appliedDiscount}>
-                        <span>{appliedDiscount.code} - {appliedDiscount.discount_value}% off</span>
-                        <button onClick={onRemoveDiscount} className={styles.removeDiscountBtn}>
-                            {t('checkout.cartReview.remove')}
-                        </button>
+                        <span>{couponLabel}</span>
+                        <button type="button" onClick={remove} disabled={couponBusy} className={styles.removeDiscountBtn}>{t('checkout.cartReview.remove')}</button>
                     </div>
                 )}
-
-                {error && <p className={styles.error}>{error}</p>}
+                {error && <p className={styles.error} role="alert">{error}</p>}
             </div>
 
             <div className={styles.section}>
                 <div className={styles.orderSummary}>
                     <div className={styles.summaryRow}>
                         <span>{t('checkout.cartReview.subtotal')}</span>
-                        <span>{formatPrice(convertedSubtotal)}</span>
+                        <Price usd={totals.subtotal} size="sm" align="end" />
                     </div>
-
-                    {appliedDiscount && (
+                    {totals.hasDiscount && (
                         <div className={styles.summaryRow}>
                             <span>{t('checkout.cartReview.discount')}</span>
-                            <span>-{formatPrice(convertedDiscountAmount)}</span>
+                            <Price usd={totals.discount} size="sm" align="end" negative />
                         </div>
                     )}
-
+                    {totals.hasTax && (
+                        <div className={styles.summaryRow}>
+                            <span>{t('cart.tax')}</span>
+                            <Price usd={totals.tax} size="sm" align="end" />
+                        </div>
+                    )}
                     <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                         <span>{t('checkout.cartReview.total')}</span>
-                        <span>{formatPrice(convertedTotal)}</span>
+                        <Price usd={totals.total} size="md" align="end" />
                     </div>
+                    <p className={styles.note}>{t('cart.shippingNote')}</p>
                 </div>
             </div>
 
             <div className={styles.actions}>
-                <button
-                    onClick={onNext}
-                    className={styles.nextBtn}
-                    disabled={cart.length === 0}
-                >
+                <button type="button" onClick={onNext} className={styles.nextBtn} disabled={items.length === 0 || busy}>
                     {t('checkout.cartReview.continue')}
                 </button>
             </div>
@@ -171,4 +140,4 @@ const CartReview = ({
     );
 };
 
-export default CartReview; 
+export default CartReview;

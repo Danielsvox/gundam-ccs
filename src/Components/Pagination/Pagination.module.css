@@ -1,0 +1,30 @@
+.nav { display: flex; align-items: center; justify-content: center; gap: var(--s-2); margin-top: var(--s-6); }
+.pages { list-style: none; margin: 0; padding: 0; display: none; gap: var(--s-1); }
+.mobileStatus { flex: 1; text-align: center; font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text-dim); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-2);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.current { background: var(--text); color: var(--bg); border-color: var(--text); }
+.current:hover:not(:disabled) { background: var(--text); }
+.gap { display: inline-grid; place-items: center; min-width: 24px; min-height: var(--tap); color: var(--text-faint); }
+.word { display: none; }
+
+@media (min-width: 640px) {
+  .pages { display: flex; }
+  .mobileStatus { display: none; }
+  .word { display: inline; }
+}
